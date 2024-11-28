@@ -222,14 +222,6 @@ const Theme = {
       line-height: normal;
   `,
 
-    m_detail_eng: `
-      font-family: Pridi;
-      font-size: 2.25rem;
-      font-style: normal;
-      font-weight: 700;
-      line-height: 110%;
-  `,
-
     m_homeTitle_kor: `
       font-family: "Gothic A1";
       font-size: 1.6875rem;

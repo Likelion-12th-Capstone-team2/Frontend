@@ -1,17 +1,19 @@
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
+import GlobalStyle from './styles/Globalstyle';
+import { ThemeProvider } from 'styled-components';
+import Theme from './styles/Theme';
+
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <GlobalStyle />
+      <ThemeProvider theme={Theme}>
+        <Router>
+          <Routes></Routes>
+        </Router>
+      </ThemeProvider>
+    </>
   );
 }
 

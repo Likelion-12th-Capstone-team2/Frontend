@@ -119,8 +119,8 @@
   font-weight: 500;
   font-display: swap;
   src:
-    local('Pridi Midium'),
-    url(./Pridi/Pridi-Midium.ttf) format('truetype');
+    local('Pridi Medium'),
+    url(./Pridi/Pridi-Medium.ttf) format('truetype');
 }
 
 @font-face {
