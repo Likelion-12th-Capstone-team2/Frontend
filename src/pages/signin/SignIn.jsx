@@ -1,15 +1,35 @@
 import styled from 'styled-components';
-import { Iwi } from '@/assets/icons';
 
 const SignIn = () => {
   return (
     <Wrapper>
-      <Iwi style={{ width: '3.875rem' }} />
+      <Container>
+        <Title>Log in to I WANT IT!</Title>
+        <Content>
+          <p>Email</p>
+          <p>Password</p>
+        </Content>
+      </Container>
     </Wrapper>
   );
 };
 
 export default SignIn;
+
+const Container = styled.div`
+  width: 41rem;
+  border: 1px solid black;
+`;
+
+const Title = styled.p`
+  ${({ theme }) => theme.font.common_detail_eng}
+  display: flex;
+  justify-content: center;
+  padding: 1.56rem 0;
+  background-color: black;
+`;
+
+const Content = styled.div``;
 
 const Wrapper = styled.div`
   display: flex;
