@@ -7,6 +7,7 @@ const GlobalStyle = createGlobalStyle`
 
   :root{
     font-family: 'Pridi', sans-serif;
+    color: white;
   }
 
   *{
