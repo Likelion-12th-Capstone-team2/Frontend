@@ -1,8 +1,10 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
-import GlobalStyle from './styles/Globalstyle';
+import GlobalStyle from '@/styles/Globalstyle';
 import { ThemeProvider } from 'styled-components';
-import Theme from './styles/Theme';
+import Theme from '@/styles/Theme';
+
+import SignIn from './pages/signin/SignIn';
 
 function App() {
   return (
@@ -10,7 +12,9 @@ function App() {
       <GlobalStyle />
       <ThemeProvider theme={Theme}>
         <Router>
-          <Routes></Routes>
+          <Routes>
+            <Route path="/" element={<SignIn />} />
+          </Routes>
         </Router>
       </ThemeProvider>
     </>
