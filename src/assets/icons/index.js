@@ -6,3 +6,4 @@ export { default as OptionSize } from './OptionSize';
 export { default as HeartLine } from './HeartLine';
 export { default as HeartFull } from './HeartFull';
 export { default as Plus } from './Plus';
+export { default as HeartFullBlue } from './HeartFullBlue';
