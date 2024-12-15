@@ -7,6 +7,8 @@ import { ThemeProvider } from 'styled-components';
 import Theme from '@/styles/Theme';
 
 import SignIn from './pages/signin/SignIn';
+import WishRegister from './pages/wish/WishRegister';
+import WishDetail from './pages/wish/WishDetail';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<SignIn />} />
+            <Route path="/wishRegister" element={<WishRegister />} />
+            <Route path="/wishDetail" element={<WishDetail />} />
           </Routes>
         </Router>
       </ThemeProvider>
