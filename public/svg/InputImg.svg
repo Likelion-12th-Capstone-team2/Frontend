@@ -1,0 +1,45 @@
+<svg width="400" height="500" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_284_6398)">
+<rect width="80" height="80" fill="#168395"/>
+<rect x="80" width="80" height="80" fill="#FFA100"/>
+<rect x="160" width="80" height="80" fill="#168395"/>
+<rect x="240" width="80" height="80" fill="#FFA100"/>
+<rect x="320" width="80" height="80" fill="#168395"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 400 80)" fill="#FFA100"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 320 80)" fill="#168395"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 240 80)" fill="#FFA100"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 160 80)" fill="#168395"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 80 80)" fill="#FFA100"/>
+<rect y="160" width="80" height="80" fill="#168395"/>
+<rect x="80" y="160" width="80" height="80" fill="#FFA100"/>
+<rect x="160" y="160" width="80" height="80" fill="#168395"/>
+<rect x="240" y="160" width="80" height="80" fill="#FFA100"/>
+<rect x="320" y="160" width="80" height="80" fill="#168395"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 400 240)" fill="#FFA100"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 320 240)" fill="#168395"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 240 240)" fill="#FFA100"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 160 240)" fill="#168395"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 80 240)" fill="#FFA100"/>
+<rect y="320" width="80" height="80" fill="#168395"/>
+<rect x="80" y="320" width="80" height="80" fill="#FFA100"/>
+<rect x="160" y="320" width="80" height="80" fill="#168395"/>
+<rect x="240" y="320" width="80" height="80" fill="#FFA100"/>
+<rect x="320" y="320" width="80" height="80" fill="#168395"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 400 400)" fill="#FFA100"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 320 400)" fill="#168395"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 240 400)" fill="#FFA100"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 160 400)" fill="#168395"/>
+<rect width="80" height="80" transform="matrix(-1 0 0 1 80 400)" fill="#FFA100"/>
+<rect y="480" width="80" height="80" fill="#168395"/>
+<rect x="80" y="480" width="80" height="80" fill="#FFA100"/>
+<rect x="160" y="480" width="80" height="80" fill="#168395"/>
+<rect x="240" y="480" width="80" height="80" fill="#FFA100"/>
+<rect x="320" y="480" width="80" height="80" fill="#168395"/>
+<rect x="0.5" y="0.5" width="399" height="499" stroke="white"/>
+</g>
+<defs>
+<clipPath id="clip0_284_6398">
+<rect width="400" height="500" fill="white"/>
+</clipPath>
+</defs>
+</svg>
