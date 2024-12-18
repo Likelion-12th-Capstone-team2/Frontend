@@ -269,7 +269,13 @@ const Theme = {
       font-weight: 700;
       line-height: 110%;
 `,
-
+    p_clickwish_eng: `
+     font-family: Pridi;
+font-size: 1.875rem;
+font-style: normal;
+font-weight: 275;
+line-height: normal;
+`,
     p_popTitle: `
       font-family: Pridi;
       font-size: 1.875rem;
@@ -311,11 +317,11 @@ const Theme = {
 `,
 
     p_homeTitle_eng: `
-      font-family: Pretendard;
-      font-size: 6.25rem;
-      font-style: normal;
-      font-weight: 700;
-      line-height: 118.676%;
+     font-family: Pretendard;
+font-size: 3rem;
+font-style: normal;
+font-weight: 700;
+line-height: 118.676%; 
 `,
 
     p_homeTitle_eng2: `
