@@ -1,7 +1,89 @@
 import styled from 'styled-components';
 import backgroundEg from '@/assets/backgroundEg.png';
+import dummyProductImage from '@/assets/dummyitemImage.png';
+import { Delete } from '@/assets/icons';
+import { useState } from 'react';
+
+const dummyProducts = [
+  {
+    id: 1,
+    name: 'Bag 1',
+    price: 25000,
+    image: dummyProductImage,
+    received: true,
+    hearts: 3,
+  },
+  {
+    id: 2,
+    name: 'Bag 2',
+    price: 40000,
+    image: dummyProductImage,
+    received: false,
+    hearts: 5,
+  },
+  {
+    id: 3,
+    name: 'Bag 3',
+    price: 80000,
+    image: dummyProductImage,
+    received: false,
+    hearts: 2,
+  },
+  {
+    id: 4,
+    name: 'Bag 1',
+    price: 25000,
+    image: dummyProductImage,
+    received: true,
+    hearts: 4,
+  },
+  {
+    id: 5,
+    name: 'Bag 2',
+    price: 40000,
+    image: dummyProductImage,
+    received: false,
+    hearts: 1,
+  },
+  {
+    id: 6,
+    name: 'Bag 3',
+    price: 80000,
+    image: dummyProductImage,
+    received: false,
+    hearts: 0,
+  },
+];
 
 const SignIn = () => {
+  const [products, setProducts] = useState([]);
+  const [showMessage, setShowMessage] = useState(true); // 처음에는 메시지 표시
+  const [showPopup, setShowPopup] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+
+  const addProduct = () => {
+    setProducts(dummyProducts); // 상품 더미 데이터 추가
+    setShowMessage(false); // 메시지 숨김
+  };
+
+  const handleDeleteClick = (product) => {
+    setProductToDelete(product);
+    setShowPopup(true);
+  };
+
+  const confirmDelete = () => {
+    setProducts((prev) =>
+      prev.filter((item) => item.id !== productToDelete.id),
+    );
+    setProductToDelete(null);
+    setShowPopup(false);
+  };
+
+  const cancelDelete = () => {
+    setProductToDelete(null);
+    setShowPopup(false);
+  };
+
   return (
     <Wrapper>
       <Container>
@@ -29,22 +111,191 @@ const SignIn = () => {
         <Price>50,000~100,000</Price>
         <Price>100,000~</Price>
       </PriceWrapper>
-      <ClickWish>Click Here and Categorize Your WISH</ClickWish>
+      <WishWrapper>
+        {showMessage && (
+          <ClickWish onClick={addProduct}>
+            Click Here and Categorize Your WISH
+          </ClickWish>
+        )}
+      </WishWrapper>
+      <ProductGrid>
+        {products.map((product) => (
+          <ProductCard key={product.id} received={product.received}>
+            <ProductImage src={product.image} alt={product.name} />
+            {product.received && (
+              <ReceivedOverlay>
+                <Text>Received</Text>
+              </ReceivedOverlay>
+            )}
+            <Delete
+              style={{
+                position: 'absolute',
+                top: '0.3rem',
+                right: '0.3rem',
+                zIndex: 100,
+                cursor: 'pointer',
+              }}
+              onClick={() => handleDeleteClick(product)}
+            ></Delete>
+            {!product.received && <ShadowOveraly></ShadowOveraly>}
+            <HeartContainer received={product.received}>
+              {Array(product.hearts)
+                .fill('♥')
+                .map((heart, index) => (
+                  <Heart key={index}>{heart}</Heart>
+                ))}
+            </HeartContainer>
+          </ProductCard>
+        ))}
+      </ProductGrid>
+      {showPopup && (
+        <PopupOverlay>
+          <PopupContainer>
+            <PopupText>Do you wanna delete this?</PopupText>
+            <PopupItemImage></PopupItemImage>
+            <PopupActions>
+              <PopupButton onClick={confirmDelete}>No</PopupButton>
+              <PopupButton onClick={cancelDelete}>Yes</PopupButton>
+            </PopupActions>
+          </PopupContainer>
+        </PopupOverlay>
+      )}
+      ;
     </Wrapper>
   );
 };
 
 export default SignIn;
 
+const PopupOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const PopupContainer = styled.div`
+  background: white;
+  background-color: #168395;
+  box-shadow: 4px 4px 0px 0px #0e0a04;
+  width: 32.55rem;
+  height: 21.75rem;
+`;
+
+const PopupText = styled.p`
+  width: 100%;
+  background-color: black;
+  margin-bottom: 1rem;
+  height: 3.9rem;
+  padding: 1rem 1.25rem;
+  ${({ theme }) => theme.font.p_popTitle}
+`;
+const PopupItemImage = styled.div``;
+const PopupActions = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: end;
+  width: 97%;
+`;
+
+const PopupButton = styled.button`
+  padding: 0.25rem 1.125rem;
+  width: 4.375rem;
+  color: white;
+  border: none;
+  cursor: pointer;
+  ${({ theme }) => theme.font.p_btn}
+
+  &:nth-child(1) {
+    background: black;
+  }
+  &:nth-child(2) {
+    background: #ffa100;
+  }
+`;
+
+const ProductGrid = styled.div`
+  display: grid;
+  max-width: 90.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 13rem));
+  grid-template-rows: repeat(auto-fill, minmax(16.25rem, 16.25rem));
+  gap: 1rem;
+  margin: 2rem;
+  margin-left: 11.3rem;
+  margin-right: 11rem;
+`;
+
+// ReceivedOverlay 컴포넌트 추가
+const ReceivedOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+`;
+const Text = styled.p`
+  transform: rotate(-30deg);
+  ${({ theme }) => theme.font.m_home_received}
+`;
+// ProductCard 컴포넌트 수정
+const ProductCard = styled.div`
+  position: relative;
+`;
+
+const ProductImage = styled.img`
+  width: 100%;
+  height: 100%;
+`;
+
+const ShadowOveraly = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20%; // 그림자 영역 높이
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+  pointer-events: none; // 그림자가 클릭 이벤트에 영향을 주지 않도록 설정
+`;
+
+const HeartContainer = styled.div`
+  margin-top: 0.5rem;
+  text-align: end;
+  z-index: 100;
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.3rem;
+  display: ${({ received }) => (received ? 'none' : 'block')};
+`;
+
+const Heart = styled.span`
+  color: white;
+  font-size: 1.5rem;
+  margin: 0 0.1rem;
+`;
+
 const ClickWish = styled.p`
   ${({ theme }) => theme.font.p_clickwish_eng}
   background-color: white;
   color: #000;
-  width: 33.3rem;
   margin-left: 11rem;
   margin-top: 1.35rem;
+  padding: 0.4rem 0.15rem;
+  display: inline-block;
+  cursor: pointer;
 `;
 
+const WishWrapper = styled.div``;
 const Price = styled.div`
   ${({ theme }) => theme.font.p_numBtn}
   border-radius: 3.125rem;
