@@ -111,6 +111,7 @@ const SignIn = () => {
         <Price>50,000~100,000</Price>
         <Price>100,000~</Price>
       </PriceWrapper>
+      <CatagoryWrapper></CatagoryWrapper>
       <WishWrapper>
         {showMessage && (
           <ClickWish onClick={addProduct}>
@@ -148,14 +149,21 @@ const SignIn = () => {
           </ProductCard>
         ))}
       </ProductGrid>
-      {showPopup && (
+      {showPopup && productToDelete && (
         <PopupOverlay>
           <PopupContainer>
             <PopupText>Do you wanna delete this?</PopupText>
-            <PopupItemImage></PopupItemImage>
+            <PopupItemImage
+              src={productToDelete.image}
+              alt={productToDelete.name}
+            ></PopupItemImage>
+            <PopupItemName>{productToDelete.name}</PopupItemName>
+            <PopupPrice>
+              Price: {productToDelete.price.toLocaleString()} 원
+            </PopupPrice>
             <PopupActions>
-              <PopupButton onClick={confirmDelete}>No</PopupButton>
-              <PopupButton onClick={cancelDelete}>Yes</PopupButton>
+              <PopupButton onClick={cancelDelete}>No</PopupButton>
+              <PopupButton onClick={confirmDelete}>Yes</PopupButton>
             </PopupActions>
           </PopupContainer>
         </PopupOverlay>
@@ -166,6 +174,8 @@ const SignIn = () => {
 };
 
 export default SignIn;
+
+const CatagoryWrapper = styled.div``;
 
 const PopupOverlay = styled.div`
   position: fixed;
@@ -196,7 +206,12 @@ const PopupText = styled.p`
   padding: 1rem 1.25rem;
   ${({ theme }) => theme.font.p_popTitle}
 `;
-const PopupItemImage = styled.div``;
+const PopupItemImage = styled.img`
+  width: 9.2rem;
+  height: 11.5rem;
+`;
+const PopupItemName = styled.div``;
+const PopupPrice = styled.div``;
 const PopupActions = styled.div`
   display: flex;
   gap: 1rem;
