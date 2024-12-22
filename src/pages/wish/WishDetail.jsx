@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useState } from 'react';
-import { OptionColor, HeartFullBlue } from '@/assets/icons';
+import { HeartFullBlue } from '@/assets/icons';
 import backgroundEg from '@/assets/backgroundEg.png';
 import wishEg from '@/assets/wishEg.jpg';
 
@@ -26,7 +26,7 @@ const WishDetail = () => {
             <Option>
               <p>option.</p>
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <OptionColor style={{ margin: '0 0.5rem' }} />
+                <IconColor>C</IconColor>
                 <p>color</p>
               </div>
             </Option>
@@ -46,7 +46,7 @@ const WishDetail = () => {
                 <p>Received?</p>
                 <p>Not yet.</p>
               </div>
-              <From>From. 하은</From>
+              <From>From. 선우</From>
             </ReceiveCheck>
           </DetailContainer>
         </Content>
@@ -59,7 +59,7 @@ export default WishDetail;
 
 const From = styled.div`
   width: max-content;
-  margin-top: 0.75rem;
+  margin-top: 0.6rem;
   padding: 0rem 1rem;
   border-radius: 1rem;
   background: #616161;
@@ -72,7 +72,7 @@ const ReceiveCheck = styled.div`
   flex-direction: column;
   div {
     display: flex;
-    gap: 2.125rem;
+    gap: 1.7rem;
     p {
       margin: 0.125rem 0.5rem;
     }
@@ -82,7 +82,7 @@ const ReceiveCheck = styled.div`
 const WishBtn = styled.div`
   ${({ theme }) => theme.font.common_detail}
   color: #000;
-  padding: 0.375rem 1.375rem;
+  padding: 0.25rem 1.125rem;
   background: #fff;
   width: max-content;
 `;
@@ -90,26 +90,40 @@ const WishBtn = styled.div`
 const WishBtnContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin: 3.8125rem 0.5rem;
-  gap: 1rem;
+  margin: 3.05rem 0.4rem;
+  gap: 0.75rem;
+  width: fit-content;
 `;
 
 const Price = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 14rem;
+  width: 11.188rem;
   p {
     ${({ theme }) => theme.font.common_text}
   }
+`;
+
+const IconColor = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.0625rem solid white;
+  background-color: transparent;
+  border-radius: 50%;
+  ${({ theme }) => theme.font.common_detail}
+  margin-right: 0.5rem;
 `;
 
 const Option = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 14rem;
-  margin: 1.125rem 0 0.75rem 0;
+  width: 11.188rem;
+  margin: 0.9rem 0 0.6rem 0;
   p {
     ${({ theme }) => theme.font.common_text}
   }
@@ -128,7 +142,7 @@ const CategoryName = styled.div`
 `;
 
 const TopDetail = styled.div`
-  width: 40rem;
+  width: 31.375rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -139,10 +153,10 @@ const DetailContainer = styled.div``;
 const Content = styled.div`
   display: flex;
   gap: 5rem;
-  margin-top: 1.375rem;
+  margin-top: 5.886rem;
   img {
-    width: 30rem;
-    height: 37.5rem;
+    width: 23.75rem;
+    height: 30rem;
     object-fit: cover;
   }
 `;
@@ -150,9 +164,9 @@ const Content = styled.div`
 const NavBtn = styled.div`
   border: 1px solid #000;
   background: #fff;
-  ${({ theme }) => theme.font.p_btn}
+  ${({ theme }) => theme.font.m_btn}
   color: #000;
-  padding: 0.375rem 1.375rem;
+  padding: 0.25rem 1.125rem;
   cursor: pointer;
 `;
 
@@ -163,7 +177,7 @@ const NavContainer = styled.div`
 `;
 
 const Container = styled.div`
-  margin: 1.75rem 2.5rem;
+  margin: 1.406rem 10rem;
 `;
 
 const Wrapper = styled.div`

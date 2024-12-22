@@ -1,12 +1,5 @@
 import styled from 'styled-components';
-import {
-  OptionColor,
-  OptionOther,
-  OptionSize,
-  HeartLine,
-  HeartFull,
-  Plus,
-} from '@/assets/icons';
+import { HeartLine, HeartFull } from '@/assets/icons';
 import { useState } from 'react';
 
 const WishRegister = () => {
@@ -28,25 +21,16 @@ const WishRegister = () => {
         <Line position="left" />
         <Line position="right" />
         <TitleContainer>
-          <TitleWrapper
-            style={{
-              alignItems: 'flex-start',
-              margin: '0.625rem 0 0 0.625rem',
-            }}
-          >
-            <Title style={{ width: '30.3rem' }}>WHAT DO</Title>
-          </TitleWrapper>
-          <TitleWrapper
-            style={{ alignItems: 'flex-end', margin: '0 1.25rem 0.625rem 0' }}
-          >
-            <Title style={{ width: '39.3rem' }}>YOU WANT ?</Title>
-          </TitleWrapper>
+          <Title>WHAT DO YOU WANT ?</Title>
         </TitleContainer>
 
         <Content>
           <ImgInput>
             <label className="input-file-button" htmlFor="input-file">
-              Add your <br /> wish link!
+              Add your
+            </label>
+            <label className="input-file-button" htmlFor="input-file">
+              wish link!
             </label>
             <input
               type="file"
@@ -64,20 +48,20 @@ const WishRegister = () => {
             <input />
             <p>Wish Option.</p>
             <OptionInput>
-              <OptionSize style={{ color: 'white' }} />
+              <div>S</div>
               <input
                 placeholder="size"
-                style={{ width: '9.4375rem', margin: '0 1rem 0 0.5625rem' }}
+                style={{ width: '7.563rem', margin: '0 1rem 0 0.563rem' }}
               />
-              <OptionColor />
+              <div>C</div>
               <input
                 placeholder="color"
-                style={{ width: '9.4375rem', margin: '0 1rem 0 0.5625rem' }}
+                style={{ width: '7.563rem', margin: '0 1rem 0 0.563rem' }}
               />
-              <OptionOther />
+              <div>O</div>
               <input
                 placeholder="other option"
-                style={{ width: '9.4375rem', margin: '0 0 0 0.5625rem' }}
+                style={{ width: '7.563rem', margin: '0 0 0 0.563rem' }}
               />
             </OptionInput>
 
@@ -88,9 +72,8 @@ const WishRegister = () => {
                 className={isActive ? 'active' : ''}
               >
                 Bag
-              </div>{' '}
-              {/* 클릭 시 상태 반영 */}
-              <Plus />
+              </div>
+              <p>+</p>
             </CategoryInput>
 
             <p>Heart Your Wish.*</p>
@@ -113,15 +96,15 @@ export default WishRegister;
 
 const DoneBtn = styled.button`
   position: absolute;
-  right: 6.125rem;
-  top: 66.5625rem;
+  right: 12.963rem;
+  top: 41.375rem;
   border: 0;
   background-color: #bebebe;
   color: #fff;
-  ${({ theme }) => theme.font.p_btn}
-  width: 6.5625rem;
-  height: 2.625rem;
-  padding: 0.375rem 1.375rem;
+  ${({ theme }) => theme.font.m_btn}
+  width: 5rem;
+  height: 1.813rem;
+  padding: 0.25rem 1.125rem;
   cursor: pointer;
   &:hover,
   &:active {
@@ -145,11 +128,11 @@ const CategoryInput = styled.div`
   margin-bottom: 2rem;
   div {
     cursor: pointer;
-    width: 8.625rem;
-    height: 2.5rem;
+    width: 6.688rem;
+    height: 2rem;
     border-radius: 1.25rem;
     border: 1px solid #fff;
-    ${({ theme }) => theme.font.common_text}
+    ${({ theme }) => theme.font.common_detail}
     padding: 0.25rem;
     display: flex;
     justify-content: center;
@@ -159,13 +142,33 @@ const CategoryInput = styled.div`
       border: 1px solid ${({ theme }) => theme.color.orange};
     }
   }
+  p {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 0.0625rem solid white;
+    border-radius: 50%;
+    ${({ theme }) => theme.font.common_detail}
+  }
 `;
 
 const OptionInput = styled.div`
   display: flex;
   align-items: center;
-  height: 3.25rem;
+  height: 2.625rem;
   margin-bottom: 2rem;
+  div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 0.0625rem solid white;
+    border-radius: 50%;
+    ${({ theme }) => theme.font.common_detail}
+  }
 `;
 
 const OtherInput = styled.div`
@@ -174,12 +177,12 @@ const OtherInput = styled.div`
     margin-bottom: 0.25rem;
   }
   input {
-    margin-bottom: 2rem;
+    margin-bottom: 1.6rem;
     background-color: transparent;
     border: 1px solid #fff;
-    width: 28.875rem;
-    height: 3.25rem;
-    padding: 0.9375rem 1.25rem;
+    width: 23.375rem;
+    height: 2.25rem;
+    padding: 0.438em 1.063rem;
     ${({ theme }) => theme.font.common_input}
     color: white;
   }
@@ -193,41 +196,53 @@ const ImgInput = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 25rem;
-  height: 31.25rem;
+  flex-direction: column;
+  width: 20rem;
+  height: 25rem;
   border: 1px solid #fff;
-  margin-right: 5rem;
-  background-image: url('/svg/InputImg.svg');
+  margin-right: 4rem;
+  background: ${({ theme }) => theme.color.orange};
+  background-image: linear-gradient(
+      ${({ theme }) => theme.color.mint} 4.8rem,
+      transparent 4.8rem
+    ),
+    linear-gradient(
+      90deg,
+      ${({ theme }) => theme.color.mint} 4.8rem,
+      transparent 4.8rem
+    );
+  background-size: 4.8rem 4.8rem;
   label {
-    ${({ theme }) => theme.font.p_popTitle}
+    text-align: center;
+    font-family: Pridi;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
     color: ${({ theme }) => theme.color.white};
   }
 `;
 
 const Content = styled.div`
   display: flex;
-  margin: 5.3125rem 3.75rem;
+  margin: 1.875rem 3.25rem 1.25rem 4.1875rem;
+  position: relative;
 `;
 
 const Title = styled.p`
   ${({ theme }) => theme.font.p_homeTitle_eng}
   background-color:  ${({ theme }) => theme.color.yellow};
   color: black;
-  padding: 0 0.5rem;
+  padding: 0 0.521rem;
   margin: 0;
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
+  width: fit-content;
 `;
 
 const TitleContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2.375rem;
-  width: 75rem;
-  height: 18.5rem;
+  margin: 0.625rem 0.521rem;
+  width: fit-content;
 `;
 
 const Line = styled.div`
@@ -247,7 +262,7 @@ const Line = styled.div`
   ${({ position }) =>
     position === 'bottom' &&
     `
-    top: 24.75rem; 
+    top: 11.063rem; 
     left: 0rem; 
     right: 0rem; 
     height: 1px;
@@ -258,7 +273,7 @@ const Line = styled.div`
     `
     top: 0rem; 
     bottom: 0rem; 
-    left: 2.5rem; 
+    left: 8.75rem; 
     width: 1px;
     height: 200vh;
   `}
@@ -268,20 +283,20 @@ const Line = styled.div`
     `
     top: 0rem; 
     bottom: 0rem; 
-    right: 2.5rem; 
+    right: 8.75rem; 
     width: 1px;
     height: 200vh;
   `}
 `;
 
 const Container = styled.div`
-  margin: 6.25rem 2.5rem;
-  width: 100vw;
+  margin: 6.25rem 8.75rem;
+  width: 62.5rem;
 `;
 
 const Wrapper = styled.div`
   display: flex;
   /* width: 100vw; */
-  height: 200vh;
+  height: 150vh;
   background-color: ${({ theme }) => theme.color.mint};
 `;
