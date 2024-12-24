@@ -6,7 +6,7 @@ import GlobalStyle from '@/styles/Globalstyle';
 import { ThemeProvider } from 'styled-components';
 import Theme from '@/styles/Theme';
 
-import LogIn from '@/pages/signin/LogIn';
+import LogIn from '@/pages/auth/LogIn';
 import Home from '@/pages/home/Home';
 import WishRegister from '@/pages/wish/WishRegister';
 import WishDetail from '@/pages/wish/WishDetail';
