@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styled from 'styled-components';
+import AuthLayout from './components/AuthLayout';
 import { Chat } from '@/assets/icons';
 
 const LogIn = () => {
@@ -46,68 +47,44 @@ const LogIn = () => {
   };
 
   return (
-    <Wrapper>
-      <Container>
-        <Title>Log in to I WANT IT!</Title>
-        <Content>
-          <p>Email</p>
-          <Input
-            ref={emailRef}
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            $isValid={isEmailValid}
-          />
-          {!isEmailValid && (
-            <ErrorText>Please fill out the correct email format</ErrorText>
-          )}
-          <p>Password</p>
-          <Input
-            ref={passwordRef}
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            $isValid={isPasswordValid}
-          />
-          {!isPasswordValid && (
-            <ErrorText>Please fill out a valid password.</ErrorText>
-          )}
-          <Button>
-            <BtnIn>Sign in</BtnIn>
-            <BtnIn style={{ backgroundColor: 'black' }} onClick={handleLogin}>
-              Log in
-            </BtnIn>
-          </Button>
-          <BtnKakao>
-            <Chat />
-            <KakaoP>Log in with Kakao</KakaoP>
-          </BtnKakao>
-        </Content>
-      </Container>
-    </Wrapper>
+    <AuthLayout title="Log in to I WANT IT!">
+      <p>Email</p>
+      <Input
+        ref={emailRef}
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        $isValid={isEmailValid}
+      />
+      {!isEmailValid && (
+        <ErrorText>Please fill out the correct email format</ErrorText>
+      )}
+      <p>Password</p>
+      <Input
+        ref={passwordRef}
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        $isValid={isPasswordValid}
+      />
+      {!isPasswordValid && (
+        <ErrorText>Please fill out a valid password.</ErrorText>
+      )}
+      <Button>
+        <BtnIn>Sign in</BtnIn>
+        <BtnIn style={{ backgroundColor: 'black' }} onClick={handleLogin}>
+          Log in
+        </BtnIn>
+      </Button>
+      <BtnKakao>
+        <Chat />
+        <KakaoP>Log in with Kakao</KakaoP>
+      </BtnKakao>
+    </AuthLayout>
   );
 };
 
 export default LogIn;
-
-const Container = styled.div`
-  width: 41rem;
-  border: 1px solid black;
-  margin: 7.5rem 2.5rem;
-`;
-
-const Title = styled.p`
-  ${({ theme }) => theme.font.common_detail_eng}
-  display: flex;
-  justify-content: center;
-  padding: 1.56rem 0;
-  background-color: black;
-`;
-
-const Content = styled.div`
-  background-color: ${({ theme }) => theme.color.mint};
-  padding: 2.63rem 2.38rem;
-`;
 
 const Input = styled.input`
   width: 100%;
@@ -158,29 +135,4 @@ const BtnKakao = styled.div`
 const KakaoP = styled.p`
   ${({ theme }) => theme.font.common_input};
   color: black;
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: ${({ theme }) => theme.color.mint};
-  background-image: linear-gradient(
-      45deg,
-      ${({ theme }) => theme.color.orange} 25%,
-      transparent 25%,
-      transparent 75%,
-      ${({ theme }) => theme.color.orange} 75%
-    ),
-    linear-gradient(
-      45deg,
-      ${({ theme }) => theme.color.orange} 25%,
-      transparent 25%,
-      transparent 75%,
-      ${({ theme }) => theme.color.orange} 75%
-    );
-  background-size: 10rem 10rem;
-  background-position:
-    0 0,
-    5rem 5rem;
 `;
