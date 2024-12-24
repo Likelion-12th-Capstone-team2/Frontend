@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["*"],
+      "@auth/*": ["pages/auth/*"],
+      "@shared/*": ["components/*"]
     }
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/node_modules/*", "dist", "public"]
+  }
 }

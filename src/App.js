@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
-import { Iwi } from './assets/icons';
+import { Iwi } from '@/assets/icons';
 
 import GlobalStyle from '@/styles/Globalstyle';
 import { ThemeProvider } from 'styled-components';
 import Theme from '@/styles/Theme';
 
-import SignIn from './pages/signin/SignIn';
-import Home from './pages/home/Home';
-import WishRegister from './pages/wish/WishRegister';
-import WishDetail from './pages/wish/WishDetail';
+import LogIn from '@/pages/auth/LogIn';
+import Home from '@/pages/home/Home';
+import WishRegister from '@/pages/wish/WishRegister';
+import WishDetail from '@/pages/wish/WishDetail';
 
 function App() {
   return (
@@ -26,7 +26,7 @@ function App() {
         />
         <Router>
           <Routes>
-            <Route path="/" element={<SignIn />} />
+            <Route path="/" element={<LogIn />} />
             <Route path="/home" element={<Home />} />
             <Route path="/wishRegister" element={<WishRegister />} />
             <Route path="/wishDetail" element={<WishDetail />} />
