@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import styled from 'styled-components';
 
 import { Iwi } from '@/assets/icons';
 
@@ -17,14 +18,7 @@ function App() {
     <>
       <GlobalStyle />
       <ThemeProvider theme={Theme}>
-        <Iwi
-          style={{
-            width: '3.875rem',
-            position: 'fixed',
-            top: '2rem',
-            left: '2.5rem',
-          }}
-        />
+        <StyledIwi />
         <Router>
           <Routes>
             <Route path="/" element={<LogIn />} />
@@ -38,5 +32,17 @@ function App() {
     </>
   );
 }
+
+const StyledIwi = styled(Iwi)`
+  width: 3.875rem;
+  position: absolute;
+  top: 1.69rem;
+  left: 3.75rem;
+
+  ${({ theme }) => theme.mobile} {
+    top: 1rem;
+    left: 1rem;
+  }
+`;
 
 export default App;
