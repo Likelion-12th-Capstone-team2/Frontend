@@ -1,16 +1,113 @@
 import styled from 'styled-components';
 import { HeartLine, HeartFull } from '@/assets/icons';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 
 const WishRegister = () => {
   const [heartCount, setHeartCount] = useState(0);
+  const [isActive, setIsActive] = useState(false);
+  const [formData, setFormData] = useState({
+    item_name: '',
+    wish_link: '',
+    item_image: '',
+    price: '',
+    size: '',
+    color: '',
+    other_option: '',
+    category: '',
+  });
+  const [loading, setLoading] = useState(false); // 로딩 상태 관리
+  const [error, setError] = useState(null); // 오류 상태 관리
+
   const handleHeartClick = (index) => {
     setHeartCount(index + 1);
   };
 
-  const [isActive, setIsActive] = useState(false);
   const handleBagClick = () => {
     setIsActive(!isActive);
+    setFormData((prev) => ({
+      ...prev,
+      category: isActive ? '' : 12, // 예시로 category 12 설정
+    }));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleWishLinkBlur = async () => {
+    if (!formData.wish_link) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem('accessToken');
+
+      if (!token) {
+        console.error('No access token found');
+        return;
+      }
+
+      const response = await axios.post(
+        'http://ireallywantit.xyz/crawler/crawl/',
+        { url: formData.wish_link },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const { product_name, product_price, product_image } = response.data;
+      setFormData((prev) => ({
+        ...prev,
+        item_name: product_name,
+        price: product_price,
+        item_image: product_image,
+      }));
+    } catch (err) {
+      console.error('Error fetching product details:', err);
+      setError('상품 정보를 가져오는 데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    const formDataToSend = new FormData();
+    formDataToSend.append('item_name', formData.item_name);
+    formDataToSend.append('wish_link', formData.wish_link);
+    formDataToSend.append('item_image', formData.item_image);
+    formDataToSend.append('price', formData.price);
+    formDataToSend.append('size', formData.size);
+    formDataToSend.append('color', formData.color);
+    formDataToSend.append('other_option', formData.other_option);
+    formDataToSend.append('heart', heartCount);
+    formDataToSend.append('category', formData.category);
+
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await axios.post(
+        'http://ireallywantit.xyz/wish/<pk:user_id>/',
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      alert('Wish 등록 성공!');
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error posting wish:', error);
+      alert('Wish 등록 실패!');
+    }
   };
 
   return (
@@ -26,42 +123,77 @@ const WishRegister = () => {
 
         <Content>
           <ImgInput>
-            <label className="input-file-button" htmlFor="input-file">
-              Add your
-            </label>
-            <label className="input-file-button" htmlFor="input-file">
-              wish link!
-            </label>
-            <input
-              type="file"
-              id="input-file"
-              accept="image/*"
-              style={{ display: 'none' }}
-            />
+            {formData.item_image ? (
+              <img
+                src={formData.item_image}
+                alt="상품 이미지"
+                style={{ width: '100%', height: '100%' }}
+              />
+            ) : (
+              <>
+                <label className="input-file-button" htmlFor="input-file">
+                  Add your
+                </label>
+                <label className="input-file-button" htmlFor="input-file">
+                  wish link!
+                </label>
+                <input
+                  type="file"
+                  id="input-file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  disabled
+                />
+              </>
+            )}
           </ImgInput>
           <OtherInput>
             <p>Wish Link.*</p>
-            <input />
+            <input
+              name="wish_link"
+              onBlur={handleWishLinkBlur}
+              onChange={handleInputChange}
+              placeholder="Enter Wish Link"
+            />
+            {loading && <p>Loading product details...</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <p>Wish Name.*</p>
-            <input />
+            <input
+              name="item_name"
+              value={formData.item_name}
+              onChange={handleInputChange}
+              readOnly
+            />
             <p>Wish Price.*</p>
-            <input />
+            <input
+              name="price"
+              type="number"
+              value={formData.price}
+              onChange={handleInputChange}
+              readOnly
+            />
             <p>Wish Option.</p>
             <OptionInput>
               <div>S</div>
               <input
+                name="size"
                 placeholder="size"
                 style={{ width: '7.563rem', margin: '0 1rem 0 0.563rem' }}
+                onChange={handleInputChange}
               />
               <div>C</div>
               <input
+                name="color"
                 placeholder="color"
                 style={{ width: '7.563rem', margin: '0 1rem 0 0.563rem' }}
+                onChange={handleInputChange}
               />
               <div>O</div>
               <input
+                name="other_option"
                 placeholder="other option"
                 style={{ width: '7.563rem', margin: '0 0 0 0.563rem' }}
+                onChange={handleInputChange}
               />
             </OptionInput>
 
@@ -86,7 +218,7 @@ const WishRegister = () => {
             </HeartInput>
           </OtherInput>
         </Content>
-        <DoneBtn>Done</DoneBtn>
+        <DoneBtn onClick={handleSubmit}>Done</DoneBtn>
       </Container>
     </Wrapper>
   );
