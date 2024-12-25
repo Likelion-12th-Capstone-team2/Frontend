@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"],
+      "@auth/*": ["pages/auth/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}
