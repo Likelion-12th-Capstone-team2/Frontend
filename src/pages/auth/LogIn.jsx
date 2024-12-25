@@ -68,7 +68,7 @@ const LogIn = () => {
         errorText="Please fill out a valid password"
       />
       <Button>
-        <BtnIn onClick={() => navigate('/signin')}>Sign in</BtnIn>
+        <BtnIn onClick={() => navigate('/signup')}>Sign in</BtnIn>
         <BtnIn style={{ backgroundColor: 'black' }} onClick={handleLogin}>
           Log in
         </BtnIn>
