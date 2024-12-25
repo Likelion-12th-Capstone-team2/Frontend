@@ -1,12 +1,76 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { HeartFullBlue } from '@/assets/icons';
 import backgroundEg from '@/assets/backgroundEg.png';
-import wishEg from '@/assets/wishEg.jpg';
+import { useParams } from 'react-router-dom';
 
 const WishDetail = () => {
+  const [data, setData] = useState(null);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isUnsendPopupVisible, setIsUnsendPopupVisible] = useState(false);
+  const { itemId } = useParams(); // URL에서 itemId 가져오기
+  const itemIdToFetch = itemId || 2;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(
+          `http://ireallywantit.xyz/wish/items/${itemIdToFetch}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        setData(response.data);
+      } catch (error) {
+        console.error('Failed to fetch item data:', error);
+      }
+    };
+
+    fetchData();
+  }, [itemIdToFetch]);
+
+  const handleSend = () => {
+    setData((prev) => ({
+      ...prev,
+      item: {
+        ...prev.item,
+        is_sended: true,
+        sender: data.setting.name,
+      },
+    }));
+    setIsPopupVisible(false);
+  };
+
+  const handleUnsend = () => {
+    setData((prev) => ({
+      ...prev,
+      item: {
+        ...prev.item,
+        is_sended: false,
+        sender: '',
+      },
+    }));
+    setIsUnsendPopupVisible(false);
+  };
+
+  const handleFromClick = () => {
+    if (data.item.is_sended) {
+      setIsUnsendPopupVisible(true);
+    } else {
+      setIsPopupVisible(true);
+    }
+  };
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <Wrapper>
+    <Wrapper backgroundImage={data.setting.background_photo || backgroundEg}>
       <Container>
         <NavContainer>
           <NavBtn>Ding!</NavBtn>
@@ -14,25 +78,37 @@ const WishDetail = () => {
           <NavBtn>Log out</NavBtn>
         </NavContainer>
         <Content>
-          <img src={wishEg} alt="Wish Example" />
+          <img src={data.item.item_image} alt={data.item.item_name} />
           <DetailContainer>
             <TopDetail>
-              <CategoryName>Interior</CategoryName>
+              <CategoryName>{data.item.category}</CategoryName>
               <Heart>
-                <HeartFullBlue />
+                {Array.from({ length: data.item.heart }).map((_, index) => (
+                  <HeartFullBlue key={index} />
+                ))}
               </Heart>
             </TopDetail>
-            <WishName>baby furry lamp</WishName>
+            <WishName>{data.item.item_name}</WishName>
             <Option>
               <p>option.</p>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <IconColor>C</IconColor>
-                <p>color</p>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <OptionList>
+                  <Icon>S</Icon>
+                  <p>{data.item.size || 'N/A'}</p>
+                </OptionList>
+                <OptionList>
+                  <Icon>C</Icon>
+                  <p>{data.item.color || 'N/A'}</p>
+                </OptionList>
+                <OptionList>
+                  <Icon>O</Icon>
+                  <p>{data.item.other_option || 'N/A'}</p>
+                </OptionList>
               </div>
             </Option>
             <Price>
               <p>price.</p>
-              <p>₩ 61,200</p>
+              <p>{data.item.price}</p>
             </Price>
             <WishBtnContainer>
               <WishBtn>Edit details</WishBtn>
@@ -44,20 +120,123 @@ const WishDetail = () => {
             <ReceiveCheck>
               <div>
                 <p>Received?</p>
-                <p>Not yet.</p>
+                <ReceiveStatus isSended={data.item.is_sended}>
+                  {data.item.is_sended ? 'Yes' : 'Not yet.'}
+                </ReceiveStatus>
               </div>
-              <From>From. 선우</From>
+              <From onClick={handleFromClick}>
+                {data.item.is_sended
+                  ? `From. ${localStorage.getItem('username') || ''}`
+                  : typeof data.user === 'number'
+                    ? 'On me!!'
+                    : ''}
+              </From>
             </ReceiveCheck>
           </DetailContainer>
         </Content>
       </Container>
+      {isPopupVisible && (
+        <PopupOverlay>
+          <PopupContainer>
+            <PopupText>Do you wanna gift this?</PopupText>
+            <PopupItemImage
+              src={data.item.item_image}
+              alt={data.item.item_name}
+            ></PopupItemImage>
+            <PopupItemName>{data.item.item_name}</PopupItemName>
+            <PopupPrice>Price: {data.item.price}</PopupPrice>
+            <PopupActions>
+              <PopupButton onClick={() => setIsPopupVisible(false)}>
+                No
+              </PopupButton>
+              <PopupButton onClick={handleSend}>Yes</PopupButton>
+            </PopupActions>
+          </PopupContainer>
+        </PopupOverlay>
+      )}
+      {isUnsendPopupVisible && (
+        <PopupOverlay>
+          <PopupContainer>
+            <PopupText>Changed your mind?</PopupText>
+            <PopupActions>
+              <PopupButton onClick={() => setIsUnsendPopupVisible(false)}>
+                No
+              </PopupButton>
+              <PopupButton onClick={handleUnsend}>Yes</PopupButton>
+            </PopupActions>
+          </PopupContainer>
+        </PopupOverlay>
+      )}
     </Wrapper>
   );
 };
 
 export default WishDetail;
 
+const ReceiveStatus = styled.p`
+  color: ${({ theme, isSended }) => (isSended ? theme.color.orange : 'white')};
+`;
+
+const PopupOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const PopupContainer = styled.div`
+  background: white;
+  background-color: #168395;
+  box-shadow: 4px 4px 0px 0px #0e0a04;
+  width: 32.55rem;
+  height: 21.75rem;
+`;
+
+const PopupText = styled.p`
+  width: 100%;
+  background-color: black;
+  margin-bottom: 1rem;
+  height: 3.9rem;
+  padding: 1rem 1.25rem;
+  ${({ theme }) => theme.font.p_popTitle}
+`;
+const PopupItemImage = styled.img`
+  width: 9.2rem;
+  height: 11.5rem;
+`;
+const PopupItemName = styled.div``;
+const PopupPrice = styled.div``;
+const PopupActions = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: end;
+  width: 97%;
+`;
+
+const PopupButton = styled.button`
+  padding: 0.25rem 1.125rem;
+  width: 4.375rem;
+  color: white;
+  border: none;
+  cursor: pointer;
+  ${({ theme }) => theme.font.p_btn}
+
+  &:nth-child(1) {
+    background: black;
+  }
+  &:nth-child(2) {
+    background: #ffa100;
+  }
+`;
+
 const From = styled.div`
+  cursor: pointer;
   width: max-content;
   margin-top: 0.6rem;
   padding: 0rem 1rem;
@@ -98,14 +277,13 @@ const WishBtnContainer = styled.div`
 const Price = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 11.188rem;
   p {
     ${({ theme }) => theme.font.common_text}
+    margin-right: 4.48rem;
   }
 `;
 
-const IconColor = styled.div`
+const Icon = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -120,13 +298,18 @@ const IconColor = styled.div`
 
 const Option = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 11.188rem;
+  align-items: flex-start;
   margin: 0.9rem 0 0.6rem 0;
   p {
     ${({ theme }) => theme.font.common_text}
+    margin-right: 3.838rem;
   }
+`;
+
+const OptionList = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.3rem;
 `;
 
 const WishName = styled.div`
@@ -184,7 +367,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-image: url(${backgroundEg});
+  background-image: url(${(props) => props.backgroundImage || backgroundEg});
   background-repeat: repeat;
   background-size: 320px 350px;
   background-color: rgba(0, 0, 0, 0.6);

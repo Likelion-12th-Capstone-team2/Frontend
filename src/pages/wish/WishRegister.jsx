@@ -1,15 +1,17 @@
 import styled from 'styled-components';
 import { HeartLine, HeartFull } from '@/assets/icons';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import bagImg from '@/assets/bag.png'; // 삭제해야 함
+import { useNavigate } from 'react-router-dom';
 
 const WishRegister = () => {
+  const navigate = useNavigate();
   const [heartCount, setHeartCount] = useState(0);
-  const [isActive, setIsActive] = useState(false);
   const [formData, setFormData] = useState({
     item_name: '',
     wish_link: '',
-    item_image: '',
+    item_image: bagImg,
     price: '',
     size: '',
     color: '',
@@ -18,17 +20,38 @@ const WishRegister = () => {
   });
   const [loading, setLoading] = useState(false); // 로딩 상태 관리
   const [error, setError] = useState(null); // 오류 상태 관리
+  const [categories, setCategories] = useState([]); // 카테고리 목록 상태 관리
+
+  // 카테고리 항목을 불러오는 함수
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No access token found');
+      }
+
+      const response = await axios.get(
+        `http://ireallywantit.xyz/mypages/category/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setCategories(response.data); // 받아온 카테고리 데이터를 상태에 저장
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  // 페이지가 로드될 때 카테고리 데이터를 가져옴
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handleHeartClick = (index) => {
     setHeartCount(index + 1);
-  };
-
-  const handleBagClick = () => {
-    setIsActive(!isActive);
-    setFormData((prev) => ({
-      ...prev,
-      category: isActive ? '' : 12, // 예시로 category 12 설정
-    }));
   };
 
   const handleInputChange = (e) => {
@@ -44,16 +67,22 @@ const WishRegister = () => {
 
     setLoading(true);
     setError(null);
-    try {
-      const token = localStorage.getItem('accessToken');
 
+    try {
+      const token = localStorage.getItem('token');
       if (!token) {
-        console.error('No access token found');
-        return;
+        throw new Error('No access token found');
+      }
+
+      const baseUrl = process.env.REACT_APP_BASE_URL;
+      if (!baseUrl) {
+        throw new Error(
+          'Base URL is undefined. Check your .env configuration.',
+        );
       }
 
       const response = await axios.post(
-        'http://ireallywantit.xyz/crawler/crawl/',
+        `${baseUrl}/crawler/crawl/`,
         { url: formData.wish_link },
         {
           headers: {
@@ -65,12 +94,12 @@ const WishRegister = () => {
       const { product_name, product_price, product_image } = response.data;
       setFormData((prev) => ({
         ...prev,
-        item_name: product_name,
-        price: product_price,
+        item_name: product_name || prev.item_name, // 기존 입력값 유지
+        price: product_price || prev.price, // 기존 입력값 유지
         item_image: product_image,
       }));
     } catch (err) {
-      console.error('Error fetching product details:', err);
+      console.error('Error fetching product details:', err.message);
       setError('상품 정보를 가져오는 데 실패했습니다.');
     } finally {
       setLoading(false);
@@ -78,36 +107,61 @@ const WishRegister = () => {
   };
 
   const handleSubmit = async () => {
-    const formDataToSend = new FormData();
-    formDataToSend.append('item_name', formData.item_name);
-    formDataToSend.append('wish_link', formData.wish_link);
-    formDataToSend.append('item_image', formData.item_image);
-    formDataToSend.append('price', formData.price);
-    formDataToSend.append('size', formData.size);
-    formDataToSend.append('color', formData.color);
-    formDataToSend.append('other_option', formData.other_option);
-    formDataToSend.append('heart', heartCount);
-    formDataToSend.append('category', formData.category);
+    const dataToSend = {
+      id: 4,
+      item_name: formData.item_name,
+      wish_link: formData.wish_link,
+      item_image: formData.item_image,
+      price: formData.price,
+      size: formData.size,
+      color: formData.color,
+      other_option: formData.other_option,
+      heart: heartCount,
+      category: formData.category,
+    };
+
+    console.log('Data to be sent:', dataToSend);
 
     try {
       const token = localStorage.getItem('token');
+      const user_id = localStorage.getItem('user_id');
+
+      if (!user_id) {
+        throw new Error('User ID not found');
+      }
 
       const response = await axios.post(
-        'http://ireallywantit.xyz/wish/<pk:user_id>/',
-        formDataToSend,
+        `http://ireallywantit.xyz/wish/${user_id}/`,
+        dataToSend,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
           },
         },
       );
       alert('Wish 등록 성공!');
       console.log(response.data);
     } catch (error) {
-      console.error('Error posting wish:', error);
+      if (error.response) {
+        // 서버가 응답했지만 상태 코드가 2xx가 아님
+        console.error('Server responded with status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      } else if (error.request) {
+        // 요청이 전송되었으나 응답이 없음
+        console.error('No response received:', error.request);
+      } else {
+        // 요청 설정 문제
+        console.error('Error setting up request:', error.message);
+      }
       alert('Wish 등록 실패!');
     }
+  };
+
+  const handleCategoryClick = (category) => {
+    setFormData((prev) => ({
+      ...prev,
+      category: category, // 클릭한 카테고리로 설정
+    }));
   };
 
   return (
@@ -137,13 +191,6 @@ const WishRegister = () => {
                 <label className="input-file-button" htmlFor="input-file">
                   wish link!
                 </label>
-                <input
-                  type="file"
-                  id="input-file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  disabled
-                />
               </>
             )}
           </ImgInput>
@@ -161,16 +208,14 @@ const WishRegister = () => {
             <input
               name="item_name"
               value={formData.item_name}
-              onChange={handleInputChange}
-              readOnly
+              onChange={handleInputChange} // 사용자가 직접 입력 가능
             />
             <p>Wish Price.*</p>
             <input
               name="price"
               type="number"
               value={formData.price}
-              onChange={handleInputChange}
-              readOnly
+              onChange={handleInputChange} // 사용자가 직접 입력 가능
             />
             <p>Wish Option.</p>
             <OptionInput>
@@ -199,13 +244,18 @@ const WishRegister = () => {
 
             <p>Wish Category.*</p>
             <CategoryInput>
-              <div
-                onClick={handleBagClick}
-                className={isActive ? 'active' : ''}
-              >
-                Bag
-              </div>
-              <p>+</p>
+              {categories.map((category) => (
+                <div
+                  key={category.id}
+                  onClick={() => handleCategoryClick(category.category)}
+                  className={
+                    formData.category === category.category ? 'active' : ''
+                  }
+                >
+                  {category.category}
+                </div>
+              ))}
+              <Plus>+</Plus>
             </CategoryInput>
 
             <p>Heart Your Wish.*</p>
@@ -274,16 +324,20 @@ const CategoryInput = styled.div`
       border: 1px solid ${({ theme }) => theme.color.orange};
     }
   }
-  p {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border: 0.0625rem solid white;
-    border-radius: 50%;
-    ${({ theme }) => theme.font.common_detail}
-  }
+`;
+
+const Plus = styled.h1`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.0625rem solid white;
+  border-radius: 50%;
+  ${({ theme }) => theme.font.common_detail}
+  margin-bottom: 0;
+  font-size: 1.5rem;
+  font-weight: 300;
 `;
 
 const OptionInput = styled.div`
@@ -333,17 +387,26 @@ const ImgInput = styled.div`
   height: 25rem;
   border: 1px solid #fff;
   margin-right: 4rem;
-  background: ${({ theme }) => theme.color.orange};
+  background-color: ${({ theme }) => theme.color.mint};
   background-image: linear-gradient(
-      ${({ theme }) => theme.color.mint} 4.8rem,
-      transparent 4.8rem
+      45deg,
+      ${({ theme }) => theme.color.orange} 25%,
+      transparent 25%,
+      transparent 75%,
+      ${({ theme }) => theme.color.orange} 75%
     ),
     linear-gradient(
-      90deg,
-      ${({ theme }) => theme.color.mint} 4.8rem,
-      transparent 4.8rem
+      45deg,
+      ${({ theme }) => theme.color.orange} 25%,
+      transparent 25%,
+      transparent 75%,
+      ${({ theme }) => theme.color.orange} 75%
     );
-  background-size: 4.8rem 4.8rem;
+  background-size: 7.68rem 7.68rem;
+  background-position:
+    0 0,
+    3.84rem 3.84rem;
+
   label {
     text-align: center;
     font-family: Pridi;
