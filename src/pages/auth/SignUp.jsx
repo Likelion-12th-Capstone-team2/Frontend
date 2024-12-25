@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styled from 'styled-components';
 import AuthLayout from './components/AuthLayout';
@@ -13,9 +12,11 @@ const SignUp = () => {
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPasswordMatch, setIsPasswordMatch] = useState(true);
   const [step, setStep] = useState('signup');
+  const [emailError, setEmailError] = useState(
+    'Please fill out the correct email format',
+  );
   const emailRef = useRef(null);
   const passwordCheckRef = useRef(null);
-  const navigate = useNavigate();
 
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,6 +30,7 @@ const SignUp = () => {
     setIsPasswordMatch(passwordsMatch);
 
     if (!emailIsValid) {
+      setEmailError('Please fill out the correct email format');
       emailRef.current?.focus();
       return;
     }
@@ -45,6 +47,11 @@ const SignUp = () => {
       });
       setStep('onboarding');
     } catch (error) {
+      if (error.response?.status === 401) {
+        setIsEmailValid(false);
+        setEmailError('An account with this email already exists');
+        emailRef.current?.focus();
+      }
       console.error('회원가입 실패:', error);
     }
   };
@@ -60,7 +67,7 @@ const SignUp = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             isValid={isEmailValid}
-            errorText="Please fill out the correct email format"
+            errorText={emailError}
           />
           <AuthInput
             label="Password"
