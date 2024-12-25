@@ -40,7 +40,7 @@ const StyledIwi = styled(Iwi)`
   left: 3.75rem;
 
   ${({ theme }) => theme.mobile} {
-    top: 1rem;
+    top: 1.69rem;
     left: 1rem;
   }
 `;

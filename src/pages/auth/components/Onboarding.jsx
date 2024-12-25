@@ -151,6 +151,10 @@ const ColorButton = styled.button`
     props.$isSelected ? 'inset 0 0 0 3px black' : 'none'};
   border: none;
   margin-right: 0.625rem;
+
+  ${({ theme }) => theme.mobile} {
+    margin: 0 0.625rem 0.625rem 0;
+  }
 `;
 
 const TypeButton = styled.button`
@@ -160,6 +164,10 @@ const TypeButton = styled.button`
   margin-right: 1.47rem;
   font-weight: ${(props) => (props.$index < 2 ? `600` : `400`)};
   text-decoration: ${(props) => (props.$isSelected ? 'underline' : 'none')};
+
+  ${({ theme }) => theme.mobile} {
+    margin: 0 1.47rem 0.625rem 0;
+  }
 `;
 
 const DoneButton = styled.div`
