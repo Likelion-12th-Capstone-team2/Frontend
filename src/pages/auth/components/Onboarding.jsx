@@ -64,31 +64,51 @@ const Onboarding = () => {
         ref={nameRef}
         label="Name"
         value={name}
+        onChange={(e) => setName(e.target.value)}
         isValid={isNameValid}
         errorText="You can enter up to 7 letters."
       />
-      <Label>Background Photo</Label>
-      {photo ? (
-        <div></div>
-      ) : (
-        <PhotoLabel>
-          <PlusSquare style={{ width: '2.75rem' }} />
-          <HiddenInput
-            type="file"
-            onChange={handlePhotoUpload}
-            accept="image/*"
-          />
-        </PhotoLabel>
-      )}
-      <Label>Your Color</Label>
-      {colors.map((color) => (
-        <ColorButton $color={color} />
-      ))}
-      <Label>typography</Label>
-      {typos.map((typo) => (
-        <TypeButton $typo={typo}>Aa</TypeButton>
-      ))}
-      <DoneButton onClick={handleSubmit}>Done</DoneButton>
+
+      <Section>
+        <Label>Background Photo</Label>
+        {photo ? (
+          <PhotoLabel>
+            <PreviewBox>
+              <Preview src={photo} alt="photo preview" />
+              <EditBtn>Edit</EditBtn>
+            </PreviewBox>
+            <HiddenInput
+              type="file"
+              onChange={handlePhotoUpload}
+              accept="image/*"
+            />
+          </PhotoLabel>
+        ) : (
+          <PhotoLabel>
+            <PlusSquare style={{ width: '2.75rem' }} />
+            <HiddenInput
+              type="file"
+              onChange={handlePhotoUpload}
+              accept="image/*"
+            />
+          </PhotoLabel>
+        )}
+      </Section>
+
+      <Section>
+        <Label>Your Color</Label>
+        {colors.map((color) => (
+          <ColorButton $color={color} />
+        ))}
+      </Section>
+
+      <Section>
+        <Label>typography</Label>
+        {typos.map((typo) => (
+          <TypeButton $typo={typo}>Aa</TypeButton>
+        ))}
+        <DoneButton onClick={handleSubmit}>Done</DoneButton>
+      </Section>
     </>
   );
 };
@@ -100,6 +120,10 @@ const Label = styled.p`
   margin-bottom: 0.4rem;
 `;
 
+const Section = styled.div`
+  margin-bottom: 0.88rem;
+`;
+
 const HiddenInput = styled.input`
   display: none;
 `;
@@ -108,12 +132,42 @@ const PhotoLabel = styled.label`
   cursor: pointer;
 `;
 
+const PreviewBox = styled.div`
+  position: relative;
+  width: 9rem;
+  height: 9rem;
+`;
+
+const Preview = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const EditBtn = styled.div`
+  ${({ theme }) => theme.font.common_input}
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0.45rem;
+  background-color: white;
+  color: black;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  transition: all 0.15s ease-in-out;
+
+  ${PreviewBox}:hover & {
+    background-color: #ff0000;
+    color: white;
+  }
+`;
+
 const ColorButton = styled.button`
   width: 2.8rem;
   height: 2.8rem;
   background-color: ${(props) => props.$color};
   border: none;
-  margin: 0 0.625rem 1.88rem 0;
+  margin-right: 0.625rem;
 `;
 
 const TypeButton = styled.button`
