@@ -141,6 +141,13 @@ const Theme = {
       font-weight: 700;
       line-height: 110%;
   `,
+    m_home_received: `
+      font-family: Pridi;
+      font-size: 2.25rem;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 110%;
+  `,
 
     m_homeTitle_kor: `
       font-family: "Gothic A1";
@@ -248,7 +255,7 @@ const Theme = {
 
     p_btn: `
       font-family: Pretendard;
-      font-size: 1.5625rem;
+      font-size: 1.25rem;
       font-style: normal;
       font-weight: 600;
       line-height: normal;
@@ -269,10 +276,16 @@ const Theme = {
       font-weight: 700;
       line-height: 110%;
 `,
-
+    p_clickwish_eng: `
+     font-family: Pridi;
+font-size: 1.875rem;
+font-style: normal;
+font-weight: 275;
+line-height: normal;
+`,
     p_popTitle: `
       font-family: Pridi;
-      font-size: 1.875rem;
+      font-size: 1.5rem;
       font-style: normal;
       font-weight: 400;
       line-height: normal;

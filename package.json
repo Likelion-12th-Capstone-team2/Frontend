@@ -14,9 +14,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "test": "craco test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject",
     "svgr": "npx @svgr/cli -d src/assets/icons --ignore-existing --no-dimensions public/svg"
   },
@@ -40,6 +40,7 @@
   },
   "devDependencies": {
     "@craco/craco": "^7.1.0",
-    "@svgr/webpack": "^8.1.0"
+    "@svgr/webpack": "^8.1.0",
+    "react-app-rewired": "^2.2.1"
   }
 }
