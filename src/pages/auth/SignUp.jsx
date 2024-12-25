@@ -12,7 +12,7 @@ const SignUp = () => {
   const [passwordCheck, setPasswordCheck] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPasswordMatch, setIsPasswordMatch] = useState(true);
-  const [step, setStep] = useState('onboarding');
+  const [step, setStep] = useState('signup');
   const emailRef = useRef(null);
   const passwordCheckRef = useRef(null);
   const navigate = useNavigate();

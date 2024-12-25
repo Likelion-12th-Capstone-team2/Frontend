@@ -1,62 +1,26 @@
-import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 import AuthInput from './AuthInput';
 import { PlusSquare } from '@/assets/icons';
+import { useMypage } from '@/hooks/useMyPage';
 
 const Onboarding = () => {
   const nameRef = useRef(null);
-  const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [isNameValid, setIsNameValid] = useState(true);
-  const [photo, setPhoto] = useState(null);
-  const [selectedColor, setSelectedColor] = useState('');
-  const [selectedTypo, setSelectedTypo] = useState('');
+  const {
+    name,
+    setName,
+    preview,
+    isNameValid,
+    color,
+    setColor,
+    typo,
+    setTypo,
+    handlePhotoUpload,
+    handleSubmit,
+  } = useMypage();
 
   const colors = ['#FEF78C', '#FFA100', '#FF5356', '#0C4CFF', '#6D29FF'];
   const typos = ['Pridi', 'Pretendard', 'Gothic A1', 'Gowun Batang'];
-
-  const validateName = (name) => {
-    return name.length > 0 && name.length <= 7;
-  };
-
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setPhoto(URL.createObjectURL(file));
-    }
-  };
-
-  const handleSubmit = async () => {
-    const nameIsValid = validateName(name);
-    setIsNameValid(nameIsValid);
-
-    if (!nameIsValid) {
-      nameRef.current?.focus();
-      return;
-    }
-
-    try {
-      await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/mypage/`,
-        {
-          name,
-          background_photo: photo,
-          color: selectedColor,
-          typography: selectedTypo,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        },
-      );
-      navigate('/home');
-    } catch (error) {
-      console.error('프로필 설정 실패:', error);
-    }
-  };
 
   return (
     <>
@@ -72,10 +36,10 @@ const Onboarding = () => {
       {/* 사진 업로드 및 변경 */}
       <Section>
         <Label>Background Photo</Label>
-        {photo ? (
+        {preview ? (
           <PhotoLabel>
             <PreviewBox>
-              <Preview src={photo} alt="photo preview" />
+              <Preview src={preview} alt="photo preview" />
               <EditBtn>Edit</EditBtn>
             </PreviewBox>
             <HiddenInput
@@ -99,12 +63,12 @@ const Onboarding = () => {
       {/* 컬러 선택 */}
       <Section>
         <Label>Your Color</Label>
-        {colors.map((color) => (
+        {colors.map((c) => (
           <ColorButton
-            key={color}
-            $color={color}
-            $isSelected={selectedColor === color}
-            onClick={() => setSelectedColor(color)}
+            key={c}
+            $color={c}
+            $isSelected={color === c}
+            onClick={() => setColor(c)}
           />
         ))}
       </Section>
@@ -112,13 +76,13 @@ const Onboarding = () => {
       {/* 폰트 선택 */}
       <Section>
         <Label>typography</Label>
-        {typos.map((typo, index) => (
+        {typos.map((t, index) => (
           <TypeButton
-            key={typo}
-            $typo={typo}
+            key={t}
+            $typo={t}
             $index={index}
-            $isSelected={selectedTypo === typo}
-            onClick={() => setSelectedTypo(typo)}
+            $isSelected={typo === t}
+            onClick={() => setTypo(t)}
           >
             {index < 2 ? `Aa` : `가나다`}
           </TypeButton>
@@ -204,4 +168,5 @@ const DoneButton = styled.div`
   padding: 0.25rem 0.75rem;
   margin: 3.24rem auto 0;
   background-color: black;
+  cursor: pointer;
 `;
