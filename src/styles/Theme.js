@@ -7,6 +7,8 @@ const Theme = {
     yellow: '#FEF78C',
   },
 
+  mobile: `@media (max-width: 768px)`,
+
   font: {
     common_input: `
       font-family: Pretendard;

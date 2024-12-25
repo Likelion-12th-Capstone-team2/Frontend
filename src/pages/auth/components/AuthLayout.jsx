@@ -15,7 +15,7 @@ export default AuthLayout;
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   background-color: ${({ theme }) => theme.color.mint};
   background-image: linear-gradient(
       45deg,
@@ -41,6 +41,11 @@ const Container = styled.div`
   width: 41rem;
   border: 1px solid black;
   margin: 7.5rem 2.5rem;
+
+  ${({ theme }) => theme.mobile} {
+    width: 90%;
+    margin: 7.5rem auto 5rem;
+  }
 `;
 
 const Title = styled.p`
