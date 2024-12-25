@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styled from 'styled-components';
 import AuthLayout from './components/AuthLayout';
+import AuthInput from './components/AuthInput';
 import { Chat } from '@/assets/icons';
 
 const LogIn = () => {
@@ -48,30 +49,26 @@ const LogIn = () => {
 
   return (
     <AuthLayout title="Log in to I WANT IT!">
-      <p>Email</p>
-      <Input
+      <AuthInput
         ref={emailRef}
+        label="Email"
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        $isValid={isEmailValid}
+        isValid={isEmailValid}
+        errorText="Please fill out the correct email format"
       />
-      {!isEmailValid && (
-        <ErrorText>Please fill out the correct email format</ErrorText>
-      )}
-      <p>Password</p>
-      <Input
+      <AuthInput
         ref={passwordRef}
+        label="Password"
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        $isValid={isPasswordValid}
+        isValid={isPasswordValid}
+        errorText="Please fill out a valid password"
       />
-      {!isPasswordValid && (
-        <ErrorText>Please fill out a valid password.</ErrorText>
-      )}
       <Button>
-        <BtnIn>Sign in</BtnIn>
+        <BtnIn onClick={() => navigate('/signup')}>Sign in</BtnIn>
         <BtnIn style={{ backgroundColor: 'black' }} onClick={handleLogin}>
           Log in
         </BtnIn>
@@ -85,27 +82,6 @@ const LogIn = () => {
 };
 
 export default LogIn;
-
-const Input = styled.input`
-  width: 100%;
-  height: 3rem;
-  padding: 0 1rem;
-  margin: 0.62rem 0 1rem;
-  ${({ theme }) => theme.font.common_input};
-  border: 1px solid black;
-
-  &:focus {
-    border: none;
-    outline: 2px solid ${(props) => (props.$isValid ? '#87dbe9' : '#ff5a5a')};
-  }
-`;
-
-const ErrorText = styled.p`
-  color: #ff5a5a;
-  font-size: 0.875rem;
-  margin-top: -0.5rem;
-  margin-bottom: 0.5rem;
-`;
 
 const Button = styled.div`
   display: flex;
