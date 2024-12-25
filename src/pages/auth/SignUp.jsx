@@ -4,6 +4,7 @@ import axios from 'axios';
 import styled from 'styled-components';
 import AuthLayout from './components/AuthLayout';
 import AuthInput from './components/AuthInput';
+import Onboarding from './components/Onboarding';
 
 const SignUp = () => {
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ const SignUp = () => {
   const [passwordCheck, setPasswordCheck] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPasswordMatch, setIsPasswordMatch] = useState(true);
+  const [step, setStep] = useState('onboarding');
   const emailRef = useRef(null);
   const passwordCheckRef = useRef(null);
   const navigate = useNavigate();
@@ -41,7 +43,7 @@ const SignUp = () => {
         email,
         password,
       });
-      navigate('/');
+      setStep('onboarding');
     } catch (error) {
       console.error('회원가입 실패:', error);
     }
@@ -49,33 +51,39 @@ const SignUp = () => {
 
   return (
     <AuthLayout title="Sign up to I WANT IT!">
-      <AuthInput
-        ref={emailRef}
-        label="Email"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        isValid={isEmailValid}
-        errorText="Please fill out the correct email format"
-      />
-      <AuthInput
-        label="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <AuthInput
-        ref={passwordCheckRef}
-        label="Check the Password"
-        type="password"
-        value={passwordCheck}
-        onChange={(e) => setPasswordCheck(e.target.value)}
-        isValid={isPasswordMatch}
-        errorText="Password does not match"
-      />
-      <Button>
-        <BtnIn onClick={handleSignUp}>Sign up</BtnIn>
-      </Button>
+      {step === 'signup' ? (
+        <>
+          <AuthInput
+            ref={emailRef}
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            isValid={isEmailValid}
+            errorText="Please fill out the correct email format"
+          />
+          <AuthInput
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <AuthInput
+            ref={passwordCheckRef}
+            label="Check the Password"
+            type="password"
+            value={passwordCheck}
+            onChange={(e) => setPasswordCheck(e.target.value)}
+            isValid={isPasswordMatch}
+            errorText="Password does not match"
+          />
+          <Button>
+            <BtnIn onClick={handleSignUp}>Sign up</BtnIn>
+          </Button>{' '}
+        </>
+      ) : (
+        <Onboarding />
+      )}
     </AuthLayout>
   );
 };
