@@ -11,8 +11,8 @@ const Onboarding = () => {
   const [name, setName] = useState('');
   const [isNameValid, setIsNameValid] = useState(true);
   const [photo, setPhoto] = useState(null);
-  const [color, setColor] = useState('');
-  const [typo, setTypo] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedTypo, setSelectedTypo] = useState('');
 
   const colors = ['#FEF78C', '#FFA100', '#FF5356', '#0C4CFF', '#6D29FF'];
   const typos = ['Pridi', 'Pretendard', 'Gothic A1', 'Gowun Batang'];
@@ -43,8 +43,8 @@ const Onboarding = () => {
         {
           name,
           background_photo: photo,
-          color,
-          typography: typo,
+          color: selectedColor,
+          typography: selectedTypo,
         },
         {
           headers: {
@@ -98,7 +98,12 @@ const Onboarding = () => {
       <Section>
         <Label>Your Color</Label>
         {colors.map((color) => (
-          <ColorButton $color={color} />
+          <ColorButton
+            key={color}
+            $color={color}
+            $isSelected={selectedColor === color}
+            onClick={() => setSelectedColor(color)}
+          />
         ))}
       </Section>
 
@@ -166,6 +171,8 @@ const ColorButton = styled.button`
   width: 2.8rem;
   height: 2.8rem;
   background-color: ${(props) => props.$color};
+  box-shadow: ${(props) =>
+    props.$isSelected ? 'inset 0 0 0 3px black' : 'none'};
   border: none;
   margin-right: 0.625rem;
 `;
