@@ -69,6 +69,7 @@ const Onboarding = () => {
         errorText="You can enter up to 7 letters."
       />
 
+      {/* 사진 업로드 및 변경 */}
       <Section>
         <Label>Background Photo</Label>
         {photo ? (
@@ -95,6 +96,7 @@ const Onboarding = () => {
         )}
       </Section>
 
+      {/* 컬러 선택 */}
       <Section>
         <Label>Your Color</Label>
         {colors.map((color) => (
@@ -107,13 +109,23 @@ const Onboarding = () => {
         ))}
       </Section>
 
+      {/* 폰트 선택 */}
       <Section>
         <Label>typography</Label>
-        {typos.map((typo) => (
-          <TypeButton $typo={typo}>Aa</TypeButton>
+        {typos.map((typo, index) => (
+          <TypeButton
+            key={typo}
+            $typo={typo}
+            $index={index}
+            $isSelected={selectedTypo === typo}
+            onClick={() => setSelectedTypo(typo)}
+          >
+            {index < 2 ? `Aa` : `가나다`}
+          </TypeButton>
         ))}
-        <DoneButton onClick={handleSubmit}>Done</DoneButton>
       </Section>
+
+      <DoneButton onClick={handleSubmit}>Done</DoneButton>
     </>
   );
 };
@@ -182,13 +194,14 @@ const TypeButton = styled.button`
   font-family: ${(props) => props.$typo};
   font-size: 2rem;
   margin-right: 1.47rem;
-  font-weight: 600;
+  font-weight: ${(props) => (props.$index < 2 ? `600` : `400`)};
+  text-decoration: ${(props) => (props.$isSelected ? 'underline' : 'none')};
 `;
 
 const DoneButton = styled.div`
   ${({ theme }) => theme.font.m_btn};
   width: fit-content;
   padding: 0.25rem 0.75rem;
-  margin: 0 auto;
+  margin: 3.24rem auto 0;
   background-color: black;
 `;
