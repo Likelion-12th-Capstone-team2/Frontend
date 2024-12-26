@@ -114,6 +114,7 @@ const Home = () => {
         name: cat.category,
         id: cat.id,
       }));
+
       setCategories([{ name: 'All', id: null }, ...categoryList]);
       setProducts(data.wish_items);
       setShowMessage(data.wish_items.length === 0);
@@ -241,7 +242,7 @@ const Home = () => {
                     )}
                     {!product.is_sended && <ShadowOveraly />}
                     <HeartContainer received={product.is_sended}>
-                      {Array(product.hearts)
+                      {Array(product.heart)
                         .fill('♥')
                         .map((heart, index) => (
                           <Heart key={index}>{heart}</Heart>
@@ -265,7 +266,7 @@ const Home = () => {
             </ProductGrid>
             <BottomWrapper>
               <button onClick={toggleDeleteMode}>
-                {showDeleteIcons ? 'done' : 'delete'}
+                {showDeleteIcons ? 'Done' : 'Delete'}
               </button>
               <button onClick={() => navigate('/wishRegister')}>Add</button>
             </BottomWrapper>
@@ -304,10 +305,34 @@ const Home = () => {
 export default Home;
 const PopupOption = styled.div``;
 const MiddleWrapper = styled.div``;
-const BottomWrapper = styled.div``;
+const BottomWrapper = styled.div`
+  position: absolute;
+  right: 12rem;
+  display: flex;
+  > button {
+    display: flex;
+    padding: 0.25rem 1.125rem;
+    justify-content: center;
+    align-items: center;
+    gap: 0.375rem;
+    ${({ theme }) => theme.font.p_btn}
+  }
+
+  > button:nth-child(1) {
+    color: white;
+    background-color: black;
+    margin-right: 1rem;
+  }
+  > button:nth-child(2) {
+    color: black;
+    background-color: #ffa100;
+    border: none;
+  }
+`;
+
 const CatagoryContainer = styled.div`
   width: 79%;
-  height: 9rem;
+  height: 6rem;
   position: relative; /* 자식 요소의 위치를 제한 */
   display: flex;
   align-items: center;
@@ -403,7 +428,7 @@ const ProductGrid = styled.div`
   display: grid;
   max-width: 90.5rem;
   grid-template-columns: repeat(auto-fill, minmax(13rem, 13rem));
-  grid-template-rows: repeat(auto-fill, minmax(16.25rem, 16.25rem));
+  grid-auto-rows: 16.25rem; /* 행 높이를 고정 */
   gap: 1rem;
   margin: 2rem;
   margin-left: 11.3rem;
