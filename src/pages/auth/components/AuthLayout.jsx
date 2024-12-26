@@ -9,6 +9,7 @@ const AuthLayout = ({ title, activeTitle, onTitleClick, children }) => (
           title.map((t) => (
             <Title
               key={t}
+              $title={title}
               $isActive={activeTitle === t}
               onClick={() => onTitleClick(t)}
               $width={`${100 / title.length}%`}
@@ -74,16 +75,18 @@ const Title = styled.p`
   text-align: center;
   cursor: pointer;
   padding: 1.56rem 0;
-  ${(props) =>
-    Array.isArray(props.$titles)
-      ? `
-    color: ${props.$active ? 'white' : 'black'};
-    background-color: ${props.$active ? 'black' : '#168395'};
-  `
-      : `
-    color: white;
-    background-color: black;
-  `}
+  color: ${(props) =>
+    Array.isArray(props.$title)
+      ? props.$isActive
+        ? 'white'
+        : 'black'
+      : 'white'};
+  background-color: ${(props) =>
+    Array.isArray(props.$title)
+      ? props.$isActive
+        ? 'black'
+        : '#168395'
+      : 'black'};
 `;
 
 const Content = styled.div`
