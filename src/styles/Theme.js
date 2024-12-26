@@ -246,11 +246,11 @@ const Theme = {
   `,
 
     p_category: `
-      font-family: Pridi;
-      font-size: 2rem;
-      font-style: normal;
-      font-weight: 275;
-      line-height: normal;
+   font-family: Pridi;
+font-size: 1.5625rem;
+font-style: normal;
+font-weight: 275;
+line-height: normal;
 `,
 
     p_btn: `
@@ -262,11 +262,11 @@ const Theme = {
 `,
 
     p_numBtn: `
-      font-family: Pridi;
-      font-size: 1.5625rem;
-      font-style: normal;
-      font-weight: 300;
-      line-height: normal;
+   font-family: Pridi;
+font-size: 1.25rem;
+font-style: normal;
+font-weight: 300;
+line-height: normal;
 `,
 
     p_detail_eng: `
