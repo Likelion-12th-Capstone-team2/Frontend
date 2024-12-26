@@ -1,23 +1,166 @@
 import styled from 'styled-components';
-import {
-  OptionColor,
-  OptionOther,
-  OptionSize,
-  HeartLine,
-  HeartFull,
-  Plus,
-} from '@/assets/icons';
-import { useState } from 'react';
+import { HeartLine, HeartFull } from '@/assets/icons';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const WishRegister = () => {
+  const navigate = useNavigate();
   const [heartCount, setHeartCount] = useState(0);
+  const [formData, setFormData] = useState({
+    item_name: '',
+    wish_link: '',
+    item_image: '',
+    price: '',
+    size: '',
+    color: '',
+    other_option: '',
+    category: '',
+  });
+  const [loading, setLoading] = useState(false); // 로딩 상태 관리
+  const [error, setError] = useState(null); // 오류 상태 관리
+  const [categories, setCategories] = useState([]); // 카테고리 목록 상태 관리
+
+  // 카테고리 항목을 불러오는 함수
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No access token found');
+      }
+
+      const response = await axios.get(
+        `http://ireallywantit.xyz/mypages/category/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setCategories(response.data); // 받아온 카테고리 데이터를 상태에 저장
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  // 페이지가 로드될 때 카테고리 데이터를 가져옴
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
   const handleHeartClick = (index) => {
     setHeartCount(index + 1);
   };
 
-  const [isActive, setIsActive] = useState(false);
-  const handleBagClick = () => {
-    setIsActive(!isActive);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleWishLinkBlur = async () => {
+    if (!formData.wish_link) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No access token found');
+      }
+
+      const baseUrl = process.env.REACT_APP_BASE_URL;
+      if (!baseUrl) {
+        throw new Error(
+          'Base URL is undefined. Check your .env configuration.',
+        );
+      }
+
+      const response = await axios.post(
+        `${baseUrl}/crawler/crawl/`,
+        { url: formData.wish_link },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const { product_name, product_price, product_image } = response.data;
+      setFormData((prev) => ({
+        ...prev,
+        item_name: product_name || prev.item_name, // 기존 입력값 유지
+        price: product_price || prev.price, // 기존 입력값 유지
+        item_image: product_image,
+      }));
+    } catch (err) {
+      console.error('Error fetching product details:', err.message);
+      setError('상품 정보를 가져오는 데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    const dataToSend = {
+      item_name: formData.item_name,
+      wish_link: formData.wish_link,
+      item_image: formData.item_image,
+      price: formData.price,
+      size: formData.size,
+      color: formData.color,
+      other_option: formData.other_option,
+      heart: heartCount,
+      category: formData.category,
+    };
+
+    console.log('Data to be sent:', dataToSend);
+
+    try {
+      const token = localStorage.getItem('token');
+      const user_id = localStorage.getItem('user_id');
+
+      if (!user_id) {
+        throw new Error('User ID not found');
+      }
+
+      const response = await axios.post(
+        `http://ireallywantit.xyz/wish/${user_id}/`,
+        dataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      alert('Wish 등록 성공!');
+      console.log(response.data);
+      navigate('/home');
+    } catch (error) {
+      if (error.response) {
+        // 서버가 응답했지만 상태 코드가 2xx가 아님
+        console.error('Server responded with status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      } else if (error.request) {
+        // 요청이 전송되었으나 응답이 없음
+        console.error('No response received:', error.request);
+      } else {
+        // 요청 설정 문제
+        console.error('Error setting up request:', error.message);
+      }
+      alert('Wish 등록 실패!');
+    }
+  };
+
+  const handleCategoryClick = (selectedCategory) => {
+    setFormData((prev) => ({
+      ...prev,
+      category: selectedCategory.id, // 선택한 카테고리의 id를 저장
+    }));
   };
 
   return (
@@ -28,69 +171,87 @@ const WishRegister = () => {
         <Line position="left" />
         <Line position="right" />
         <TitleContainer>
-          <TitleWrapper
-            style={{
-              alignItems: 'flex-start',
-              margin: '0.625rem 0 0 0.625rem',
-            }}
-          >
-            <Title style={{ width: '30.3rem' }}>WHAT DO</Title>
-          </TitleWrapper>
-          <TitleWrapper
-            style={{ alignItems: 'flex-end', margin: '0 1.25rem 0.625rem 0' }}
-          >
-            <Title style={{ width: '39.3rem' }}>YOU WANT ?</Title>
-          </TitleWrapper>
+          <Title>WHAT DO YOU WANT ?</Title>
         </TitleContainer>
 
         <Content>
           <ImgInput>
-            <label className="input-file-button" htmlFor="input-file">
-              Add your <br /> wish link!
-            </label>
-            <input
-              type="file"
-              id="input-file"
-              accept="image/*"
-              style={{ display: 'none' }}
-            />
+            {formData.item_image ? (
+              <img
+                src={formData.item_image}
+                alt="상품 이미지"
+                style={{ width: '100%', height: '100%' }}
+              />
+            ) : (
+              <>
+                <label className="input-file-button" htmlFor="input-file">
+                  Add your
+                </label>
+                <label className="input-file-button" htmlFor="input-file">
+                  wish link!
+                </label>
+              </>
+            )}
           </ImgInput>
           <OtherInput>
             <p>Wish Link.*</p>
-            <input />
+            <input
+              name="wish_link"
+              onBlur={handleWishLinkBlur}
+              onChange={handleInputChange}
+            />
+            {loading && <p>Loading product details...</p>}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <p>Wish Name.*</p>
-            <input />
+            <input
+              name="item_name"
+              value={formData.item_name}
+              onChange={handleInputChange} // 사용자가 직접 입력 가능
+            />
             <p>Wish Price.*</p>
-            <input />
+            <input
+              name="price"
+              type="number"
+              value={formData.price}
+              onChange={handleInputChange} // 사용자가 직접 입력 가능
+            />
             <p>Wish Option.</p>
             <OptionInput>
-              <OptionSize style={{ color: 'white' }} />
+              <div>S</div>
               <input
+                name="size"
                 placeholder="size"
-                style={{ width: '9.4375rem', margin: '0 1rem 0 0.5625rem' }}
+                style={{ width: '7.563rem', margin: '0 1rem 0 0.563rem' }}
+                onChange={handleInputChange}
               />
-              <OptionColor />
+              <div>C</div>
               <input
+                name="color"
                 placeholder="color"
-                style={{ width: '9.4375rem', margin: '0 1rem 0 0.5625rem' }}
+                style={{ width: '7.563rem', margin: '0 1rem 0 0.563rem' }}
+                onChange={handleInputChange}
               />
-              <OptionOther />
+              <div>O</div>
               <input
+                name="other_option"
                 placeholder="other option"
-                style={{ width: '9.4375rem', margin: '0 0 0 0.5625rem' }}
+                style={{ width: '7.563rem', margin: '0 0 0 0.563rem' }}
+                onChange={handleInputChange}
               />
             </OptionInput>
 
             <p>Wish Category.*</p>
             <CategoryInput>
-              <div
-                onClick={handleBagClick}
-                className={isActive ? 'active' : ''}
-              >
-                Bag
-              </div>{' '}
-              {/* 클릭 시 상태 반영 */}
-              <Plus />
+              {categories.map((category) => (
+                <div
+                  key={category.id}
+                  onClick={() => handleCategoryClick(category)} // 객체 전체를 전달
+                  className={formData.category === category.id ? 'active' : ''} // id 비교
+                >
+                  {category.category} {/* 사용자에게 보여줄 텍스트 */}
+                </div>
+              ))}
+              <Plus>+</Plus>
             </CategoryInput>
 
             <p>Heart Your Wish.*</p>
@@ -103,7 +264,7 @@ const WishRegister = () => {
             </HeartInput>
           </OtherInput>
         </Content>
-        <DoneBtn>Done</DoneBtn>
+        <DoneBtn onClick={handleSubmit}>Done</DoneBtn>
       </Container>
     </Wrapper>
   );
@@ -113,15 +274,15 @@ export default WishRegister;
 
 const DoneBtn = styled.button`
   position: absolute;
-  right: 6.125rem;
-  top: 66.5625rem;
+  right: 12.963rem;
+  top: 41.375rem;
   border: 0;
   background-color: #bebebe;
   color: #fff;
-  ${({ theme }) => theme.font.p_btn}
-  width: 6.5625rem;
-  height: 2.625rem;
-  padding: 0.375rem 1.375rem;
+  ${({ theme }) => theme.font.m_btn}
+  width: 5rem;
+  height: 1.813rem;
+  padding: 0.25rem 1.125rem;
   cursor: pointer;
   &:hover,
   &:active {
@@ -145,11 +306,11 @@ const CategoryInput = styled.div`
   margin-bottom: 2rem;
   div {
     cursor: pointer;
-    width: 8.625rem;
-    height: 2.5rem;
+    width: 6.688rem;
+    height: 2rem;
     border-radius: 1.25rem;
     border: 1px solid #fff;
-    ${({ theme }) => theme.font.common_text}
+    ${({ theme }) => theme.font.common_detail}
     padding: 0.25rem;
     display: flex;
     justify-content: center;
@@ -161,11 +322,35 @@ const CategoryInput = styled.div`
   }
 `;
 
+const Plus = styled.h1`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.0625rem solid white;
+  border-radius: 50%;
+  ${({ theme }) => theme.font.common_detail}
+  margin-bottom: 0;
+  font-size: 1.5rem;
+  font-weight: 300;
+`;
+
 const OptionInput = styled.div`
   display: flex;
   align-items: center;
-  height: 3.25rem;
+  height: 2.625rem;
   margin-bottom: 2rem;
+  div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 0.0625rem solid white;
+    border-radius: 50%;
+    ${({ theme }) => theme.font.common_detail}
+  }
 `;
 
 const OtherInput = styled.div`
@@ -174,12 +359,12 @@ const OtherInput = styled.div`
     margin-bottom: 0.25rem;
   }
   input {
-    margin-bottom: 2rem;
+    margin-bottom: 1.6rem;
     background-color: transparent;
     border: 1px solid #fff;
-    width: 28.875rem;
-    height: 3.25rem;
-    padding: 0.9375rem 1.25rem;
+    width: 23.375rem;
+    height: 2.25rem;
+    padding: 0.438em 1.063rem;
     ${({ theme }) => theme.font.common_input}
     color: white;
   }
@@ -193,41 +378,62 @@ const ImgInput = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 25rem;
-  height: 31.25rem;
+  flex-direction: column;
+  width: 20rem;
+  height: 25rem;
   border: 1px solid #fff;
-  margin-right: 5rem;
-  background-image: url('/svg/InputImg.svg');
+  margin-right: 4rem;
+  background-color: ${({ theme }) => theme.color.mint};
+  background-image: linear-gradient(
+      45deg,
+      ${({ theme }) => theme.color.orange} 25%,
+      transparent 25%,
+      transparent 75%,
+      ${({ theme }) => theme.color.orange} 75%
+    ),
+    linear-gradient(
+      45deg,
+      ${({ theme }) => theme.color.orange} 25%,
+      transparent 25%,
+      transparent 75%,
+      ${({ theme }) => theme.color.orange} 75%
+    );
+  background-size: 7.68rem 7.68rem;
+  background-position:
+    0 0,
+    3.84rem 3.84rem;
+
   label {
-    ${({ theme }) => theme.font.p_popTitle}
+    text-align: center;
+    font-family: Pridi;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
     color: ${({ theme }) => theme.color.white};
   }
 `;
 
 const Content = styled.div`
   display: flex;
-  margin: 5.3125rem 3.75rem;
+  margin: 1.875rem 3.25rem 1.25rem 4.1875rem;
+  position: relative;
 `;
 
 const Title = styled.p`
   ${({ theme }) => theme.font.p_homeTitle_eng}
   background-color:  ${({ theme }) => theme.color.yellow};
   color: black;
-  padding: 0 0.5rem;
+  padding: 0 0.521rem;
   margin: 0;
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
+  width: fit-content;
 `;
 
 const TitleContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2.375rem;
-  width: 75rem;
-  height: 18.5rem;
+  margin: 0.625rem 0.521rem;
+  width: fit-content;
 `;
 
 const Line = styled.div`
@@ -247,7 +453,7 @@ const Line = styled.div`
   ${({ position }) =>
     position === 'bottom' &&
     `
-    top: 24.75rem; 
+    top: 11.063rem; 
     left: 0rem; 
     right: 0rem; 
     height: 1px;
@@ -258,7 +464,7 @@ const Line = styled.div`
     `
     top: 0rem; 
     bottom: 0rem; 
-    left: 2.5rem; 
+    left: 8.75rem; 
     width: 1px;
     height: 200vh;
   `}
@@ -268,20 +474,20 @@ const Line = styled.div`
     `
     top: 0rem; 
     bottom: 0rem; 
-    right: 2.5rem; 
+    right: 8.75rem; 
     width: 1px;
     height: 200vh;
   `}
 `;
 
 const Container = styled.div`
-  margin: 6.25rem 2.5rem;
-  width: 100vw;
+  margin: 6.25rem 8.75rem;
+  width: 62.5rem;
 `;
 
 const Wrapper = styled.div`
   display: flex;
   /* width: 100vw; */
-  height: 200vh;
+  height: 150vh;
   background-color: ${({ theme }) => theme.color.mint};
 `;
