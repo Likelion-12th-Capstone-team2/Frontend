@@ -221,16 +221,33 @@ const Home = () => {
           <MiddleWrapper>
             <ProductGrid>
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} received={product.is_sended}>
-                  <ProductImage
-                    src={product.item_image}
-                    alt={`Product ${product.id}`}
-                  />
-                  {product.is_sended && (
-                    <ReceivedOverlay>
-                      <Text>Received</Text>
-                    </ReceivedOverlay>
-                  )}
+                <div key={product.id} style={{ position: 'relative' }}>
+                  <ProductCard
+                    received={product.is_sended}
+                    onClick={() =>
+                      navigate('/wishDetail', {
+                        state: { itemId: product.id }, // 상품 ID 전달
+                      })
+                    }
+                  >
+                    <ProductImage
+                      src={product.item_image}
+                      alt={`Product ${product.id}`}
+                    />
+                    {product.is_sended && (
+                      <ReceivedOverlay>
+                        <Text>Received</Text>
+                      </ReceivedOverlay>
+                    )}
+                    {!product.is_sended && <ShadowOveraly />}
+                    <HeartContainer received={product.is_sended}>
+                      {Array(product.hearts)
+                        .fill('♥')
+                        .map((heart, index) => (
+                          <Heart key={index}>{heart}</Heart>
+                        ))}
+                    </HeartContainer>
+                  </ProductCard>
                   {showDeleteIcons && (
                     <Delete
                       style={{
@@ -241,17 +258,9 @@ const Home = () => {
                         cursor: 'pointer',
                       }}
                       onClick={() => handleDeleteClick(product.id)}
-                    ></Delete>
+                    />
                   )}
-                  {!product.is_sended && <ShadowOveraly></ShadowOveraly>}
-                  <HeartContainer received={product.is_sended}>
-                    {Array(product.hearts)
-                      .fill('♥')
-                      .map((heart, index) => (
-                        <Heart key={index}>{heart}</Heart>
-                      ))}
-                  </HeartContainer>
-                </ProductCard>
+                </div>
               ))}
             </ProductGrid>
             <BottomWrapper>
@@ -419,9 +428,7 @@ const Text = styled.p`
   ${({ theme }) => theme.font.m_home_received}
 `;
 // ProductCard 컴포넌트 수정
-const ProductCard = styled.div`
-  position: relative;
-`;
+const ProductCard = styled.div``;
 
 const ProductImage = styled.img`
   width: 100%;
