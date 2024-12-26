@@ -3,13 +3,15 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { HeartFullBlue } from '@/assets/icons';
 import backgroundEg from '@/assets/backgroundEg.png';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 const WishDetail = () => {
+  const location = useLocation();
   const [data, setData] = useState(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isUnsendPopupVisible, setIsUnsendPopupVisible] = useState(false);
-  const { itemId } = useParams(); // URL에서 itemId 가져오기
+
+  const { itemId } = location.state || {};
   const itemIdToFetch = itemId || 8;
   const navigate = useNavigate();
 
