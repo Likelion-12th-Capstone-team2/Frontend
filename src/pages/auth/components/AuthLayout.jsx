@@ -73,9 +73,17 @@ const Title = styled.p`
   width: ${(props) => props.$width || '100%'};
   text-align: center;
   cursor: pointer;
-  color: ${(props) => (props.$isActive ? 'white' : 'black')};
-  background-color: ${(props) => (props.$isActive ? 'black' : '#168395')};
   padding: 1.56rem 0;
+  ${(props) =>
+    Array.isArray(props.$titles)
+      ? `
+    color: ${props.$active ? 'white' : 'black'};
+    background-color: ${props.$active ? 'black' : '#168395'};
+  `
+      : `
+    color: white;
+    background-color: black;
+  `}
 `;
 
 const Content = styled.div`

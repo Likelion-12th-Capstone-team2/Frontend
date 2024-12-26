@@ -30,7 +30,9 @@ export const useMypage = () => {
       );
       const { setting } = data;
       setName(setting.name);
-      setPreview(setting.background_photo);
+      setPreview(
+        `${process.env.REACT_APP_BASE_URL}${setting.background_photo}`,
+      );
       setColor(setting.color);
       setTypo(setting.typography);
     } catch (error) {

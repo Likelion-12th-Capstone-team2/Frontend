@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import AuthLayout from '@auth/components/AuthLayout';
+import Onboarding from '@auth/components/Onboarding';
+import Category from './components/Category';
 
 const Mypage = () => {
   const [activeTitle, setActiveTitle] = useState('Setting');
@@ -9,7 +11,9 @@ const Mypage = () => {
       title={['Setting', 'Category']}
       activeTitle={activeTitle}
       onTitleClick={setActiveTitle}
-    ></AuthLayout>
+    >
+      {activeTitle === 'Setting' ? <Onboarding /> : <Category />}
+    </AuthLayout>
   );
 };
 
