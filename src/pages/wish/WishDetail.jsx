@@ -20,7 +20,7 @@ const WishDetail = () => {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get(
-          `http://ireallywantit.xyz/wish/items/${itemIdToFetch}/`,
+          `http://ireallywantit.xyz/wish/items/${itemId}/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -34,7 +34,7 @@ const WishDetail = () => {
     };
 
     fetchData();
-  }, [itemIdToFetch]);
+  }, []);
 
   const handleSend = () => {
     setData((prev) => ({

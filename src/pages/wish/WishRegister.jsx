@@ -7,8 +7,6 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 const WishRegister = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { itemId } = useParams(); // URL에서 itemId 추출
-  const itemIdToFetch = itemId || 8; // 임시 itemId 값
   const { itemToEdit } = location.state || {}; // location state에서 itemToEdit 가져오기
   const [heartCount, setHeartCount] = useState(0);
   const [formData, setFormData] = useState({
@@ -25,51 +23,23 @@ const WishRegister = () => {
   const [error, setError] = useState(null); // 오류 상태 관리
   const [categories, setCategories] = useState([]); // 카테고리 목록 상태 관리
 
-  // 기존 Wish 데이터를 불러오는 함수 (수정 모드일 때만 실행)
-  const fetchWishData = async () => {
-    try {
-      if (!itemId) return; // itemId가 없으면 실행하지 않음
-
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('No access token found');
-
-      const response = await axios.get(
-        `http://ireallywantit.xyz/wish/items/${itemIdToFetch}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      const {
-        item_name,
-        wish_link,
-        item_image,
-        price,
-        size,
-        color,
-        other_option,
-        heart,
-        category,
-      } = response.data;
-
+  // 페이지가 로드될 때, itemToEdit이 있으면 폼에 데이터 채워넣기
+  useEffect(() => {
+    if (itemToEdit) {
       setFormData({
-        item_name,
-        wish_link,
-        item_image,
-        price,
-        size,
-        color,
-        other_option,
-        category,
+        item_name: itemToEdit.item_name,
+        wish_link: itemToEdit.wish_link,
+        item_image: itemToEdit.item_image,
+        price: itemToEdit.price,
+        size: itemToEdit.size,
+        color: itemToEdit.color,
+        other_option: itemToEdit.other_option,
+        category: itemToEdit.category,
       });
-      setHeartCount(heart);
-    } catch (err) {
-      console.error('Error fetching wish data:', err.message);
-      setError('Wish 데이터를 가져오는 데 실패했습니다.');
+      setHeartCount(itemToEdit.heart);
     }
-  };
+    fetchCategories(); // 카테고리 항목을 가져옵니다.
+  }, [itemToEdit]);
 
   // 카테고리 항목을 불러오는 함수
   const fetchCategories = async () => {
@@ -180,10 +150,10 @@ const WishRegister = () => {
 
       let response;
 
-      if (itemId) {
+      if (itemToEdit) {
         // 수정 모드: PATCH 요청
         response = await axios.patch(
-          `http://ireallywantit.xyz/wish/items/${itemIdToFetch}/`,
+          `http://ireallywantit.xyz/wish/items/${itemToEdit.id}/`,
           dataToSend,
           {
             headers: {
