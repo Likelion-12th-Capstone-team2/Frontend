@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { HeartFullBlue } from '@/assets/icons';
 import backgroundEg from '@/assets/backgroundEg.png';
-import { useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 const WishDetail = () => {
   const location = useLocation();
@@ -13,13 +13,14 @@ const WishDetail = () => {
 
   const { itemId } = location.state || {};
   const itemIdToFetch = itemId || 8;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
         const response = await axios.get(
-          `http://ireallywantit.xyz/wish/items/${itemIdToFetch}/`,
+          `http://ireallywantit.xyz/wish/items/${itemId}/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -33,7 +34,7 @@ const WishDetail = () => {
     };
 
     fetchData();
-  }, [itemIdToFetch]);
+  }, []);
 
   const handleSend = () => {
     setData((prev) => ({
@@ -65,6 +66,14 @@ const WishDetail = () => {
     } else {
       setIsPopupVisible(true);
     }
+  };
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
+  const handleEditDetailsClick = () => {
+    navigate('/wishRegister', { state: { itemToEdit: data } });
   };
 
   if (!data) {
@@ -113,7 +122,13 @@ const WishDetail = () => {
               <p>{data.item.price}</p>
             </Price>
             <WishBtnContainer>
-              <WishBtn>
+              <WishBtn
+                onClick={() => {
+                  if (typeof data.user !== 'number') {
+                    handleEditDetailsClick();
+                  }
+                }}
+              >
                 {typeof data.user === 'number'
                   ? 'Add to my wishlist'
                   : 'Edit details'}
