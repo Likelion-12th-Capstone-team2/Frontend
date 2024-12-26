@@ -10,7 +10,7 @@ const WishDetail = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isUnsendPopupVisible, setIsUnsendPopupVisible] = useState(false);
   const { itemId } = useParams(); // URL에서 itemId 가져오기
-  const itemIdToFetch = itemId || 2;
+  const itemIdToFetch = itemId || 8;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,7 +111,12 @@ const WishDetail = () => {
               <p>{data.item.price}</p>
             </Price>
             <WishBtnContainer>
-              <WishBtn>Edit details</WishBtn>
+              <WishBtn>
+                {typeof data.user === 'number'
+                  ? 'Add to my wishlist'
+                  : 'Edit details'}
+              </WishBtn>
+
               <WishBtn>Share via KakaoTalk</WishBtn>
               <WishBtn style={{ backgroundColor: 'orange' }}>
                 See the link
@@ -124,7 +129,10 @@ const WishDetail = () => {
                   {data.item.is_sended ? 'Yes' : 'Not yet.'}
                 </ReceiveStatus>
               </div>
-              <From onClick={handleFromClick}>
+              <From
+                isOnMe={typeof data.user === 'number' && !data.item.is_sended}
+                onClick={handleFromClick}
+              >
                 {data.item.is_sended
                   ? `From. ${localStorage.getItem('username') || ''}`
                   : typeof data.user === 'number'
@@ -241,9 +249,9 @@ const From = styled.div`
   margin-top: 0.6rem;
   padding: 0rem 1rem;
   border-radius: 1rem;
-  background: #616161;
-  color: #a3a3a3;
-  ${({ theme }) => theme.font.common_detail_eng}
+  background: ${({ isOnMe }) => (isOnMe ? 'orange' : '#616161')};
+  color: ${({ isOnMe }) => (isOnMe ? 'black' : '#a3a3a3')};
+  ${({ theme }) => theme.font.common_detail_eng};
 `;
 
 const ReceiveCheck = styled.div`

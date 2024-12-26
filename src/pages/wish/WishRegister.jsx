@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import { HeartLine, HeartFull } from '@/assets/icons';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import bagImg from '@/assets/bag.png'; // 삭제해야 함
 import { useNavigate } from 'react-router-dom';
 
 const WishRegister = () => {
@@ -11,7 +10,7 @@ const WishRegister = () => {
   const [formData, setFormData] = useState({
     item_name: '',
     wish_link: '',
-    item_image: bagImg,
+    item_image: '',
     price: '',
     size: '',
     color: '',
@@ -108,7 +107,6 @@ const WishRegister = () => {
 
   const handleSubmit = async () => {
     const dataToSend = {
-      id: 4,
       item_name: formData.item_name,
       wish_link: formData.wish_link,
       item_image: formData.item_image,
@@ -141,6 +139,7 @@ const WishRegister = () => {
       );
       alert('Wish 등록 성공!');
       console.log(response.data);
+      navigate('/home');
     } catch (error) {
       if (error.response) {
         // 서버가 응답했지만 상태 코드가 2xx가 아님
@@ -157,10 +156,10 @@ const WishRegister = () => {
     }
   };
 
-  const handleCategoryClick = (category) => {
+  const handleCategoryClick = (selectedCategory) => {
     setFormData((prev) => ({
       ...prev,
-      category: category, // 클릭한 카테고리로 설정
+      category: selectedCategory.id, // 선택한 카테고리의 id를 저장
     }));
   };
 
@@ -200,7 +199,6 @@ const WishRegister = () => {
               name="wish_link"
               onBlur={handleWishLinkBlur}
               onChange={handleInputChange}
-              placeholder="Enter Wish Link"
             />
             {loading && <p>Loading product details...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -247,12 +245,10 @@ const WishRegister = () => {
               {categories.map((category) => (
                 <div
                   key={category.id}
-                  onClick={() => handleCategoryClick(category.category)}
-                  className={
-                    formData.category === category.category ? 'active' : ''
-                  }
+                  onClick={() => handleCategoryClick(category)} // 객체 전체를 전달
+                  className={formData.category === category.id ? 'active' : ''} // id 비교
                 >
-                  {category.category}
+                  {category.category} {/* 사용자에게 보여줄 텍스트 */}
                 </div>
               ))}
               <Plus>+</Plus>
