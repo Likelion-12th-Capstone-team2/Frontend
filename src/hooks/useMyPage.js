@@ -70,18 +70,20 @@ export const useMypage = () => {
     formData.append('typography', typo);
 
     try {
-      await axios.patch(
-        `${process.env.REACT_APP_BASE_URL}/mypages/`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        },
-      );
+      const endpoint = `${process.env.REACT_APP_BASE_URL}/mypages/`;
+      const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      };
+
+      if (inOnboarding) {
+        await axios.post(endpoint, formData, config);
+      } else {
+        await axios.patch(endpoint, formData, config);
+      }
+
       navigate('/home');
     } catch (error) {
-      console.error('프로필 설정하기 실패:', error);
+      console.error('프로필 설정 실패:', error);
     }
   };
 
