@@ -1,10 +1,25 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const AuthLayout = ({ title, children }) => (
+const AuthLayout = ({ title, activeTitle, onTitleClick, children }) => (
   <Wrapper>
     <Container>
-      <Title>{title}</Title>
+      <TitleBox>
+        {Array.isArray(title) ? (
+          title.map((t) => (
+            <Title
+              key={t}
+              $isActive={activeTitle === t}
+              onClick={() => onTitleClick(t)}
+              $width={`${100 / title.length}%`}
+            >
+              {t}
+            </Title>
+          ))
+        ) : (
+          <Title>{title}</Title>
+        )}
+      </TitleBox>
       <Content>{children}</Content>
     </Container>
   </Wrapper>
@@ -48,12 +63,19 @@ const Container = styled.div`
   }
 `;
 
-const Title = styled.p`
-  ${({ theme }) => theme.font.common_detail_eng}
+const TitleBox = styled.div`
   display: flex;
-  justify-content: center;
+  border-bottom: 1px solid black;
+`;
+
+const Title = styled.p`
+  ${({ theme }) => theme.font.common_detail_eng};
+  width: ${(props) => props.$width || '100%'};
+  text-align: center;
+  cursor: pointer;
+  color: ${(props) => (props.$isActive ? 'white' : 'black')};
+  background-color: ${(props) => (props.$isActive ? 'black' : '#168395')};
   padding: 1.56rem 0;
-  background-color: black;
 `;
 
 const Content = styled.div`

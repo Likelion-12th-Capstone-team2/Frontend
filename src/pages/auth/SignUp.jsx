@@ -41,10 +41,15 @@ const SignUp = () => {
     }
 
     try {
-      await axios.post(`${process.env.REACT_APP_BASE_URL}/accounts/signup/`, {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/accounts/signup/`,
+        {
+          email,
+          password,
+        },
+      );
+      localStorage.setItem('username', response.data.data.username);
+      localStorage.setItem('token', response.data.data.access_token);
       setStep('onboarding');
     } catch (error) {
       if (error.response?.status === 401) {
