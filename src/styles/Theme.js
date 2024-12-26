@@ -7,24 +7,26 @@ const Theme = {
     yellow: '#FEF78C',
   },
 
+  mobile: `@media (max-width: 768px)`,
+
   font: {
     common_input: `
       font-family: Pretendard;
-      font-size: 1.125rem;
+      font-size: 0.875rem;
       font-style: normal;
       font-weight: 400;
       line-height: 140%;
     `,
     common_text: `
       font-family: Pridi;
-      font-size: 1.125rem;
+      font-size: 0.875rem;
       font-style: normal;
       font-weight: 400;
       line-height: normal;
     `,
     common_detail: `
       font-family: Pridi;
-      font-size: 1rem;
+      font-size: 0.75rem;
       font-style: normal;
       font-weight: 500;
       line-height: normal;
@@ -40,7 +42,7 @@ const Theme = {
 
     common_detail_eng: `
       font-family: Pridi;
-      font-size: 1.125rem;
+      font-size: 1rem;
       font-style: normal;
       font-weight: 400;
       line-height: normal;
@@ -271,7 +273,7 @@ line-height: normal;
 
     p_detail_eng: `
       font-family: Pridi;
-      font-size: 5.125rem;
+      font-size: 4.063rem;
       font-style: normal;
       font-weight: 700;
       line-height: 110%;
@@ -324,11 +326,11 @@ line-height: normal;
 `,
 
     p_homeTitle_eng: `
-     font-family: Pretendard;
-font-size: 3rem;
-font-style: normal;
-font-weight: 700;
-line-height: 118.676%; 
+      font-family: Pretendard;
+      font-size: 3rem;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 120%;
 `,
 
     p_homeTitle_eng2: `
