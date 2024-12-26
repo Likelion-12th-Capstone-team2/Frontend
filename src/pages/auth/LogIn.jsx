@@ -41,6 +41,7 @@ const LogIn = () => {
       localStorage.setItem('user_id', response.data.data.id);
       localStorage.setItem('username', response.data.data.username);
       localStorage.setItem('token', response.data.data.access_token);
+      localStorage.setItem('id', response.data.data.id);
       navigate('/home');
     } catch (error) {
       setIsPasswordValid(false);
