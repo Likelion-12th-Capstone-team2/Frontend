@@ -11,6 +11,9 @@ const LogIn = () => {
   const [password, setPassword] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPasswordValid, setIsPasswordValid] = useState(true);
+  const [emailError, setEmailError] = useState(
+    'Please fill out the correct email format',
+  );
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
   const navigate = useNavigate();
@@ -44,8 +47,14 @@ const LogIn = () => {
       localStorage.setItem('id', response.data.data.id);
       navigate('/home');
     } catch (error) {
-      setIsPasswordValid(false);
-      passwordRef.current?.focus();
+      if (error.response?.status === 400) {
+        setIsEmailValid(false);
+        setEmailError('This account does not exist');
+        emailRef.current?.focus();
+      } else if (error.response?.status === 401) {
+        setIsPasswordValid(false);
+        passwordRef.current?.focus();
+      }
     }
   };
 
@@ -58,7 +67,7 @@ const LogIn = () => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         isValid={isEmailValid}
-        errorText="Please fill out the correct email format"
+        errorText={emailError}
       />
       <AuthInput
         ref={passwordRef}
@@ -88,7 +97,7 @@ export default LogIn;
 const Button = styled.div`
   display: flex;
   width: fit-content;
-  margin: 0.5rem auto;
+  margin: 0.5rem auto 1.4rem;
   gap: 0.88rem;
 `;
 
