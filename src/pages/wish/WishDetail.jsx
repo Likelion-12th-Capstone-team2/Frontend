@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { HeartFullBlue } from '@/assets/icons';
 import backgroundEg from '@/assets/backgroundEg.png';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const WishDetail = () => {
   const [data, setData] = useState(null);
@@ -11,6 +11,7 @@ const WishDetail = () => {
   const [isUnsendPopupVisible, setIsUnsendPopupVisible] = useState(false);
   const { itemId } = useParams(); // URL에서 itemId 가져오기
   const itemIdToFetch = itemId || 8;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,6 +70,14 @@ const WishDetail = () => {
     return <div>Loading...</div>;
   }
 
+  const handleEditDetailsClick = () => {
+    navigate('/wishRegister', { state: { itemToEdit: data } });
+  };
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Wrapper backgroundImage={data.setting.background_photo || backgroundEg}>
       <Container>
@@ -111,7 +120,13 @@ const WishDetail = () => {
               <p>{data.item.price}</p>
             </Price>
             <WishBtnContainer>
-              <WishBtn>
+              <WishBtn
+                onClick={() => {
+                  if (typeof data.user !== 'number') {
+                    handleEditDetailsClick();
+                  }
+                }}
+              >
                 {typeof data.user === 'number'
                   ? 'Add to my wishlist'
                   : 'Edit details'}

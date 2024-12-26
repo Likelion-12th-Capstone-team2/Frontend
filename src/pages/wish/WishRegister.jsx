@@ -2,10 +2,14 @@ import styled from 'styled-components';
 import { HeartLine, HeartFull } from '@/assets/icons';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
 const WishRegister = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { itemId } = useParams(); // URL에서 itemId 추출
+  const itemIdToFetch = itemId || 8; // 임시 itemId 값
+  const { itemToEdit } = location.state || {}; // location state에서 itemToEdit 가져오기
   const [heartCount, setHeartCount] = useState(0);
   const [formData, setFormData] = useState({
     item_name: '',
@@ -20,6 +24,52 @@ const WishRegister = () => {
   const [loading, setLoading] = useState(false); // 로딩 상태 관리
   const [error, setError] = useState(null); // 오류 상태 관리
   const [categories, setCategories] = useState([]); // 카테고리 목록 상태 관리
+
+  // 기존 Wish 데이터를 불러오는 함수 (수정 모드일 때만 실행)
+  const fetchWishData = async () => {
+    try {
+      if (!itemId) return; // itemId가 없으면 실행하지 않음
+
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No access token found');
+
+      const response = await axios.get(
+        `http://ireallywantit.xyz/wish/items/${itemIdToFetch}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const {
+        item_name,
+        wish_link,
+        item_image,
+        price,
+        size,
+        color,
+        other_option,
+        heart,
+        category,
+      } = response.data;
+
+      setFormData({
+        item_name,
+        wish_link,
+        item_image,
+        price,
+        size,
+        color,
+        other_option,
+        category,
+      });
+      setHeartCount(heart);
+    } catch (err) {
+      console.error('Error fetching wish data:', err.message);
+      setError('Wish 데이터를 가져오는 데 실패했습니다.');
+    }
+  };
 
   // 카테고리 항목을 불러오는 함수
   const fetchCategories = async () => {
@@ -47,7 +97,11 @@ const WishRegister = () => {
   // 페이지가 로드될 때 카테고리 데이터를 가져옴
   useEffect(() => {
     fetchCategories();
-  }, []);
+    if (itemToEdit) {
+      console.log(itemToEdit); // 데이터가 제대로 전달됐는지 확인
+      // 데이터로 폼을 초기화하거나 수정할 수 있음
+    }
+  }, [itemToEdit]);
 
   const handleHeartClick = (index) => {
     setHeartCount(index + 1);
@@ -122,37 +176,44 @@ const WishRegister = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const user_id = localStorage.getItem('user_id');
+      if (!token) throw new Error('No access token found');
 
-      if (!user_id) {
-        throw new Error('User ID not found');
+      let response;
+
+      if (itemId) {
+        // 수정 모드: PATCH 요청
+        response = await axios.patch(
+          `http://ireallywantit.xyz/wish/items/${itemIdToFetch}/`,
+          dataToSend,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        alert('Wish 수정 성공!');
+      } else {
+        // 등록 모드: POST 요청
+        const user_id = localStorage.getItem('user_id');
+        if (!user_id) throw new Error('User ID not found');
+
+        response = await axios.post(
+          `http://ireallywantit.xyz/wish/${user_id}/`,
+          dataToSend,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+        alert('Wish 등록 성공!');
       }
 
-      const response = await axios.post(
-        `http://ireallywantit.xyz/wish/${user_id}/`,
-        dataToSend,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      alert('Wish 등록 성공!');
       console.log(response.data);
       navigate('/home');
-    } catch (error) {
-      if (error.response) {
-        // 서버가 응답했지만 상태 코드가 2xx가 아님
-        console.error('Server responded with status:', error.response.status);
-        console.error('Response data:', error.response.data);
-      } else if (error.request) {
-        // 요청이 전송되었으나 응답이 없음
-        console.error('No response received:', error.request);
-      } else {
-        // 요청 설정 문제
-        console.error('Error setting up request:', error.message);
-      }
-      alert('Wish 등록 실패!');
+    } catch (err) {
+      console.error('Error submitting wish:', err.message);
+      alert('Wish 등록/수정 실패!');
     }
   };
 
