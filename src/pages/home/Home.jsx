@@ -4,6 +4,8 @@ import { Delete } from '@/assets/icons';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import hamburger from '@/assets/hamburger.svg';
+import CloseIcon from '@/assets/closeIcon.svg';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -15,11 +17,24 @@ const Home = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState(null); // 선택된 카테고리 ID 추가
   const [selectedPrice, setSelectedPrice] = useState(null); // 선택된 가격 상태 추가
   const [showDeleteIcons, setShowDeleteIcons] = useState(false); // <Delete> 아이콘 표시 상태
+  const [userType, setUserType] = useState(''); // user type state 추가
   const [settings, setSettings] = useState({
     name: '',
     backgroundPhoto: '',
   });
   const [categories, setCategories] = useState([{ name: 'All', id: null }]); // 카테고리 상태
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // 인증 토큰 삭제
+    localStorage.removeItem('id'); // 사용자 ID 삭제
+    navigate('/'); // 로그인 페이지로 이동
+    alert('Complete Logout.');
+  };
 
   const confirmDelete = async () => {
     const token = localStorage.getItem('token'); // 인증 토큰 가져오기
@@ -118,6 +133,9 @@ const Home = () => {
       setCategories([{ name: 'All', id: null }, ...categoryList]);
       setProducts(data.wish_items);
       setShowMessage(data.wish_items.length === 0);
+      setUserType(data.user); // user type 설정
+
+      console.log(data.wish_items);
       console.log(data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -142,6 +160,7 @@ const Home = () => {
   };
 
   const selectCategory = (category, categoryId) => {
+    console.log('Category Selected:', category, categoryId); // 디버깅용
     setSelectedCategory(category);
     setSelectedCategoryId(categoryId);
   };
@@ -153,12 +172,16 @@ const Home = () => {
   const filteredProducts =
     selectedCategory === 'All'
       ? products
-      : products.filter((product) => product.category === selectedCategory);
+      : products.filter(
+          (product) => product.category?.trim() === selectedCategory.trim(),
+        );
+
+  console.log('Filtered Products:', filteredProducts);
 
   return (
     <Wrapper
       style={{
-        backgroundImage: `url(${process.env.REACT_APP_BASE_URL}${settings.backgroundPhoto})`,
+        backgroundImage: `url(${settings.backgroundPhoto})`, // 중괄호 안에 `${}`로 수정
       }}
     >
       <Container>
@@ -168,9 +191,36 @@ const Home = () => {
         <Line position="right" />
       </Container>
       <NavContainer>
-        <NavBtn>Ding!</NavBtn>
-        <NavBtn>Setting</NavBtn>
-        <NavBtn>Log out</NavBtn>
+        <Hamburger onClick={toggleMenu}>
+          <img src={hamburger}></img>
+        </Hamburger>
+
+        <SideMenu open={menuOpen}>
+          <CloseButton onClick={toggleMenu}>
+            <img src={CloseIcon} alt="Close Menu" />
+          </CloseButton>
+          <MenuItems>
+            {userType === 'guest' ? (
+              <MenuItem onClick={() => navigate('/')}>Log In</MenuItem>
+            ) : (
+              <>
+                <MenuItem>Ding!</MenuItem>
+                <MenuItem>Setting</MenuItem>
+                <MenuItem onClick={handleLogout}>Log out</MenuItem>
+              </>
+            )}
+          </MenuItems>
+        </SideMenu>
+
+        {userType === 'guest' ? (
+          <NavBtn onClick={() => navigate('/')}>Log In</NavBtn>
+        ) : (
+          <>
+            <NavBtn>Ding!</NavBtn>
+            <NavBtn>Setting</NavBtn>
+            <NavBtn onClick={handleLogout}>Log out</NavBtn>
+          </>
+        )}
       </NavContainer>
       <TitleContainer>
         <TitleWrapper>
@@ -200,77 +250,93 @@ const Home = () => {
         <Price onClick={() => selectPrice(50000)}>50,000~100,000</Price>
         <Price onClick={() => selectPrice(100000)}>100,000~</Price>
       </PriceWrapper>
-      <CatagoryContainer>
-        <CategoryWrapper>
-          {categories.map((category) => (
-            <CategoryButton
-              key={category.id || 'all'}
-              selected={selectedCategory === category.name}
-              onClick={() => selectCategory(category.name, category.id)}
-            >
-              {category.name}
-            </CategoryButton>
-          ))}
-        </CategoryWrapper>
-      </CatagoryContainer>
+
       <WishWrapper>
         {showMessage ? (
-          <ClickWish onClick={fetchProducts}>
+          <ClickWish
+            onClick={() => {
+              fetchProducts();
+              navigate('/wishRegister');
+            }}
+          >
             Click Here and Categorize Your WISH
           </ClickWish>
         ) : (
-          <MiddleWrapper>
-            <ProductGrid>
-              {filteredProducts.map((product) => (
-                <div key={product.id} style={{ position: 'relative' }}>
-                  <ProductCard
-                    received={product.is_sended}
-                    onClick={() =>
-                      navigate('/wishDetail', {
-                        state: { itemId: product.id }, // 상품 ID 전달
-                      })
-                    }
+          <div>
+            <CatagoryContainer>
+              <CategoryWrapper>
+                {categories.map((category) => (
+                  <CategoryButton
+                    key={category.id || 'all'}
+                    selected={selectedCategory === category.name}
+                    onClick={() => selectCategory(category.name, category.id)}
                   >
-                    <ProductImage
-                      src={product.item_image}
-                      alt={`Product ${product.id}`}
-                    />
-                    {product.is_sended && (
-                      <ReceivedOverlay>
-                        <Text>Received</Text>
-                      </ReceivedOverlay>
-                    )}
-                    {!product.is_sended && <ShadowOveraly />}
-                    <HeartContainer received={product.is_sended}>
-                      {Array(product.heart)
-                        .fill('♥')
-                        .map((heart, index) => (
-                          <Heart key={index}>{heart}</Heart>
-                        ))}
-                    </HeartContainer>
-                  </ProductCard>
-                  {showDeleteIcons && (
-                    <Delete
-                      style={{
-                        position: 'absolute',
-                        top: '0.3rem',
-                        right: '0.3rem',
-                        zIndex: 100,
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => handleDeleteClick(product.id)}
-                    />
-                  )}
-                </div>
-              ))}
-            </ProductGrid>
-            <BottomWrapper>
-              <button onClick={toggleDeleteMode}>
-                {showDeleteIcons ? 'Done' : 'Delete'}
-              </button>
-              <button onClick={() => navigate('/wishRegister')}>Add</button>
-            </BottomWrapper>
-          </MiddleWrapper>
+                    {category.name}
+                  </CategoryButton>
+                ))}
+              </CategoryWrapper>
+            </CatagoryContainer>
+            <MiddleWrapper>
+              <ProductGrid>
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => (
+                    <div key={product.id} style={{ position: 'relative' }}>
+                      <ProductCard
+                        received={product.is_sended}
+                        onClick={() =>
+                          navigate('/wishDetail', {
+                            state: { itemId: product.id }, // 상품 ID 전달
+                          })
+                        }
+                      >
+                        <ProductImage
+                          src={product.item_image}
+                          alt={`Product ${product.id}`}
+                        />
+                        {product.is_sended ? (
+                          <ReceivedOverlay>
+                            <Text>Received</Text>
+                          </ReceivedOverlay>
+                        ) : (
+                          <ShadowOverlay />
+                        )}
+                        <HeartContainer received={product.is_sended}>
+                          {Array(product.heart)
+                            .fill('♥')
+                            .map((heart, index) => (
+                              <Heart key={index}>{heart}</Heart>
+                            ))}
+                        </HeartContainer>
+                      </ProductCard>
+                      {showDeleteIcons && (
+                        <Delete
+                          style={{
+                            position: 'absolute',
+                            top: '0.3rem',
+                            right: '0.3rem',
+                            zIndex: 100,
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => handleDeleteClick(product.id)}
+                        />
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p>No products found.</p>
+                )}
+              </ProductGrid>
+
+              {userType === 'owner' && (
+                <BottomWrapper>
+                  <button onClick={toggleDeleteMode}>
+                    {showDeleteIcons ? 'Done' : 'Delete'}
+                  </button>
+                  <button onClick={() => navigate('/wishRegister')}>Add</button>
+                </BottomWrapper>
+              )}
+            </MiddleWrapper>
+          </div>
         )}
       </WishWrapper>
 
@@ -278,23 +344,29 @@ const Home = () => {
         <PopupOverlay>
           <PopupContainer>
             <PopupText>Do you wanna delete this?</PopupText>
-            <PopupItemImage
-              src={productToDelete.item_image}
-              alt={productToDelete.name}
-            ></PopupItemImage>
-            <PopupItemName>{productToDelete.name}</PopupItemName>
-            <PopupPrice>
-              Price: {productToDelete.price?.toLocaleString()} 원
-            </PopupPrice>
-            <PopupOption>
-              <span>ⓒ {productToDelete.color} </span>
-              <span>ⓢ {productToDelete.size} </span>
-              <span>ⓞ {productToDelete.other_option} </span>
-            </PopupOption>
-            <PopupActions>
-              <PopupButton onClick={cancelDelete}>No</PopupButton>
-              <PopupButton onClick={confirmDelete}>Yes</PopupButton>
-            </PopupActions>
+            <div>
+              <PopupItemImage
+                src={productToDelete.item_image}
+                alt={productToDelete.name}
+              ></PopupItemImage>
+              <PopupMiddleWrapper>
+                <PopupItemName>{productToDelete.name}</PopupItemName>
+                <PopupOption>
+                  <span>option. </span>
+
+                  <span>ⓒ {productToDelete.color} </span>
+                  <span>ⓢ {productToDelete.size} </span>
+                  <span>ⓞ {productToDelete.other_option} </span>
+                </PopupOption>
+                <PopupPrice>
+                  price. {productToDelete.price?.toLocaleString()} 원
+                </PopupPrice>
+                <PopupActions>
+                  <PopupButton onClick={cancelDelete}>No</PopupButton>
+                  <PopupButton onClick={confirmDelete}>Yes</PopupButton>
+                </PopupActions>
+              </PopupMiddleWrapper>
+            </div>
           </PopupContainer>
         </PopupOverlay>
       )}
@@ -303,7 +375,7 @@ const Home = () => {
 };
 
 export default Home;
-const PopupOption = styled.div``;
+
 const MiddleWrapper = styled.div``;
 const BottomWrapper = styled.div`
   position: absolute;
@@ -332,12 +404,17 @@ const BottomWrapper = styled.div`
 
 const CatagoryContainer = styled.div`
   width: 79%;
-  height: 6rem;
+  min-height: 10rem;
   position: relative; /* 자식 요소의 위치를 제한 */
   display: flex;
   align-items: center;
   margin-left: 11rem;
-  overflow: hidden;
+  @media (max-width: 60rem) {
+    margin-left: 5rem;
+  }
+  @media (max-width: 48rem) {
+    margin-left: 3.4rem;
+  }
 `;
 const CategoryWrapper = styled.div`
   display: flex;
@@ -352,7 +429,7 @@ const CategoryWrapper = styled.div`
 
 const CategoryButton = styled.p`
   display: inline-block; /* 글씨 영역만큼만 배경 색상을 적용 */
-  padding: 0.5rem 0.125rem;
+  padding: 0.2rem 0.525rem;
   background-color: black;
   color: white;
   cursor: pointer;
@@ -385,8 +462,18 @@ const PopupContainer = styled.div`
   box-shadow: 4px 4px 0px 0px #0e0a04;
   width: 32.55rem;
   height: 21.75rem;
+
+  > div {
+    display: flex;
+    padding: 1.1rem 2.1rem 1.9rem 2.1rem;
+  }
 `;
 
+const PopupMiddleWrapper = styled.div`
+  gap: 1.05rem;
+  padding-left: 1rem;
+  width: 19rem;
+`;
 const PopupText = styled.p`
   width: 100%;
   background-color: black;
@@ -399,8 +486,17 @@ const PopupItemImage = styled.img`
   width: 9.2rem;
   height: 11.5rem;
 `;
-const PopupItemName = styled.div``;
-const PopupPrice = styled.div``;
+const PopupItemName = styled.div`
+  ${({ theme }) => theme.font.p_popTitle_eng}
+`;
+const PopupPrice = styled.div`
+  ${({ theme }) => theme.font.common_text}
+  margin-top: 1rem;
+`;
+const PopupOption = styled.div`
+  ${({ theme }) => theme.font.common_text}
+  margin-top: 1rem;
+`;
 const PopupActions = styled.div`
   display: flex;
   gap: 1rem;
@@ -433,6 +529,12 @@ const ProductGrid = styled.div`
   margin: 2rem;
   margin-left: 11.3rem;
   margin-right: 11rem;
+  @media (max-width: 60rem) {
+    margin-left: 5rem;
+  }
+  @media (max-width: 48rem) {
+    margin-left: 3.4rem;
+  }
 `;
 
 // ReceivedOverlay 컴포넌트 추가
@@ -453,14 +555,26 @@ const Text = styled.p`
   ${({ theme }) => theme.font.m_home_received}
 `;
 // ProductCard 컴포넌트 수정
-const ProductCard = styled.div``;
-
-const ProductImage = styled.img`
+const ProductCard = styled.div`
+  position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden; /* 컨테이너를 벗어난 이미지를 숨김 */
+  display: flex; /* 필요하면 이미지 정렬용 */
+  align-items: center; /* 필요하면 이미지 정렬용 */
+  justify-content: center; /* 필요하면 이미지 정렬용 */
 `;
 
-const ShadowOveraly = styled.div`
+const ProductImage = styled.img`
+  position: absolute; /* 부모 요소를 기준으로 위치 설정 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 이미지 비율 유지하며 컨테이너를 채움 */
+`;
+
+const ShadowOverlay = styled.div`
   position: absolute;
   bottom: 0;
   left: 0;
@@ -519,6 +633,12 @@ const Price = styled.div`
 const PriceWrapper = styled.div`
   margin-left: 11rem;
   margin-top: 0.6rem;
+  @media (max-width: 60rem) {
+    margin-left: 5rem;
+  }
+  @media (max-width: 48rem) {
+    margin-left: 3rem;
+  }
 `;
 
 const Title = styled.p`
@@ -535,9 +655,15 @@ const TitleContainer = styled.div`
   display: flex;
   margin-left: 9.5rem;
   margin-top: 3rem;
+  @media (max-width: 60rem) {
+    flex-direction: column;
+    gap: 1rem;
+    margin-left: 5rem;
+  }
   @media (max-width: 48rem) {
     flex-direction: column;
     gap: 1rem;
+    margin-left: 2.5rem;
   }
 `;
 const NavBtn = styled.div`
@@ -547,6 +673,9 @@ const NavBtn = styled.div`
   color: #000;
   padding: 0.25rem 1.125rem;
   cursor: pointer;
+  @media (max-width: 48rem) {
+    display: none;
+  }
 `;
 
 const NavContainer = styled.div`
@@ -555,6 +684,12 @@ const NavContainer = styled.div`
   gap: 1.125rem;
   margin-top: 1.41rem;
   margin-right: 9.79rem;
+  @media (max-width: 60rem) {
+    margin-right: 5rem;
+  }
+  @media (max-width: 48rem) {
+    margin-right: 3rem;
+  }
 `;
 
 const Line = styled.div`
@@ -599,6 +734,43 @@ const Line = styled.div`
     width: 1px;
     height: 200vh;
   `}
+
+  /* 반응형 미디어 쿼리 */
+  @media (max-width: 60rem) {
+    ${({ position }) =>
+      position === 'left' &&
+      `
+      left: 4rem; /* 화면이 작아질 때 줄어든 값 */
+    `}
+
+    ${({ position }) =>
+      position === 'right' &&
+      `
+      right: 4rem; /* 화면이 작아질 때 줄어든 값 */
+    `}
+      ${({ position }) =>
+      position === 'bottom' &&
+      `
+    top: 16.2rem; 
+    left: 0rem; 
+    right: 0rem; 
+    height: 1px;
+  `}
+  }
+
+  @media (max-width: 48rem) {
+    ${({ position }) =>
+      position === 'left' &&
+      `
+      left: 1.5rem; /* 화면이 작아질 때 줄어든 값 */
+    `}
+
+    ${({ position }) =>
+      position === 'right' &&
+      `
+      right: 1.5rem; /* 화면이 작아질 때 줄어든 값 */
+    `}
+  }
 `;
 
 const Container = styled.div``;
@@ -618,4 +790,73 @@ const Wrapper = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
+`;
+
+const Hamburger = styled.div`
+  display: none;
+  cursor: pointer;
+  width: 30px; /* 버튼 크기 */
+  height: 30px; /* 버튼 크기 */
+  margin-top: 5px;
+
+  @media (max-width: 48rem) {
+    display: block;
+  }
+`;
+const SideMenu = styled.div`
+  display: none;
+  @media (max-width: 48rem) {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background-color: orange;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    transform: ${({ open }) => (open ? 'translateX(0)' : 'translateX(100%)')};
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem;
+  }
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  align-self: flex-end;
+  cursor: pointer;
+
+  img {
+    width: 25px;
+    height: 25px;
+  }
+`;
+
+const MenuItems = styled.ul`
+  list-style: none;
+  padding: 0.25rem 1rem;
+  margin-left: 7.5rem;
+  margin-top: 1rem;
+`;
+
+const MenuItem = styled.li`
+  margin-bottom: 1.5rem;
+
+  padding: 0.5rem 1rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+  background-color: white;
+  text-align: center;
+  ${({ theme }) => theme.font.m_btn}
+
+  &:hover {
+    background-color: white;
+    color: black;
+    border-radius: 8px;
+  }
 `;

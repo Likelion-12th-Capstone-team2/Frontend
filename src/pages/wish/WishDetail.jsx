@@ -28,6 +28,7 @@ const WishDetail = () => {
           },
         );
         setData(response.data);
+        console.log(response.data);
       } catch (error) {
         console.error('Failed to fetch item data:', error);
       }
