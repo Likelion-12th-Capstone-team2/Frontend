@@ -117,13 +117,20 @@ const WishDetail = () => {
     return <div>Loading...</div>;
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // 인증 토큰 삭제
+    localStorage.removeItem('id'); // 사용자 ID 삭제
+    navigate('/'); // 로그인 페이지로 이동
+    alert('Complete Logout.');
+  };
+
   return (
     <Wrapper backgroundImage={data.setting.background_photo || backgroundEg}>
       <Container>
         <NavContainer>
           <NavBtn>Ding!</NavBtn>
           <NavBtn>Setting</NavBtn>
-          <NavBtn>Log out</NavBtn>
+          <NavBtn onClick={handleLogout}>Log out</NavBtn>
           <HamburgerIcon src={hamburger} alt="Menu" />
         </NavContainer>
         <Content>
@@ -169,9 +176,7 @@ const WishDetail = () => {
                 <WishBtn
                   onClick={() => {
                     if (typeof data.user === 'number') {
-                      navigate('/wishRegister', {
-                        state: { itemToEdit: data },
-                      });
+                      navigate('/wishAdd', { state: { itemToAdd: data } });
                     } else {
                       handleEditDetailsClick();
                     }
