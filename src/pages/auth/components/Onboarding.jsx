@@ -126,7 +126,8 @@ const Preview = styled.img`
 `;
 
 const EditBtn = styled.div`
-  ${({ theme }) => theme.font.common_input}
+  ${({ theme }) => theme.font.common_detail_kor}
+  text-align: center;
   width: 2.75rem;
   height: 2.75rem;
   padding: 0.45rem;
@@ -135,7 +136,6 @@ const EditBtn = styled.div`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  transition: all 0.15s ease-in-out;
 
   ${PreviewBox}:hover & {
     background-color: #ff0000;
