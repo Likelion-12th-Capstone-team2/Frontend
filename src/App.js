@@ -34,7 +34,7 @@ function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/mypage" element={<Mypage />} />
             <Route path="/notifications" element={<Notifications />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="home/:userId" element={<Home />} />
             <Route path="/wishRegister" element={<WishRegister />} />
             <Route path="/wishDetail" element={<WishDetail />} />
             <Route path="/wishAdd" element={<WishAddMine />} />
