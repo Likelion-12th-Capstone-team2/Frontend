@@ -3,7 +3,8 @@
     "baseUrl": "src",
     "paths": {
       "@/*": ["*"],
-      "@auth/*": ["pages/auth/*"]
+      "@auth/*": ["pages/auth/*"],
+      "@user/*": ["pages/user/*"]
     }
   },
   "include": ["src/**/*"]

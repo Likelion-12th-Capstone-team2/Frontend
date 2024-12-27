@@ -48,6 +48,14 @@ const Theme = {
       line-height: normal;
     `,
 
+    category: `
+      font-family: Pridi;
+      font-size: 0.75rem;
+      font-style: normal;
+      font-weight: 500;
+      line-height: normal;
+    `,
+
     m_category: `
       font-family: Pridi;
       font-size: 1.125rem;
@@ -248,11 +256,11 @@ const Theme = {
   `,
 
     p_category: `
-   font-family: Pridi;
-font-size: 1.5625rem;
-font-style: normal;
-font-weight: 275;
-line-height: normal;
+      font-family: Pridi;
+      font-size: 1.5625rem;
+      font-style: normal;
+      font-weight: 275;
+      line-height: normal;
 `,
 
     p_btn: `
@@ -264,11 +272,11 @@ line-height: normal;
 `,
 
     p_numBtn: `
-   font-family: Pridi;
-font-size: 1.25rem;
-font-style: normal;
-font-weight: 300;
-line-height: normal;
+      font-family: Pridi;
+      font-size: 1.25rem;
+      font-style: normal;
+      font-weight: 300;
+      line-height: normal;
 `,
 
     p_detail_eng: `
@@ -279,11 +287,11 @@ line-height: normal;
       line-height: 110%;
 `,
     p_clickwish_eng: `
-     font-family: Pridi;
-font-size: 1.875rem;
-font-style: normal;
-font-weight: 275;
-line-height: normal;
+      font-family: Pridi;
+      font-size: 1.875rem;
+      font-style: normal;
+      font-weight: 275;
+      line-height: normal;
 `,
     p_popTitle: `
       font-family: Pridi;
