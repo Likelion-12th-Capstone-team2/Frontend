@@ -3,6 +3,7 @@ import { HeartLine, HeartFull } from '@/assets/icons';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import hamburger from '@/assets/hamburger.svg';
 
 const WishRegister = () => {
   const navigate = useNavigate();
@@ -219,6 +220,9 @@ const WishRegister = () => {
   return (
     <Wrapper>
       <Container>
+        <NavContainer>
+          <HamburgerIcon src={hamburger} alt="Menu" />
+        </NavContainer>
         <Line position="top" />
         <Line position="bottom" />
         <Line position="left" />
@@ -337,6 +341,28 @@ const WishRegister = () => {
 };
 
 export default WishRegister;
+
+const NavContainer = styled.div`
+  display: none;
+  ${({ theme }) => theme.mobile} {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 6.25rem;
+    margin-right: 3.14%;
+  }
+`;
+
+const HamburgerIcon = styled.img`
+  display: none;
+
+  ${({ theme }) => theme.mobile} {
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+  }
+`;
 
 const DoneBtn = styled.button`
   position: relative;
@@ -641,7 +667,7 @@ const Container = styled.div`
   @media (max-width: 1230px) {
     display: flex;
     flex-direction: column;
-    margin: 6.25rem 3.14%;
+    margin: 0 3.14%;
     width: 94.24%;
   }
 `;

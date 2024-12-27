@@ -4,17 +4,24 @@ import axios from 'axios';
 import { HeartFullBlue } from '@/assets/icons';
 import backgroundEg from '@/assets/backgroundEg.png';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import hamburger from '@/assets/hamburger.svg';
 
 const WishDetail = () => {
   const location = useLocation();
   const [data, setData] = useState(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isUnsendPopupVisible, setIsUnsendPopupVisible] = useState(false);
-
-  const { itemId } = location.state || {};
+  const itemId =
+    location.state?.itemId ||
+    new URLSearchParams(location.search).get('itemId');
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!itemId) {
+      console.error('Item ID is missing');
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
@@ -39,10 +46,9 @@ const WishDetail = () => {
   const handleSend = async () => {
     try {
       const token = localStorage.getItem('token');
-      const user_id = data.user; // data에서 user_id를 가져옵니다.
+      const user_id = localStorage.getItem('user_id');
       await axios.post(
-        `http://ireallywantit.xyz/wish/${user_id}/${itemId}/gifts/`,
-        {},
+        `http://ireallywantit.xyz/wish/items/${user_id}/${itemId}/gifts/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -60,7 +66,7 @@ const WishDetail = () => {
       setIsPopupVisible(false);
     } catch (error) {
       console.error('Failed to send gift:', error);
-      alert('Failed to send gift. Please try again.');
+      alert('Failed to send gift.');
     }
   };
 
@@ -69,7 +75,7 @@ const WishDetail = () => {
       const token = localStorage.getItem('token');
       const user_id = localStorage.getItem('user_id');
       await axios.delete(
-        `http://ireallywantit.xyz/wish/${user_id}/${itemId}/gifts/`,
+        `http://ireallywantit.xyz/wish/items/${user_id}/${itemId}/gifts/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -87,7 +93,7 @@ const WishDetail = () => {
       setIsUnsendPopupVisible(false);
     } catch (error) {
       console.error('Failed to unsend gift:', error);
-      alert('Failed to unsend gift. Please try again.');
+      alert('Failed to unsend gift.');
     }
   };
 
@@ -118,6 +124,7 @@ const WishDetail = () => {
           <NavBtn>Ding!</NavBtn>
           <NavBtn>Setting</NavBtn>
           <NavBtn>Log out</NavBtn>
+          <HamburgerIcon src={hamburger} alt="Menu" />
         </NavContainer>
         <Content>
           <img src={data.item.item_image} alt={data.item.item_name} />
@@ -157,90 +164,93 @@ const WishDetail = () => {
               <p>price.</p>
               <p>{data.item.price}</p>
             </Price>
-            <WishBtnContainer>
-              <WishBtn
-                onClick={() => {
-                  if (typeof data.user !== 'number') {
-                    handleEditDetailsClick();
-                  }
-                }}
-              >
-                {typeof data.user === 'number'
-                  ? 'Add to my wishlist'
-                  : 'Edit details'}
-              </WishBtn>
+            <BottomDetail>
+              <WishBtnContainer>
+                <WishBtn
+                  onClick={() => {
+                    if (typeof data.user === 'number') {
+                      navigate('/wishRegister', {
+                        state: { itemToEdit: data },
+                      });
+                    } else {
+                      handleEditDetailsClick();
+                    }
+                  }}
+                >
+                  {typeof data.user === 'number'
+                    ? 'Add to my wishlist'
+                    : 'Edit details'}
+                </WishBtn>
 
-              <WishBtn
-                onClick={() => {
-                  const currentUrl = window.location.href;
-                  const shareUrl = `${currentUrl}?itemId=${itemId}`;
-                  navigator.clipboard
-                    .writeText(shareUrl)
-                    .then(() => {
-                      alert('Link copied to clipboard!');
-                    })
-                    .catch((err) => {
-                      console.error('Failed to copy link:', err);
-                      alert('Failed to copy the link. Please try again.');
-                    });
-                }}
-              >
-                Share
-              </WishBtn>
+                <WishBtn
+                  onClick={() => {
+                    const currentUrl = window.location.href;
+                    const shareUrl = `${currentUrl}?itemId=${itemId}`;
+                    navigator.clipboard
+                      .writeText(shareUrl)
+                      .then(() => {
+                        alert('Link copied to clipboard!');
+                      })
+                      .catch((err) => {
+                        console.error('Failed to copy link:', err);
+                        alert('Failed to copy the link. Please try again.');
+                      });
+                  }}
+                >
+                  Share
+                </WishBtn>
 
-              <WishBtn
-                style={{ backgroundColor: 'orange' }}
-                onClick={() => {
-                  if (data.item.wish_link) {
-                    window.open(data.item.wish_link, '_blank');
-                  } else {
-                    alert('No link available.');
-                  }
-                }}
-              >
-                See the link
-              </WishBtn>
-            </WishBtnContainer>
-            <ReceiveCheck>
-              <div>
-                <p>Received?</p>
-                <ReceiveStatus isSended={data.item.is_sended}>
-                  {data.item.is_sended ? 'Yes' : 'Not yet.'}
-                </ReceiveStatus>
-              </div>
-              <From
-                isOnMe={typeof data.user === 'number' && !data.item.is_sended}
-                onClick={handleFromClick}
-              >
-                {data.item.is_sended
-                  ? `From. ${localStorage.getItem('username') || ''}`
-                  : typeof data.user === 'number'
-                    ? 'On me!!'
-                    : ''}
-              </From>
-            </ReceiveCheck>
+                <WishBtn
+                  style={{ backgroundColor: 'orange' }}
+                  onClick={() => {
+                    if (data.item.wish_link) {
+                      window.open(data.item.wish_link, '_blank');
+                    } else {
+                      alert('No link available.');
+                    }
+                  }}
+                >
+                  See the link
+                </WishBtn>
+              </WishBtnContainer>
+              <ReceiveCheck>
+                <div>
+                  <p style={{}}>Received?</p>
+                  <ReceiveStatus isSended={data.item.is_sended}>
+                    {data.item.is_sended ? 'Yes' : 'Not yet.'}
+                  </ReceiveStatus>
+                </div>
+                <From
+                  isOnMe={typeof data.user === 'number' && !data.item.is_sended}
+                  onClick={handleFromClick}
+                >
+                  {data.item.is_sended
+                    ? `From. ${localStorage.getItem('username') || ''}`
+                    : typeof data.user === 'number'
+                      ? 'On me!!'
+                      : ''}
+                </From>
+              </ReceiveCheck>
+            </BottomDetail>
           </DetailContainer>
         </Content>
       </Container>
       {isPopupVisible && (
         <PopupOverlay>
           <PopupContainer>
-            <PopupText>Do you wanna gift this?</PopupText>
+            <PopupQ>Do you wanna gift this?</PopupQ>
             <PopupContent>
               <PopupItemImage
                 src={data.item.item_image}
                 alt={data.item.item_name}
               ></PopupItemImage>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                }}
-              >
+              <PopupText>
                 <PopupItemName>{data.item.item_name}</PopupItemName>
-                <PopupPrice>price. {data.item.price}</PopupPrice>
-              </div>
+                <Price>
+                  <p>price.</p>
+                  <p>{data.item.price}</p>
+                </Price>
+              </PopupText>
             </PopupContent>
             <PopupActions>
               <PopupButton onClick={() => setIsPopupVisible(false)}>
@@ -254,7 +264,7 @@ const WishDetail = () => {
       {isUnsendPopupVisible && (
         <PopupOverlay>
           <PopupContainer>
-            <PopupText>Changed your mind?</PopupText>
+            <PopupQ>Changed your mind?</PopupQ>
             <PopupActions>
               <PopupButton onClick={() => setIsUnsendPopupVisible(false)}>
                 No
@@ -292,38 +302,75 @@ const PopupContainer = styled.div`
   background-color: #168395;
   box-shadow: 4px 4px 0px 0px #0e0a04;
   width: 32.55rem;
+  ${({ theme }) => theme.mobile} {
+    width: 81%;
+    height: auto;
+    /* padding-bottom: 40%; */
+  }
 `;
 
 const PopupContent = styled.div`
   padding: 1.1rem 2.1rem 1.9rem 2.1rem;
   display: flex;
   gap: 1.05rem;
+  ${({ theme }) => theme.mobile} {
+    padding: 20% 14% 0 14%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+  }
 `;
 
-const PopupText = styled.p`
+const PopupQ = styled.p`
   width: 100%;
   background-color: black;
   height: 3.9rem;
   padding: 1rem 1.25rem;
   ${({ theme }) => theme.font.p_popTitle}
+  ${({ theme }) => theme.mobile} {
+    ${({ theme }) => theme.font.common_text}
+    height: 4.875rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+`;
+
+const PopupText = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
 `;
 
 const PopupItemImage = styled.img`
   width: 9.188rem;
   height: 11.5rem;
+  ${({ theme }) => theme.mobile} {
+    display: none;
+  }
 `;
 
 const PopupItemName = styled.div`
   ${({ theme }) => theme.font.p_popTitle_eng}
   margin-bottom: 1.15rem;
+  ${({ theme }) => theme.mobile} {
+    ${({ theme }) => theme.font.m_popTitle_eng}
+  }
 `;
-const PopupPrice = styled.div``;
+
 const PopupActions = styled.div`
   display: flex;
   gap: 1rem;
   justify-content: end;
   width: 93%;
   margin: 1.25rem 0;
+  ${({ theme }) => theme.mobile} {
+    justify-content: center;
+    width: 99%;
+    margin: 20% 0;
+    gap: 1.875rem;
+  }
 `;
 
 const PopupButton = styled.button`
@@ -356,11 +403,16 @@ const From = styled.div`
 const ReceiveCheck = styled.div`
   display: flex;
   flex-direction: column;
+  ${({ theme }) => theme.mobile} {
+    margin-top: 0.875rem;
+  }
   div {
     display: flex;
-    gap: 1.7rem;
     p {
-      margin: 0.125rem 0.5rem;
+      margin-right: 2.7rem;
+      ${({ theme }) => theme.mobile} {
+        ${({ theme }) => theme.font.common_text}
+      }
     }
   }
 `;
@@ -379,6 +431,17 @@ const WishBtnContainer = styled.div`
   margin: 3.05rem 0.4rem;
   gap: 0.75rem;
   width: fit-content;
+  ${({ theme }) => theme.mobile} {
+    gap: 1rem;
+    margin: 1.875rem 0 0 0;
+  }
+`;
+
+const BottomDetail = styled.div`
+  ${({ theme }) => theme.mobile} {
+    display: flex;
+    flex-direction: column-reverse;
+  }
 `;
 
 const Price = styled.div`
@@ -407,6 +470,9 @@ const Option = styled.div`
   display: flex;
   align-items: flex-start;
   margin: 0.9rem 0 0.6rem 0;
+  ${({ theme }) => theme.mobile} {
+    margin: 1.875rem 0 0.875rem 0;
+  }
   p {
     ${({ theme }) => theme.font.common_text}
     margin-right: 3.838rem;
@@ -421,6 +487,10 @@ const OptionList = styled.div`
 
 const WishName = styled.div`
   ${({ theme }) => theme.font.p_detail_eng}
+
+  ${({ theme }) => theme.mobile} {
+    ${({ theme }) => theme.font.m_detail_eng}
+  }
 `;
 
 const Heart = styled.div``;
@@ -429,6 +499,10 @@ const CategoryName = styled.div`
   ${({ theme }) => theme.font.p_category}
   background-color: ${({ theme }) => theme.color.mint};
   padding: 0.0625rem 0.5rem;
+
+  ${({ theme }) => theme.mobile} {
+    ${({ theme }) => theme.font.m_detail_category}
+  }
 `;
 
 const TopDetail = styled.div`
@@ -444,7 +518,7 @@ const Overlay = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  width: 23.75rem; /* 이미지 크기와 동일하게 설정 */
+  width: 23.75rem;
   height: 30rem;
   display: flex;
   justify-content: center;
@@ -454,6 +528,10 @@ const Overlay = styled.div`
   font-size: 2rem;
   font-weight: bold;
   text-transform: uppercase;
+  ${({ theme }) => theme.mobile} {
+    width: 100%;
+    aspect-ratio: 5 / 6; /* 가로:세로 비율 고정 */
+  }
 `;
 
 const OverlayText = styled.div`
@@ -470,10 +548,33 @@ const Content = styled.div`
   gap: 5rem;
   margin-top: 5rem;
   position: relative;
+  ${({ theme }) => theme.mobile} {
+    display: flex;
+    flex-direction: column;
+    margin-top: 6%;
+    width: 100%;
+    gap: 1.875rem;
+  }
   img {
     width: 23.75rem;
     height: 30rem;
     object-fit: cover;
+    ${({ theme }) => theme.mobile} {
+      width: 100%;
+      aspect-ratio: 5 / 6; /* 가로:세로 비율 고정 */
+      object-fit: cover; /* 이미지 비율 유지하며 꽉 채움 */
+    }
+  }
+`;
+
+const HamburgerIcon = styled.img`
+  display: none;
+
+  ${({ theme }) => theme.mobile} {
+    display: block; /* 모바일에서만 보임 */
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
   }
 `;
 
@@ -484,6 +585,9 @@ const NavBtn = styled.div`
   color: #000;
   padding: 0.25rem 1.125rem;
   cursor: pointer;
+  ${({ theme }) => theme.mobile} {
+    display: none; /* 모바일에서는 숨김 */
+  }
 `;
 
 const NavContainer = styled.div`
@@ -494,15 +598,21 @@ const NavContainer = styled.div`
 
 const Container = styled.div`
   margin: 1.406rem 10rem;
+  ${({ theme }) => theme.mobile} {
+    margin: 4.1%;
+  }
 `;
 
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 200vh;
   background-image: url(${(props) => props.backgroundImage || backgroundEg});
   background-repeat: repeat;
   background-size: 320px 350px;
   background-color: rgba(0, 0, 0, 0.6);
   background-blend-mode: overlay;
+  ${({ theme }) => theme.mobile} {
+    height: 200vh;
+  }
 `;
