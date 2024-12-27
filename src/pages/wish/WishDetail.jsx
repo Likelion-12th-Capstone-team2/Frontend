@@ -35,28 +35,59 @@ const WishDetail = () => {
     fetchData();
   }, []);
 
-  const handleSend = () => {
-    setData((prev) => ({
-      ...prev,
-      item: {
-        ...prev.item,
-        is_sended: true,
-        sender: data.setting.name,
-      },
-    }));
-    setIsPopupVisible(false);
+  const handleSend = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const user_id = data.user; // data에서 user_id를 가져옵니다.
+      await axios.post(
+        `http://ireallywantit.xyz/wish/${user_id}/${itemId}/gifts/`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setData((prev) => ({
+        ...prev,
+        item: {
+          ...prev.item,
+          is_sended: true,
+          sender: data.setting.name,
+        },
+      }));
+      setIsPopupVisible(false);
+    } catch (error) {
+      console.error('Failed to send gift:', error);
+      alert('Failed to send gift. Please try again.');
+    }
   };
 
-  const handleUnsend = () => {
-    setData((prev) => ({
-      ...prev,
-      item: {
-        ...prev.item,
-        is_sended: false,
-        sender: '',
-      },
-    }));
-    setIsUnsendPopupVisible(false);
+  const handleUnsend = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const user_id = localStorage.getItem('user_id');
+      await axios.delete(
+        `http://ireallywantit.xyz/wish/${user_id}/${itemId}/gifts/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setData((prev) => ({
+        ...prev,
+        item: {
+          ...prev.item,
+          is_sended: false,
+          sender: '',
+        },
+      }));
+      setIsUnsendPopupVisible(false);
+    } catch (error) {
+      console.error('Failed to unsend gift:', error);
+      alert('Failed to unsend gift. Please try again.');
+    }
   };
 
   const handleFromClick = () => {
@@ -138,7 +169,24 @@ const WishDetail = () => {
                   : 'Edit details'}
               </WishBtn>
 
-              <WishBtn>Share via KakaoTalk</WishBtn>
+              <WishBtn
+                onClick={() => {
+                  const currentUrl = window.location.href;
+                  const shareUrl = `${currentUrl}?itemId=${itemId}`;
+                  navigator.clipboard
+                    .writeText(shareUrl)
+                    .then(() => {
+                      alert('Link copied to clipboard!');
+                    })
+                    .catch((err) => {
+                      console.error('Failed to copy link:', err);
+                      alert('Failed to copy the link. Please try again.');
+                    });
+                }}
+              >
+                Share
+              </WishBtn>
+
               <WishBtn
                 style={{ backgroundColor: 'orange' }}
                 onClick={() => {

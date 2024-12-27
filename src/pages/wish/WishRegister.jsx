@@ -165,7 +165,7 @@ const WishRegister = () => {
             },
           },
         );
-        alert('Wish 수정 성공!');
+        alert('Wish update succeeded!');
         navigate('/wishDetail', {
           state: { itemId: itemToEdit.item.id }, // 수정한 위시의 ID 전달
         });
@@ -183,14 +183,14 @@ const WishRegister = () => {
             },
           },
         );
-        alert('Wish 등록 성공!');
+        alert('Wish registration succeeded!');
         navigate('/home');
       }
 
       console.log(response.data);
     } catch (err) {
       console.error('Error submitting wish:', err.message);
-      alert('Wish 등록 실패!');
+      alert('Wish registration failed');
     }
   };
 
@@ -317,9 +317,9 @@ const WishRegister = () => {
 export default WishRegister;
 
 const DoneBtn = styled.button`
-  position: absolute;
-  right: 12.963rem;
-  top: 41.375rem;
+  position: relative;
+  left: 54.1rem;
+  bottom: 3.2rem;
   border: 0;
   background-color: #bebebe;
   color: #fff;
@@ -348,16 +348,18 @@ const CategoryInput = styled.div`
   flex-direction: row;
   gap: 1rem;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
   div {
     cursor: pointer;
-    width: 6.688rem;
+    width: max-content;
     height: 2rem;
     border-radius: 1.25rem;
     border: 1px solid #fff;
     ${({ theme }) => theme.font.common_detail}
-    padding: 0.25rem;
+    padding: 0 2.688rem;
     display: flex;
     justify-content: center;
+    align-items: center;
     &.active,
     &:hover {
       background-color: ${({ theme }) => theme.color.orange};
@@ -398,6 +400,7 @@ const OptionInput = styled.div`
 `;
 
 const OtherInput = styled.div`
+  width: 31.25rem;
   p {
     ${({ theme }) => theme.font.common_detail}
     margin-bottom: 0.25rem;
