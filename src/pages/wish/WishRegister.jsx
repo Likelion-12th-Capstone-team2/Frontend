@@ -22,6 +22,21 @@ const WishRegister = () => {
   const [loading, setLoading] = useState(false); // 로딩 상태 관리
   const [error, setError] = useState(null); // 오류 상태 관리
   const [categories, setCategories] = useState([]); // 카테고리 목록 상태 관리
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth <= 1230);
+    };
+
+    handleResize(); // 초기 화면 크기 확인
+    window.addEventListener('resize', handleResize); // 리사이즈 이벤트 등록
+    return () => window.removeEventListener('resize', handleResize); // 이벤트 제거
+  }, []);
 
   // 페이지가 로드될 때, itemToEdit이 있으면 폼에 데이터 채워넣기
   useEffect(() => {
@@ -209,7 +224,14 @@ const WishRegister = () => {
         <Line position="left" />
         <Line position="right" />
         <TitleContainer>
-          <Title>WHAT DO YOU WANT ?</Title>
+          {isSmallScreen ? (
+            <>
+              <Title>WHAT DO</Title>
+              <Title style={{ marginTop: '1rem' }}>YOU WANT ?</Title>
+            </>
+          ) : (
+            <Title>WHAT DO YOU WANT ?</Title>
+          )}
         </TitleContainer>
 
         <Content>
@@ -256,27 +278,27 @@ const WishRegister = () => {
             />
             <p>Wish Option.</p>
             <OptionInput>
-              <div>S</div>
+              <div>ⓢ</div>
               <input
                 name="size"
                 placeholder="size"
-                style={{ width: '7.563rem', margin: '0 1rem 0 0.563rem' }}
+                style={{ width: '24%', margin: '0 1rem 0 0.563rem' }}
                 onChange={handleInputChange}
                 value={formData.size}
               />
-              <div>C</div>
+              <div>ⓒ</div>
               <input
                 name="color"
                 placeholder="color"
-                style={{ width: '7.563rem', margin: '0 1rem 0 0.563rem' }}
+                style={{ width: '24%', margin: '0 1rem 0 0.563rem' }}
                 onChange={handleInputChange}
                 value={formData.color}
               />
-              <div>O</div>
+              <div>ⓞ</div>
               <input
                 name="other_option"
                 placeholder="other option"
-                style={{ width: '7.563rem', margin: '0 0 0 0.563rem' }}
+                style={{ width: '24%', margin: '0 0 0 0.563rem' }}
                 onChange={handleInputChange}
                 value={formData.other_option}
               />
@@ -331,6 +353,12 @@ const DoneBtn = styled.button`
   &:hover,
   &:active {
     background-color: #000;
+  }
+
+  @media (max-width: 1230px) {
+    position: relative;
+    left: 70%;
+    bottom: 0rem;
   }
 `;
 
@@ -387,23 +415,37 @@ const OptionInput = styled.div`
   align-items: center;
   height: 2.625rem;
   margin-bottom: 2rem;
+  @media (max-width: 1230px) {
+    width: 100%;
+  }
   div {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 1.5rem;
     height: 1.5rem;
-    border: 0.0625rem solid white;
-    border-radius: 50%;
-    ${({ theme }) => theme.font.common_detail}
+    font-family: Pridi;
+    font-size: 1.7rem;
+    font-style: normal;
+    font-weight: 100;
+    line-height: normal;
+    @media (max-width: 1230px) {
+      font-size: 1.5rem;
+    }
   }
 `;
 
 const OtherInput = styled.div`
   width: 31.25rem;
+  @media (max-width: 1230px) {
+    width: 100%;
+  }
   p {
     ${({ theme }) => theme.font.common_detail}
     margin-bottom: 0.25rem;
+    @media (max-width: 1230px) {
+      ${({ theme }) => theme.font.common_detail}
+    }
   }
   input {
     margin-bottom: 1.6rem;
@@ -414,6 +456,10 @@ const OtherInput = styled.div`
     padding: 0.438em 1.063rem;
     ${({ theme }) => theme.font.common_input}
     color: white;
+    @media (max-width: 1230px) {
+      position: relative;
+      width: 100%;
+    }
   }
   input::placeholder {
     ${({ theme }) => theme.font.common_input}
@@ -449,6 +495,10 @@ const ImgInput = styled.div`
   background-position:
     0 0,
     3.84rem 3.84rem;
+  @media (max-width: 1230px) {
+    width: 15.5rem;
+    height: 19.3rem;
+  }
 
   label {
     text-align: center;
@@ -465,6 +515,12 @@ const Content = styled.div`
   display: flex;
   margin: 1.875rem 3.25rem 1.25rem 4.1875rem;
   position: relative;
+  @media (max-width: 1230px) {
+    display: flex;
+    flex-direction: column;
+    margin: 5rem 2.25rem 7.188rem 2.25rem;
+    gap: 5rem;
+  }
 `;
 
 const Title = styled.p`
@@ -474,6 +530,11 @@ const Title = styled.p`
   padding: 0 0.521rem;
   margin: 0;
   width: fit-content;
+  @media (max-width: 1230px) {
+    display: flex;
+    flex-direction: column;
+    ${({ theme }) => theme.font.m_homeTitle_eng}
+  }
 `;
 
 const TitleContainer = styled.div`
@@ -481,6 +542,12 @@ const TitleContainer = styled.div`
   flex-direction: column;
   margin: 0.625rem 0.521rem;
   width: fit-content;
+  @media (max-width: 1230px) {
+    display: flex;
+    flex-direction: column;
+    ${({ theme }) => theme.font.m_homeTitle_eng}
+    margin: 1rem 1.063rem;
+  }
 `;
 
 const Line = styled.div`
@@ -525,16 +592,66 @@ const Line = styled.div`
     width: 1px;
     height: 200vh;
   `}
+
+
+    @media (max-width: 1230px) {
+    ${({ position }) =>
+      position === 'top' &&
+      `
+    top: 6.25rem; 
+    left: 0rem; 
+    right: 0rem; 
+    height: 1px;
+  `}
+
+    ${({ position }) =>
+      position === 'bottom' &&
+      `
+    top: 15.25rem; 
+    left: 0rem; 
+    right: 0rem; 
+    height: 1px;
+  `}
+
+  ${({ position }) =>
+      position === 'left' &&
+      `
+    top: 0rem; 
+    bottom: 0rem; 
+    left: 3.14%; 
+    width: 1px;
+    height: 250vh;
+  `}
+
+  ${({ position }) =>
+      position === 'right' &&
+      `
+    top: 0rem; 
+    bottom: 0rem; 
+    right: 3.14%; 
+    width: 1px;
+    height: 250vh;
+  `}
+  }
 `;
 
 const Container = styled.div`
   margin: 6.25rem 8.75rem;
   width: 62.5rem;
+  @media (max-width: 1230px) {
+    display: flex;
+    flex-direction: column;
+    margin: 6.25rem 3.14%;
+    width: 94.24%;
+  }
 `;
 
 const Wrapper = styled.div`
   display: flex;
-  /* width: 100vw; */
-  height: 150vh;
+  height: 200vh;
   background-color: ${({ theme }) => theme.color.mint};
+
+  @media (max-width: 1230px) {
+    height: 250vh;
+  }
 `;
