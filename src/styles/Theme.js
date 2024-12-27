@@ -295,10 +295,10 @@ line-height: normal;
 
     p_popTitle_eng: `
       font-family: Pridi;
-      font-size: 2rem;
-      font-style: normal;
-      font-weight: 700;
-      line-height: 100%;
+font-size: 1.5rem;
+font-style: normal;
+font-weight: 700;
+line-height: 100%; /* 1.5rem */
 `,
 
     p_popTitle_kor: `

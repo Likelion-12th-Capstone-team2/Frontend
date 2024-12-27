@@ -10,3 +10,4 @@ export { default as OptionSize } from './OptionSize';
 export { default as Plus } from './Plus';
 export { default as PlusSquare } from './PlusSquare';
 export { default as Delete } from './Delete';
+export { default as Hamburger } from './Hamburger';
