@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import hamburger from '@/assets/hamburger.svg';
 import CloseIcon from '@/assets/closeIcon.svg';
+import { useParams } from 'react-router-dom';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -24,6 +25,53 @@ const Home = () => {
   });
   const [categories, setCategories] = useState([{ name: 'All', id: null }]); // 카테고리 상태
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const { userId } = useParams();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const loggedInUserId = localStorage.getItem('id'); // 로그인된 사용자 ID
+    if (token && loggedInUserId && (!userId || userId === 'guest')) {
+      // 로그인한 상태에서 guest 페이지나 ID 없는 URL로 접근 시 본인 홈으로 리다이렉트
+      navigate(`/home/${loggedInUserId}`);
+    } else {
+      // URL의 userId 기반으로 데이터 로드
+      fetchUserHome(userId || 'guest');
+    }
+  }, [userId]);
+
+  const fetchUserHome = async (userId) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/wish/${userId}/`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}, // token이 있으면 Authorization 추가
+        },
+      );
+
+      const data = response.data;
+      setSettings({
+        name: data.setting?.name || 'Guest',
+        backgroundPhoto: data.setting?.background_photo || '',
+        color: data.setting?.color || '#fff',
+        typography: data.setting?.typography || 'Arial',
+      });
+
+      const categoryList = data.catagory
+        ? data.catagory.map((cat) => ({
+            name: cat.category,
+            id: cat.id,
+          }))
+        : [];
+      setCategories([{ name: 'All', id: null }, ...categoryList]);
+      setProducts(data.wish_items || []);
+      setShowMessage(data.wish_items?.length === 0);
+    } catch (error) {
+      console.error('Failed to fetch user home:', error);
+      alert('사용자 정보를 가져오지 못했습니다.');
+    }
+  };
 
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
@@ -107,38 +155,49 @@ const Home = () => {
       if (selectedCategoryId !== null)
         queryParams.append('category', selectedCategoryId);
 
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}; // token이 없으면 headers 비우기
+
       const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/wish/${user_id}/?${queryParams.toString()}`,
+        `${process.env.REACT_APP_BASE_URL}/wish/${user_id || 'guest'}/?${queryParams.toString()}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers,
         },
       );
 
       const data = response.data;
 
+      if (!token) {
+        setUserType('guest'); // token 없으면 guest로 처리
+        setShowMessage(true); // 게스트는 기본적으로 메시지 표시
+      } else {
+        setUserType(data.user); // user type 설정
+      }
+
       setSettings({
-        name: data.setting.name,
-        backgroundPhoto: data.setting.background_photo,
-        color: data.setting.color,
-        typography: data.setting.typography,
+        name: data.setting?.name || 'Guest',
+        backgroundPhoto: data.setting?.background_photo || '',
+        color: data.setting?.color || '#fff',
+        typography: data.setting?.typography || 'Arial',
       });
 
-      const categoryList = data.catagory.map((cat) => ({
-        name: cat.category,
-        id: cat.id,
-      }));
-
+      const categoryList = data.catagory
+        ? data.catagory.map((cat) => ({
+            name: cat.category,
+            id: cat.id,
+          }))
+        : [];
       setCategories([{ name: 'All', id: null }, ...categoryList]);
-      setProducts(data.wish_items);
-      setShowMessage(data.wish_items.length === 0);
-      setUserType(data.user); // user type 설정
+      setProducts(data.wish_items || []);
+      setShowMessage(data.wish_items?.length === 0);
 
       console.log(data.wish_items);
       console.log(data);
     } catch (error) {
       console.error('Error fetching products:', error);
+      if (!token) {
+        setUserType('guest'); // 에러 발생 시에도 token 없으면 guest로 설정
+        setShowMessage(true);
+      }
     }
   };
 
@@ -190,6 +249,7 @@ const Home = () => {
         <Line position="left" />
         <Line position="right" />
       </Container>
+
       <NavContainer>
         <Hamburger onClick={toggleMenu}>
           <img src={hamburger}></img>
@@ -327,14 +387,17 @@ const Home = () => {
                 )}
               </ProductGrid>
 
-              {userType === 'owner' && (
-                <BottomWrapper>
-                  <button onClick={toggleDeleteMode}>
-                    {showDeleteIcons ? 'Done' : 'Delete'}
-                  </button>
-                  <button onClick={() => navigate('/wishRegister')}>Add</button>
-                </BottomWrapper>
-              )}
+              {userType === 'owner' &&
+                userId === localStorage.getItem('id') && (
+                  <BottomWrapper>
+                    <button onClick={toggleDeleteMode}>
+                      {showDeleteIcons ? 'Done' : 'Delete'}
+                    </button>
+                    <button onClick={() => navigate('/wishRegister')}>
+                      Add
+                    </button>
+                  </BottomWrapper>
+                )}
             </MiddleWrapper>
           </div>
         )}
@@ -404,7 +467,7 @@ const BottomWrapper = styled.div`
 
 const CatagoryContainer = styled.div`
   width: 79%;
-  min-height: 10rem;
+  min-height: 17rem;
   position: relative; /* 자식 요소의 위치를 제한 */
   display: flex;
   align-items: center;
@@ -609,6 +672,12 @@ const ClickWish = styled.p`
   padding: 0.4rem 0.15rem;
   display: inline-block;
   cursor: pointer;
+  @media (max-width: 60rem) {
+    margin-left: 6rem;
+  }
+  @media (max-width: 48rem) {
+    margin-left: 3.5rem;
+  }
 `;
 
 const WishWrapper = styled.div``;
@@ -857,6 +926,5 @@ const MenuItem = styled.li`
   &:hover {
     background-color: white;
     color: black;
-    border-radius: 8px;
   }
 `;

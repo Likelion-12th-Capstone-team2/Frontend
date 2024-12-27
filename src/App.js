@@ -23,7 +23,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LogIn />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="home/:userId" element={<Home />} />
             <Route path="/wishRegister" element={<WishRegister />} />
             <Route path="/wishDetail" element={<WishDetail />} />
           </Routes>

@@ -42,7 +42,7 @@ const LogIn = () => {
       localStorage.setItem('username', response.data.data.username);
       localStorage.setItem('token', response.data.data.access_token);
       localStorage.setItem('id', response.data.data.id);
-      navigate('/home');
+      navigate(`/home/${response.data.data.id}`);
     } catch (error) {
       setIsPasswordValid(false);
       passwordRef.current?.focus();
