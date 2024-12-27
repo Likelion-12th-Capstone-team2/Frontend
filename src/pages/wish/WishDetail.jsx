@@ -12,7 +12,6 @@ const WishDetail = () => {
   const [isUnsendPopupVisible, setIsUnsendPopupVisible] = useState(false);
 
   const { itemId } = location.state || {};
-  const itemIdToFetch = itemId || 8;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,28 +36,59 @@ const WishDetail = () => {
     fetchData();
   }, []);
 
-  const handleSend = () => {
-    setData((prev) => ({
-      ...prev,
-      item: {
-        ...prev.item,
-        is_sended: true,
-        sender: data.setting.name,
-      },
-    }));
-    setIsPopupVisible(false);
+  const handleSend = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const user_id = data.user; // data에서 user_id를 가져옵니다.
+      await axios.post(
+        `http://ireallywantit.xyz/wish/${user_id}/${itemId}/gifts/`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setData((prev) => ({
+        ...prev,
+        item: {
+          ...prev.item,
+          is_sended: true,
+          sender: data.setting.name,
+        },
+      }));
+      setIsPopupVisible(false);
+    } catch (error) {
+      console.error('Failed to send gift:', error);
+      alert('Failed to send gift. Please try again.');
+    }
   };
 
-  const handleUnsend = () => {
-    setData((prev) => ({
-      ...prev,
-      item: {
-        ...prev.item,
-        is_sended: false,
-        sender: '',
-      },
-    }));
-    setIsUnsendPopupVisible(false);
+  const handleUnsend = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const user_id = localStorage.getItem('user_id');
+      await axios.delete(
+        `http://ireallywantit.xyz/wish/${user_id}/${itemId}/gifts/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      setData((prev) => ({
+        ...prev,
+        item: {
+          ...prev.item,
+          is_sended: false,
+          sender: '',
+        },
+      }));
+      setIsUnsendPopupVisible(false);
+    } catch (error) {
+      console.error('Failed to unsend gift:', error);
+      alert('Failed to unsend gift. Please try again.');
+    }
   };
 
   const handleFromClick = () => {
@@ -91,6 +121,11 @@ const WishDetail = () => {
         </NavContainer>
         <Content>
           <img src={data.item.item_image} alt={data.item.item_name} />
+          {data.item.is_sended && (
+            <Overlay>
+              <OverlayText>Received</OverlayText>
+            </Overlay>
+          )}
           <DetailContainer>
             <TopDetail>
               <CategoryName>{data.item.category}</CategoryName>
@@ -135,8 +170,34 @@ const WishDetail = () => {
                   : 'Edit details'}
               </WishBtn>
 
-              <WishBtn>Share via KakaoTalk</WishBtn>
-              <WishBtn style={{ backgroundColor: 'orange' }}>
+              <WishBtn
+                onClick={() => {
+                  const currentUrl = window.location.href;
+                  const shareUrl = `${currentUrl}?itemId=${itemId}`;
+                  navigator.clipboard
+                    .writeText(shareUrl)
+                    .then(() => {
+                      alert('Link copied to clipboard!');
+                    })
+                    .catch((err) => {
+                      console.error('Failed to copy link:', err);
+                      alert('Failed to copy the link. Please try again.');
+                    });
+                }}
+              >
+                Share
+              </WishBtn>
+
+              <WishBtn
+                style={{ backgroundColor: 'orange' }}
+                onClick={() => {
+                  if (data.item.wish_link) {
+                    window.open(data.item.wish_link, '_blank');
+                  } else {
+                    alert('No link available.');
+                  }
+                }}
+              >
                 See the link
               </WishBtn>
             </WishBtnContainer>
@@ -165,12 +226,22 @@ const WishDetail = () => {
         <PopupOverlay>
           <PopupContainer>
             <PopupText>Do you wanna gift this?</PopupText>
-            <PopupItemImage
-              src={data.item.item_image}
-              alt={data.item.item_name}
-            ></PopupItemImage>
-            <PopupItemName>{data.item.item_name}</PopupItemName>
-            <PopupPrice>Price: {data.item.price}</PopupPrice>
+            <PopupContent>
+              <PopupItemImage
+                src={data.item.item_image}
+                alt={data.item.item_name}
+              ></PopupItemImage>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                }}
+              >
+                <PopupItemName>{data.item.item_name}</PopupItemName>
+                <PopupPrice>price. {data.item.price}</PopupPrice>
+              </div>
+            </PopupContent>
             <PopupActions>
               <PopupButton onClick={() => setIsPopupVisible(false)}>
                 No
@@ -221,28 +292,38 @@ const PopupContainer = styled.div`
   background-color: #168395;
   box-shadow: 4px 4px 0px 0px #0e0a04;
   width: 32.55rem;
-  height: 21.75rem;
+`;
+
+const PopupContent = styled.div`
+  padding: 1.1rem 2.1rem 1.9rem 2.1rem;
+  display: flex;
+  gap: 1.05rem;
 `;
 
 const PopupText = styled.p`
   width: 100%;
   background-color: black;
-  margin-bottom: 1rem;
   height: 3.9rem;
   padding: 1rem 1.25rem;
   ${({ theme }) => theme.font.p_popTitle}
 `;
+
 const PopupItemImage = styled.img`
-  width: 9.2rem;
+  width: 9.188rem;
   height: 11.5rem;
 `;
-const PopupItemName = styled.div``;
+
+const PopupItemName = styled.div`
+  ${({ theme }) => theme.font.p_popTitle_eng}
+  margin-bottom: 1.15rem;
+`;
 const PopupPrice = styled.div``;
 const PopupActions = styled.div`
   display: flex;
   gap: 1rem;
   justify-content: end;
-  width: 97%;
+  width: 93%;
+  margin: 1.25rem 0;
 `;
 
 const PopupButton = styled.button`
@@ -351,18 +432,44 @@ const CategoryName = styled.div`
 `;
 
 const TopDetail = styled.div`
-  width: 31.375rem;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
+  margin-bottom: 0.5rem;
 `;
 
 const DetailContainer = styled.div``;
 
+const Overlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 23.75rem; /* 이미지 크기와 동일하게 설정 */
+  height: 30rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+`;
+
+const OverlayText = styled.div`
+  transform: rotate(-30deg);
+  color: white;
+  font-size: 65.6px;
+  font-family: Pridi;
+  font-weight: 275;
+  word-wrap: break-word;
+`;
+
 const Content = styled.div`
   display: flex;
   gap: 5rem;
-  margin-top: 5.886rem;
+  margin-top: 5rem;
+  position: relative;
   img {
     width: 23.75rem;
     height: 30rem;

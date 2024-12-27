@@ -27,18 +27,31 @@ const WishRegister = () => {
   useEffect(() => {
     if (itemToEdit) {
       setFormData({
-        item_name: itemToEdit.item_name,
-        wish_link: itemToEdit.wish_link,
-        item_image: itemToEdit.item_image,
-        price: itemToEdit.price,
-        size: itemToEdit.size,
-        color: itemToEdit.color,
-        other_option: itemToEdit.other_option,
-        category: itemToEdit.category,
+        item_name: itemToEdit.item.item_name || '',
+        wish_link: itemToEdit.item.wish_link || '',
+        item_image: itemToEdit.item.item_image || '',
+        price: itemToEdit.item.price || '',
+        size: itemToEdit.item.size || '',
+        color: itemToEdit.item.color || '',
+        other_option: itemToEdit.item.other_option || '',
+        category: itemToEdit.item.category || '', // 카테고리 초기화
       });
-      setHeartCount(itemToEdit.heart);
+      setHeartCount(itemToEdit.item.heart || 0); // heart 초기화
+      console.log(itemToEdit); // 데이터가 제대로 전달됐는지 확인
     }
-    fetchCategories(); // 카테고리 항목을 가져옵니다.
+  }, [itemToEdit]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (itemToEdit) {
+      setFormData((prev) => ({
+        ...prev,
+        category: itemToEdit.item.category,
+      }));
+    }
   }, [itemToEdit]);
 
   // 카테고리 항목을 불러오는 함수
@@ -63,15 +76,6 @@ const WishRegister = () => {
       console.error('Error fetching categories:', error);
     }
   };
-
-  // 페이지가 로드될 때 카테고리 데이터를 가져옴
-  useEffect(() => {
-    fetchCategories();
-    if (itemToEdit) {
-      console.log(itemToEdit); // 데이터가 제대로 전달됐는지 확인
-      // 데이터로 폼을 초기화하거나 수정할 수 있음
-    }
-  }, [itemToEdit]);
 
   const handleHeartClick = (index) => {
     setHeartCount(index + 1);
@@ -153,7 +157,7 @@ const WishRegister = () => {
       if (itemToEdit) {
         // 수정 모드: PATCH 요청
         response = await axios.patch(
-          `http://ireallywantit.xyz/wish/items/${itemToEdit.id}/`,
+          `http://ireallywantit.xyz/wish/items/${itemToEdit.item.id}/`,
           dataToSend,
           {
             headers: {
@@ -161,7 +165,10 @@ const WishRegister = () => {
             },
           },
         );
-        alert('Wish 수정 성공!');
+        alert('Wish update succeeded!');
+        navigate('/wishDetail', {
+          state: { itemId: itemToEdit.item.id }, // 수정한 위시의 ID 전달
+        });
       } else {
         // 등록 모드: POST 요청
         const user_id = localStorage.getItem('user_id');
@@ -176,21 +183,21 @@ const WishRegister = () => {
             },
           },
         );
-        alert('Wish 등록 성공!');
+        alert('Wish registration succeeded!');
+        navigate('/home');
       }
 
       console.log(response.data);
-      navigate('/home');
     } catch (err) {
       console.error('Error submitting wish:', err.message);
-      alert('Wish 등록/수정 실패!');
+      alert('Wish registration failed');
     }
   };
 
   const handleCategoryClick = (selectedCategory) => {
     setFormData((prev) => ({
       ...prev,
-      category: selectedCategory.id, // 선택한 카테고리의 id를 저장
+      category: String(selectedCategory.id), // 클릭된 카테고리의 id를 설정
     }));
   };
 
@@ -228,6 +235,7 @@ const WishRegister = () => {
             <p>Wish Link.*</p>
             <input
               name="wish_link"
+              value={formData.wish_link}
               onBlur={handleWishLinkBlur}
               onChange={handleInputChange}
             />
@@ -254,6 +262,7 @@ const WishRegister = () => {
                 placeholder="size"
                 style={{ width: '7.563rem', margin: '0 1rem 0 0.563rem' }}
                 onChange={handleInputChange}
+                value={formData.size}
               />
               <div>C</div>
               <input
@@ -261,6 +270,7 @@ const WishRegister = () => {
                 placeholder="color"
                 style={{ width: '7.563rem', margin: '0 1rem 0 0.563rem' }}
                 onChange={handleInputChange}
+                value={formData.color}
               />
               <div>O</div>
               <input
@@ -268,6 +278,7 @@ const WishRegister = () => {
                 placeholder="other option"
                 style={{ width: '7.563rem', margin: '0 0 0 0.563rem' }}
                 onChange={handleInputChange}
+                value={formData.other_option}
               />
             </OptionInput>
 
@@ -276,10 +287,12 @@ const WishRegister = () => {
               {categories.map((category) => (
                 <div
                   key={category.id}
-                  onClick={() => handleCategoryClick(category)} // 객체 전체를 전달
-                  className={formData.category === category.id ? 'active' : ''} // id 비교
+                  onClick={() => handleCategoryClick(category)}
+                  className={
+                    formData.category === String(category.id) ? 'active' : ''
+                  } // id를 문자열로 변환하여 비교
                 >
-                  {category.category} {/* 사용자에게 보여줄 텍스트 */}
+                  {category.category}
                 </div>
               ))}
               <Plus>+</Plus>
@@ -304,9 +317,9 @@ const WishRegister = () => {
 export default WishRegister;
 
 const DoneBtn = styled.button`
-  position: absolute;
-  right: 12.963rem;
-  top: 41.375rem;
+  position: relative;
+  left: 54.1rem;
+  bottom: 3.2rem;
   border: 0;
   background-color: #bebebe;
   color: #fff;
@@ -335,16 +348,18 @@ const CategoryInput = styled.div`
   flex-direction: row;
   gap: 1rem;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
   div {
     cursor: pointer;
-    width: 6.688rem;
+    width: max-content;
     height: 2rem;
     border-radius: 1.25rem;
     border: 1px solid #fff;
     ${({ theme }) => theme.font.common_detail}
-    padding: 0.25rem;
+    padding: 0 2.688rem;
     display: flex;
     justify-content: center;
+    align-items: center;
     &.active,
     &:hover {
       background-color: ${({ theme }) => theme.color.orange};
@@ -385,6 +400,7 @@ const OptionInput = styled.div`
 `;
 
 const OtherInput = styled.div`
+  width: 31.25rem;
   p {
     ${({ theme }) => theme.font.common_detail}
     margin-bottom: 0.25rem;
