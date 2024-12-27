@@ -20,6 +20,7 @@ import Home from '@/pages/home/Home';
 // wish
 import WishRegister from '@/pages/wish/WishRegister';
 import WishDetail from '@/pages/wish/WishDetail';
+import WishAddMine from './pages/wish/WishAddMine';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
             <Route path="/home" element={<Home />} />
             <Route path="/wishRegister" element={<WishRegister />} />
             <Route path="/wishDetail" element={<WishDetail />} />
+            <Route path="/wishAdd" element={<WishAddMine />} />
           </Routes>
         </Router>
       </ThemeProvider>

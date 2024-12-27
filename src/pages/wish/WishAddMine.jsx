@@ -8,7 +8,8 @@ import hamburger from '@/assets/hamburger.svg';
 const WishRegister = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { itemToEdit } = location.state || {}; // location state에서 itemToEdit 가져오기
+  const { itemToAdd } = location.state || {};
+
   const [heartCount, setHeartCount] = useState(0);
   const [formData, setFormData] = useState({
     item_name: '',
@@ -39,36 +40,10 @@ const WishRegister = () => {
     return () => window.removeEventListener('resize', handleResize); // 이벤트 제거
   }, []);
 
-  // 페이지가 로드될 때, itemToEdit이 있으면 폼에 데이터 채워넣기
-  useEffect(() => {
-    if (itemToEdit) {
-      setFormData({
-        item_name: itemToEdit.item.item_name || '',
-        wish_link: itemToEdit.item.wish_link || '',
-        item_image: itemToEdit.item.item_image || '',
-        price: itemToEdit.item.price || '',
-        size: itemToEdit.item.size || '',
-        color: itemToEdit.item.color || '',
-        other_option: itemToEdit.item.other_option || '',
-        category: itemToEdit.item.category || '', // 카테고리 초기화
-      });
-      setHeartCount(itemToEdit.item.heart || 0); // heart 초기화
-      console.log(itemToEdit); // 데이터가 제대로 전달됐는지 확인
-    }
-  }, [itemToEdit]);
-
   useEffect(() => {
     fetchCategories();
+    fetchData();
   }, []);
-
-  useEffect(() => {
-    if (itemToEdit) {
-      setFormData((prev) => ({
-        ...prev,
-        category: itemToEdit.item.category,
-      }));
-    }
-  }, [itemToEdit]);
 
   // 카테고리 항목을 불러오는 함수
   const fetchCategories = async () => {
@@ -90,6 +65,38 @@ const WishRegister = () => {
       setCategories(response.data); // 받아온 카테고리 데이터를 상태에 저장
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      const itemId = itemToAdd.item.id;
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No access token found');
+      }
+
+      const response = await axios.get(
+        `http://ireallywantit.xyz/wish/tomywish/${itemId}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setFormData({
+        item_name: response.data.item_name || '',
+        wish_link: response.data.wish_link || '',
+        item_image: response.data.item_image || '',
+        price: response.data.price || '',
+        size: response.data.size || '',
+        color: response.data.color || '',
+        other_option: response.data.other_option || '',
+      });
+      console.log(response); // 데이터가 제대로 전달됐는지 확인
+    } catch (error) {
+      console.error('Error fetching Data:', error);
     }
   };
 
@@ -170,22 +177,7 @@ const WishRegister = () => {
 
       let response;
 
-      if (itemToEdit) {
-        // 수정 모드: PATCH 요청
-        response = await axios.patch(
-          `http://ireallywantit.xyz/wish/items/${itemToEdit.item.id}/`,
-          dataToSend,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        alert('Wish update succeeded!');
-        navigate('/wishDetail', {
-          state: { itemId: itemToEdit.item.id }, // 수정한 위시의 ID 전달
-        });
-      } else {
+      {
         // 등록 모드: POST 요청
         const user_id = localStorage.getItem('user_id');
         if (!user_id) throw new Error('User ID not found');

@@ -26,7 +26,7 @@ const Theme = {
     `,
     common_detail: `
       font-family: Pridi;
-      font-size: 1rem;
+      font-size: 0.75rem;
       font-style: normal;
       font-weight: 500;
       line-height: normal;
