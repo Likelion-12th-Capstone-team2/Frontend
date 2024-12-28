@@ -1,5 +1,5 @@
 // NavigationBar.js
-import React from 'react';
+import { React, useState } from 'react';
 import styled from 'styled-components';
 import hamburger from '@/assets/hamburger.svg';
 import CloseIcon from '@/assets/closeIcon.svg';
@@ -7,6 +7,12 @@ import { useNavigate } from 'react-router-dom';
 
 const NavigationBar = ({ menuOpen, toggleMenu, handleLogout, userType }) => {
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    setIsOpen(false);
+  };
 
   return (
     <NavContainer>
@@ -23,8 +29,12 @@ const NavigationBar = ({ menuOpen, toggleMenu, handleLogout, userType }) => {
             <MenuItem onClick={() => navigate('/')}>Log In</MenuItem>
           ) : (
             <>
-              <MenuItem>Ding!</MenuItem>
-              <MenuItem>Setting</MenuItem>
+              <MenuItem onClick={() => handleNavigation('/notifications')}>
+                Ding!
+              </MenuItem>
+              <MenuItem onClick={() => handleNavigation('/mypage')}>
+                Setting
+              </MenuItem>
               <MenuItem onClick={handleLogout}>Log out</MenuItem>
             </>
           )}
