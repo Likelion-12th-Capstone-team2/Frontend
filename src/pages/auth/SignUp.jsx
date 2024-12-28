@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import styled from 'styled-components';
 import AuthLayout from './components/AuthLayout';
@@ -11,7 +12,8 @@ const SignUp = () => {
   const [passwordCheck, setPasswordCheck] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [isPasswordMatch, setIsPasswordMatch] = useState(true);
-  const [step, setStep] = useState('signup');
+  const location = useLocation();
+  const [step, setStep] = useState(location.state?.step || 'signup');
   const [emailError, setEmailError] = useState(
     'Please fill out the correct email format',
   );
