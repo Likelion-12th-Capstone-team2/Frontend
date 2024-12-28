@@ -4,6 +4,7 @@ import AuthLayout from '@auth/components/AuthLayout';
 import NotiItem from './components/NotiItem';
 import axios from 'axios';
 import TopMenu from '@/common/TopMenu';
+import SideBar from '@/common/SideBar';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -38,6 +39,7 @@ const Notifications = () => {
         <EmptyText>No notifications yet!</EmptyText>
       )}
       <TopMenu />
+      <SideBar />
     </AuthLayout>
   );
 };

@@ -50,6 +50,10 @@ const MenuWrapper = styled.div`
   position: absolute;
   top: 2.34rem;
   right: 3.75rem;
+
+  ${({ theme }) => theme.mobile} {
+    display: none;
+  }
 `;
 
 const MenuButton = styled.button`
