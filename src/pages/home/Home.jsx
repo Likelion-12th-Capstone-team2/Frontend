@@ -10,6 +10,7 @@ import { useParams } from 'react-router-dom';
 
 const Home = () => {
   const navigate = useNavigate();
+  const [allItemsCount, setAllItemsCount] = useState(0); // 전체 상품 갯수 상태 추가
   const [products, setProducts] = useState([]);
   const [showMessage, setShowMessage] = useState(true); // 처음에는 메시지 표시
   const [showPopup, setShowPopup] = useState(false);
@@ -147,7 +148,7 @@ const Home = () => {
 
   const fetchProducts = async () => {
     const token = localStorage.getItem('token');
-    const user_id = localStorage.getItem('id');
+    const user_id = localStorage.getItem('id') || 'guest';
 
     try {
       const queryParams = new URLSearchParams();
@@ -155,22 +156,26 @@ const Home = () => {
       if (selectedCategoryId !== null)
         queryParams.append('category', selectedCategoryId);
 
-      const headers = token ? { Authorization: `Bearer ${token}` } : {}; // token이 없으면 headers 비우기
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/wish/${user_id || 'guest'}/?${queryParams.toString()}`,
-        {
-          headers,
-        },
+        `${process.env.REACT_APP_BASE_URL}/wish/${user_id}/?${queryParams.toString()}`,
+        { headers },
       );
 
       const data = response.data;
+      console.log(data);
+      console.log('Fetched Data:', data.wish_items); // 서버에서 받은 데이터 확인
 
       if (!token) {
-        setUserType('guest'); // token 없으면 guest로 처리
-        setShowMessage(true); // 게스트는 기본적으로 메시지 표시
+        setUserType('guest');
+        setShowMessage(true);
       } else {
-        setUserType(data.user); // user type 설정
+        setUserType(data.user);
+      }
+      // 전체 상품 갯수 저장
+      if (selectedCategoryId === null) {
+        setAllItemsCount(data.wish_items?.length || 0);
       }
 
       setSettings({
@@ -187,19 +192,21 @@ const Home = () => {
           }))
         : [];
       setCategories([{ name: 'All', id: null }, ...categoryList]);
-      setProducts(data.wish_items || []);
-      setShowMessage(data.wish_items?.length === 0);
-
-      console.log(data.wish_items);
-      console.log(data);
+      setProducts(data.wish_items || []); // 필터링된 결과를 그대로 저장
+      setShowMessage(data.wish_items?.length === 0); // 전체 상품이 없을 때만 true
     } catch (error) {
       console.error('Error fetching products:', error);
       if (!token) {
-        setUserType('guest'); // 에러 발생 시에도 token 없으면 guest로 설정
+        setUserType('guest');
         setShowMessage(true);
       }
     }
   };
+
+  // 서버에서 제공한 데이터를 그대로 사용
+  const filteredProducts = products;
+
+  console.log('Filtered Products:', filteredProducts);
 
   useEffect(() => {
     fetchProducts();
@@ -222,20 +229,18 @@ const Home = () => {
     console.log('Category Selected:', category, categoryId); // 디버깅용
     setSelectedCategory(category);
     setSelectedCategoryId(categoryId);
+
+    // 카테고리가 All인 경우 전체 상품 갯수 저장
+    if (category === 'All') {
+      fetchProducts(); // 전체 상품 가져오기
+    } else {
+      // 특정 카테고리만 가져오기
+      fetchProducts();
+    }
   };
   const toggleDeleteMode = () => {
     setShowDeleteIcons((prev) => !prev); // 삭제 모드 토글
   };
-
-  // 카테고리에 따라 상품 필터링
-  const filteredProducts =
-    selectedCategory === 'All'
-      ? products
-      : products.filter(
-          (product) => product.category?.trim() === selectedCategory.trim(),
-        );
-
-  console.log('Filtered Products:', filteredProducts);
 
   return (
     <Wrapper
@@ -312,7 +317,7 @@ const Home = () => {
       </PriceWrapper>
 
       <WishWrapper>
-        {showMessage ? (
+        {allItemsCount === 0 ? (
           <ClickWish
             onClick={() => {
               fetchProducts();
@@ -321,6 +326,8 @@ const Home = () => {
           >
             Click Here and Categorize Your WISH
           </ClickWish>
+        ) : filteredProducts.length === 0 ? (
+          <p>No items in categories.</p>
         ) : (
           <div>
             <CatagoryContainer>
@@ -336,6 +343,7 @@ const Home = () => {
                 ))}
               </CategoryWrapper>
             </CatagoryContainer>
+
             <MiddleWrapper>
               <ProductGrid>
                 {filteredProducts.length > 0 ? (
@@ -498,9 +506,16 @@ const CategoryButton = styled.p`
   cursor: pointer;
   border: none;
   width: fit-content;
+  border-color: white;
+  border: solid 1px;
+
   ${({ theme }) => theme.font.p_category}
 
   &:hover {
+    background-color: white;
+    color: black;
+  }
+  &:active {
     background-color: white;
     color: black;
   }
@@ -681,6 +696,7 @@ const ClickWish = styled.p`
 `;
 
 const WishWrapper = styled.div``;
+
 const Price = styled.div`
   ${({ theme }) => theme.font.p_numBtn}
   border-radius: 3.125rem;
@@ -693,6 +709,11 @@ const Price = styled.div`
   margin-right: 0.8rem;
   margin-top: 1rem;
   &:hover {
+    background-color: white;
+    color: black;
+    border-color: black;
+  }
+  &:active {
     background-color: white;
     color: black;
     border-color: black;
