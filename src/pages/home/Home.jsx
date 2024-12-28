@@ -4,12 +4,13 @@ import { Delete } from '@/assets/icons';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import hamburger from '@/assets/hamburger.svg';
-import CloseIcon from '@/assets/closeIcon.svg';
+import NavigationBar from './components/NavigationBar';
+import Popup from './components/Popup';
 import { useParams } from 'react-router-dom';
 
 const Home = () => {
   const navigate = useNavigate();
+  const [allItemsCount, setAllItemsCount] = useState(0); // 전체 상품 갯수 상태 추가
   const [products, setProducts] = useState([]);
   const [showMessage, setShowMessage] = useState(true); // 처음에는 메시지 표시
   const [showPopup, setShowPopup] = useState(false);
@@ -147,7 +148,7 @@ const Home = () => {
 
   const fetchProducts = async () => {
     const token = localStorage.getItem('token');
-    const user_id = localStorage.getItem('id');
+    const user_id = localStorage.getItem('id') || 'guest';
 
     try {
       const queryParams = new URLSearchParams();
@@ -155,22 +156,26 @@ const Home = () => {
       if (selectedCategoryId !== null)
         queryParams.append('category', selectedCategoryId);
 
-      const headers = token ? { Authorization: `Bearer ${token}` } : {}; // token이 없으면 headers 비우기
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/wish/${user_id || 'guest'}/?${queryParams.toString()}`,
-        {
-          headers,
-        },
+        `${process.env.REACT_APP_BASE_URL}/wish/${user_id}/?${queryParams.toString()}`,
+        { headers },
       );
 
       const data = response.data;
+      console.log(data);
+      console.log('Fetched Data:', data.wish_items); // 서버에서 받은 데이터 확인
 
       if (!token) {
-        setUserType('guest'); // token 없으면 guest로 처리
-        setShowMessage(true); // 게스트는 기본적으로 메시지 표시
+        setUserType('guest');
+        setShowMessage(true);
       } else {
-        setUserType(data.user); // user type 설정
+        setUserType(data.user);
+      }
+      // 전체 상품 갯수 저장
+      if (selectedCategoryId === null) {
+        setAllItemsCount(data.wish_items?.length || 0);
       }
 
       setSettings({
@@ -187,19 +192,21 @@ const Home = () => {
           }))
         : [];
       setCategories([{ name: 'All', id: null }, ...categoryList]);
-      setProducts(data.wish_items || []);
-      setShowMessage(data.wish_items?.length === 0);
-
-      console.log(data.wish_items);
-      console.log(data);
+      setProducts(data.wish_items || []); // 필터링된 결과를 그대로 저장
+      setShowMessage(data.wish_items?.length === 0); // 전체 상품이 없을 때만 true
     } catch (error) {
       console.error('Error fetching products:', error);
       if (!token) {
-        setUserType('guest'); // 에러 발생 시에도 token 없으면 guest로 설정
+        setUserType('guest');
         setShowMessage(true);
       }
     }
   };
+
+  // 서버에서 제공한 데이터를 그대로 사용
+  const filteredProducts = products;
+
+  console.log('Filtered Products:', filteredProducts);
 
   useEffect(() => {
     fetchProducts();
@@ -222,20 +229,18 @@ const Home = () => {
     console.log('Category Selected:', category, categoryId); // 디버깅용
     setSelectedCategory(category);
     setSelectedCategoryId(categoryId);
+
+    // 카테고리가 All인 경우 전체 상품 갯수 저장
+    if (category === 'All') {
+      fetchProducts(); // 전체 상품 가져오기
+    } else {
+      // 특정 카테고리만 가져오기
+      fetchProducts();
+    }
   };
   const toggleDeleteMode = () => {
     setShowDeleteIcons((prev) => !prev); // 삭제 모드 토글
   };
-
-  // 카테고리에 따라 상품 필터링
-  const filteredProducts =
-    selectedCategory === 'All'
-      ? products
-      : products.filter(
-          (product) => product.category?.trim() === selectedCategory.trim(),
-        );
-
-  console.log('Filtered Products:', filteredProducts);
 
   return (
     <Wrapper
@@ -250,38 +255,13 @@ const Home = () => {
         <Line position="right" />
       </Container>
 
-      <NavContainer>
-        <Hamburger onClick={toggleMenu}>
-          <img src={hamburger}></img>
-        </Hamburger>
+      <NavigationBar
+        menuOpen={menuOpen}
+        toggleMenu={toggleMenu}
+        handleLogout={handleLogout}
+        userType={userType}
+      />
 
-        <SideMenu open={menuOpen}>
-          <CloseButton onClick={toggleMenu}>
-            <img src={CloseIcon} alt="Close Menu" />
-          </CloseButton>
-          <MenuItems>
-            {userType === 'guest' ? (
-              <MenuItem onClick={() => navigate('/')}>Log In</MenuItem>
-            ) : (
-              <>
-                <MenuItem>Ding!</MenuItem>
-                <MenuItem>Setting</MenuItem>
-                <MenuItem onClick={handleLogout}>Log out</MenuItem>
-              </>
-            )}
-          </MenuItems>
-        </SideMenu>
-
-        {userType === 'guest' ? (
-          <NavBtn onClick={() => navigate('/')}>Log In</NavBtn>
-        ) : (
-          <>
-            <NavBtn>Ding!</NavBtn>
-            <NavBtn>Setting</NavBtn>
-            <NavBtn onClick={handleLogout}>Log out</NavBtn>
-          </>
-        )}
-      </NavContainer>
       <TitleContainer>
         <TitleWrapper>
           <Title
@@ -312,7 +292,7 @@ const Home = () => {
       </PriceWrapper>
 
       <WishWrapper>
-        {showMessage ? (
+        {allItemsCount === 0 ? (
           <ClickWish
             onClick={() => {
               fetchProducts();
@@ -321,6 +301,8 @@ const Home = () => {
           >
             Click Here and Categorize Your WISH
           </ClickWish>
+        ) : filteredProducts.length === 0 ? (
+          <p>No items in categories.</p>
         ) : (
           <div>
             <CatagoryContainer>
@@ -336,6 +318,7 @@ const Home = () => {
                 ))}
               </CategoryWrapper>
             </CatagoryContainer>
+
             <MiddleWrapper>
               <ProductGrid>
                 {filteredProducts.length > 0 ? (
@@ -404,34 +387,11 @@ const Home = () => {
       </WishWrapper>
 
       {showPopup && productToDelete && (
-        <PopupOverlay>
-          <PopupContainer>
-            <PopupText>Do you wanna delete this?</PopupText>
-            <div>
-              <PopupItemImage
-                src={productToDelete.item_image}
-                alt={productToDelete.name}
-              ></PopupItemImage>
-              <PopupMiddleWrapper>
-                <PopupItemName>{productToDelete.name}</PopupItemName>
-                <PopupOption>
-                  <span>option. </span>
-
-                  <span>ⓒ {productToDelete.color} </span>
-                  <span>ⓢ {productToDelete.size} </span>
-                  <span>ⓞ {productToDelete.other_option} </span>
-                </PopupOption>
-                <PopupPrice>
-                  price. {productToDelete.price?.toLocaleString()} 원
-                </PopupPrice>
-                <PopupActions>
-                  <PopupButton onClick={cancelDelete}>No</PopupButton>
-                  <PopupButton onClick={confirmDelete}>Yes</PopupButton>
-                </PopupActions>
-              </PopupMiddleWrapper>
-            </div>
-          </PopupContainer>
-        </PopupOverlay>
+        <Popup
+          productToDelete={productToDelete}
+          cancelDelete={cancelDelete}
+          confirmDelete={confirmDelete}
+        />
       )}
     </Wrapper>
   );
@@ -498,88 +458,18 @@ const CategoryButton = styled.p`
   cursor: pointer;
   border: none;
   width: fit-content;
+  border-color: white;
+  border: solid 1px;
+
   ${({ theme }) => theme.font.p_category}
 
   &:hover {
     background-color: white;
     color: black;
   }
-`;
-
-const PopupOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const PopupContainer = styled.div`
-  background: white;
-  background-color: #168395;
-  box-shadow: 4px 4px 0px 0px #0e0a04;
-  width: 32.55rem;
-  height: 21.75rem;
-
-  > div {
-    display: flex;
-    padding: 1.1rem 2.1rem 1.9rem 2.1rem;
-  }
-`;
-
-const PopupMiddleWrapper = styled.div`
-  gap: 1.05rem;
-  padding-left: 1rem;
-  width: 19rem;
-`;
-const PopupText = styled.p`
-  width: 100%;
-  background-color: black;
-  margin-bottom: 1rem;
-  height: 3.9rem;
-  padding: 1rem 1.25rem;
-  ${({ theme }) => theme.font.p_popTitle}
-`;
-const PopupItemImage = styled.img`
-  width: 9.2rem;
-  height: 11.5rem;
-`;
-const PopupItemName = styled.div`
-  ${({ theme }) => theme.font.p_popTitle_eng}
-`;
-const PopupPrice = styled.div`
-  ${({ theme }) => theme.font.common_text}
-  margin-top: 1rem;
-`;
-const PopupOption = styled.div`
-  ${({ theme }) => theme.font.common_text}
-  margin-top: 1rem;
-`;
-const PopupActions = styled.div`
-  display: flex;
-  gap: 1rem;
-  justify-content: end;
-  width: 97%;
-`;
-
-const PopupButton = styled.button`
-  padding: 0.25rem 1.125rem;
-  width: 4.375rem;
-  color: white;
-  border: none;
-  cursor: pointer;
-  ${({ theme }) => theme.font.p_btn}
-
-  &:nth-child(1) {
-    background: black;
-  }
-  &:nth-child(2) {
-    background: #ffa100;
+  &:active {
+    background-color: white;
+    color: black;
   }
 `;
 
@@ -681,6 +571,7 @@ const ClickWish = styled.p`
 `;
 
 const WishWrapper = styled.div``;
+
 const Price = styled.div`
   ${({ theme }) => theme.font.p_numBtn}
   border-radius: 3.125rem;
@@ -693,6 +584,11 @@ const Price = styled.div`
   margin-right: 0.8rem;
   margin-top: 1rem;
   &:hover {
+    background-color: white;
+    color: black;
+    border-color: black;
+  }
+  &:active {
     background-color: white;
     color: black;
     border-color: black;
@@ -733,31 +629,6 @@ const TitleContainer = styled.div`
     flex-direction: column;
     gap: 1rem;
     margin-left: 2.5rem;
-  }
-`;
-const NavBtn = styled.div`
-  border: 1px solid #000;
-  background: #fff;
-  ${({ theme }) => theme.font.p_btn}
-  color: #000;
-  padding: 0.25rem 1.125rem;
-  cursor: pointer;
-  @media (max-width: 48rem) {
-    display: none;
-  }
-`;
-
-const NavContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 1.125rem;
-  margin-top: 1.41rem;
-  margin-right: 9.79rem;
-  @media (max-width: 60rem) {
-    margin-right: 5rem;
-  }
-  @media (max-width: 48rem) {
-    margin-right: 3rem;
   }
 `;
 
@@ -859,72 +730,4 @@ const Wrapper = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-`;
-
-const Hamburger = styled.div`
-  display: none;
-  cursor: pointer;
-  width: 30px; /* 버튼 크기 */
-  height: 30px; /* 버튼 크기 */
-  margin-top: 5px;
-
-  @media (max-width: 48rem) {
-    display: block;
-  }
-`;
-const SideMenu = styled.div`
-  display: none;
-  @media (max-width: 48rem) {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 300px;
-    height: 100%;
-    background-color: orange;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
-    transform: ${({ open }) => (open ? 'translateX(0)' : 'translateX(100%)')};
-    transition: transform 0.3s ease-in-out;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 1.5rem;
-  }
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  align-self: flex-end;
-  cursor: pointer;
-
-  img {
-    width: 25px;
-    height: 25px;
-  }
-`;
-
-const MenuItems = styled.ul`
-  list-style: none;
-  padding: 0.25rem 1rem;
-  margin-left: 7.5rem;
-  margin-top: 1rem;
-`;
-
-const MenuItem = styled.li`
-  margin-bottom: 1.5rem;
-
-  padding: 0.5rem 1rem;
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: black;
-  cursor: pointer;
-  background-color: white;
-  text-align: center;
-  ${({ theme }) => theme.font.m_btn}
-
-  &:hover {
-    background-color: white;
-    color: black;
-  }
 `;
