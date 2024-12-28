@@ -4,13 +4,16 @@ import axios from 'axios';
 import { HeartFullBlue } from '@/assets/icons';
 import backgroundEg from '@/assets/backgroundEg.png';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import hamburger from '@/assets/hamburger.svg';
+import NavigationBar from './components/NavigationBar2';
 
 const WishDetail = () => {
   const location = useLocation();
   const [data, setData] = useState(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isUnsendPopupVisible, setIsUnsendPopupVisible] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userType, setUserType] = useState(''); // user type state 추가
+
   const itemId =
     location.state?.itemId ||
     new URLSearchParams(location.search).f8get('itemId');
@@ -20,6 +23,14 @@ const WishDetail = () => {
     if (!itemId) {
       console.error('Item ID is missing');
       return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setUserType('guest');
+    } else {
+      // token이 있지만 data는 아직 없으므로 data.user에 접근하지 않음
+      setUserType('authenticated');
     }
 
     const fetchData = async () => {
@@ -40,7 +51,7 @@ const WishDetail = () => {
     };
 
     fetchData();
-  }, []);
+  }, [itemId]);
 
   const handleSend = async () => {
     try {
@@ -137,15 +148,20 @@ const WishDetail = () => {
     alert('Complete Logout.');
   };
 
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
   return (
     <Wrapper backgroundImage={data.setting.background_photo || backgroundEg}>
       <Container>
-        <NavContainer>
-          <NavBtn>Ding!</NavBtn>
-          <NavBtn>Setting</NavBtn>
-          <NavBtn onClick={handleLogout}>Log out</NavBtn>
-          <HamburgerIcon src={hamburger} alt="Menu" />
-        </NavContainer>
+        <NavigationBar
+          menuOpen={menuOpen}
+          toggleMenu={toggleMenu}
+          handleLogout={handleLogout}
+          userType={userType}
+        />
+
         <Content>
           <img src={data.item.item_image} alt={data.item.item_name} />
           {data.item.is_sended && (

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import hamburger from '@/assets/hamburger.svg';
+import NavigationBar from './components/NavigationBar2';
 
 const WishRegister = () => {
   const navigate = useNavigate();
@@ -25,6 +26,8 @@ const WishRegister = () => {
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userType, setUserType] = useState('');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -49,7 +52,10 @@ const WishRegister = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('No access token found');
+        setUserType('guest');
+      } else {
+        // token이 있지만 data는 아직 없으므로 data.user에 접근하지 않음
+        setUserType('authenticated');
       }
 
       const response = await axios.get(
@@ -208,16 +214,36 @@ const WishRegister = () => {
     }));
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('id');
+    navigate('/');
+    alert('Complete Logout.');
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
   return (
     <Wrapper>
       <Container>
-        <NavContainer>
-          <HamburgerIcon src={hamburger} alt="Menu" />
-        </NavContainer>
+        <Block />
+        <Block3>
+          <NavigationBar
+            menuOpen={menuOpen}
+            toggleMenu={toggleMenu}
+            handleLogout={handleLogout}
+            userType={userType}
+          />
+        </Block3>
+
         <Line position="top" />
         <Line position="bottom" />
         <Line position="left" />
         <Line position="right" />
+
+        <Block2 />
         <TitleContainer>
           {isSmallScreen ? (
             <>
@@ -333,25 +359,20 @@ const WishRegister = () => {
 
 export default WishRegister;
 
-const NavContainer = styled.div`
-  display: none;
+const Block = styled.div`
   ${({ theme }) => theme.mobile} {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    height: 6.25rem;
-    margin-right: 3.14%;
+    height: 1rem;
   }
 `;
-
-const HamburgerIcon = styled.img`
-  display: none;
-
+const Block2 = styled.div`
   ${({ theme }) => theme.mobile} {
-    display: block;
-    width: 2rem;
     height: 2rem;
-    cursor: pointer;
+  }
+`;
+const Block3 = styled.div`
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
   }
 `;
 
