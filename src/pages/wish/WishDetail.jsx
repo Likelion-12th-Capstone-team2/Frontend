@@ -45,25 +45,36 @@ const WishDetail = () => {
   const handleSend = async () => {
     try {
       const token = localStorage.getItem('token');
-      console.log('token:', token);
+      if (!token) {
+        throw new Error('No access token found');
+      }
+
       const receiver_id = data.receiver_id;
-      await axios.post(
+      if (!receiver_id || !itemId) {
+        throw new Error('Receiver ID or Item ID is missing');
+      }
+
+      const response = await axios.post(
         `http://ireallywantit.xyz/wish/items/${receiver_id}/${itemId}/gifts/`,
+        {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         },
       );
+
       setData((prev) => ({
         ...prev,
         item: {
           ...prev.item,
-          is_sended: true,
+          is_sended: response.data.is_sended,
           sender: data.setting.name,
         },
       }));
+
       setIsPopupVisible(false);
+      alert('Gift sent successfully!');
     } catch (error) {
       console.error('Failed to send gift:', error);
       alert('Failed to send gift.');
@@ -74,7 +85,7 @@ const WishDetail = () => {
     try {
       const token = localStorage.getItem('token');
       const receiver_id = data.receiver_id;
-      await axios.delete(
+      const response = await axios.delete(
         `http://ireallywantit.xyz/wish/items/${receiver_id}/${itemId}/gifts/`,
         {
           headers: {
@@ -82,15 +93,17 @@ const WishDetail = () => {
           },
         },
       );
+      console.log(response.data);
       setData((prev) => ({
         ...prev,
         item: {
           ...prev.item,
-          is_sended: false,
+          is_sended: response.data.is_sended,
           sender: '',
         },
       }));
       setIsUnsendPopupVisible(false);
+      alert('Gift sending canceled successfully!');
     } catch (error) {
       console.error('Failed to unsend gift:', error);
       alert('Failed to unsend gift.');
@@ -118,9 +131,9 @@ const WishDetail = () => {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // 인증 토큰 삭제
-    localStorage.removeItem('id'); // 사용자 ID 삭제
-    navigate('/'); // 로그인 페이지로 이동
+    localStorage.removeItem('token');
+    localStorage.removeItem('id');
+    navigate('/');
     alert('Complete Logout.');
   };
 

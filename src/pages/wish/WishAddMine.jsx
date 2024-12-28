@@ -21,9 +21,9 @@ const WishRegister = () => {
     other_option: '',
     category: '',
   });
-  const [loading, setLoading] = useState(false); // 로딩 상태 관리
-  const [error, setError] = useState(null); // 오류 상태 관리
-  const [categories, setCategories] = useState([]); // 카테고리 목록 상태 관리
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   useEffect(() => {
@@ -35,9 +35,9 @@ const WishRegister = () => {
       setIsSmallScreen(window.innerWidth <= 1230);
     };
 
-    handleResize(); // 초기 화면 크기 확인
-    window.addEventListener('resize', handleResize); // 리사이즈 이벤트 등록
-    return () => window.removeEventListener('resize', handleResize); // 이벤트 제거
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
@@ -45,7 +45,6 @@ const WishRegister = () => {
     fetchData();
   }, []);
 
-  // 카테고리 항목을 불러오는 함수
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -62,7 +61,7 @@ const WishRegister = () => {
         },
       );
 
-      setCategories(response.data); // 받아온 카테고리 데이터를 상태에 저장
+      setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -94,7 +93,7 @@ const WishRegister = () => {
         color: response.data.color || '',
         other_option: response.data.other_option || '',
       });
-      console.log(response); // 데이터가 제대로 전달됐는지 확인
+      console.log(response);
     } catch (error) {
       console.error('Error fetching Data:', error);
     }
@@ -144,8 +143,8 @@ const WishRegister = () => {
       const { product_name, product_price, product_image } = response.data;
       setFormData((prev) => ({
         ...prev,
-        item_name: product_name || prev.item_name, // 기존 입력값 유지
-        price: product_price || prev.price, // 기존 입력값 유지
+        item_name: product_name || prev.item_name,
+        price: product_price || prev.price,
         item_image: product_image,
       }));
     } catch (err) {
@@ -205,7 +204,7 @@ const WishRegister = () => {
   const handleCategoryClick = (selectedCategory) => {
     setFormData((prev) => ({
       ...prev,
-      category: String(selectedCategory.id), // 클릭된 카테고리의 id를 설정
+      category: String(selectedCategory.id),
     }));
   };
 
@@ -263,14 +262,14 @@ const WishRegister = () => {
             <input
               name="item_name"
               value={formData.item_name}
-              onChange={handleInputChange} // 사용자가 직접 입력 가능
+              onChange={handleInputChange}
             />
             <p>Wish Price.*</p>
             <input
               name="price"
               type="number"
               value={formData.price}
-              onChange={handleInputChange} // 사용자가 직접 입력 가능
+              onChange={handleInputChange}
             />
             <p>Wish Option.</p>
             <OptionInput>
@@ -308,7 +307,7 @@ const WishRegister = () => {
                   onClick={() => handleCategoryClick(category)}
                   className={
                     formData.category === String(category.id) ? 'active' : ''
-                  } // id를 문자열로 변환하여 비교
+                  }
                 >
                   {category.category}
                 </div>
