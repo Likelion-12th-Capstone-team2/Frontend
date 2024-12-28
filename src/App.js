@@ -51,6 +51,10 @@ const StyledIwi = styled(Iwi)`
   top: 1.69rem;
   left: 9.75rem;
 
+  div[class*='AuthLayout'] ~ & {
+    left: 3.75rem;
+  }
+
   ${({ theme }) => theme.mobile} {
     top: 2.3rem;
     left: 8.14%;
