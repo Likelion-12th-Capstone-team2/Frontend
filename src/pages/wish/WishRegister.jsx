@@ -86,7 +86,7 @@ const WishRegister = () => {
       }
 
       const response = await axios.get(
-        `http://ireallywantit.xyz/mypages/category/`,
+        `${process.env.REACT_APP_BASE_URL}/mypages/category/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -132,7 +132,7 @@ const WishRegister = () => {
       }
 
       const response = await axios.post(
-        `${baseUrl}/crawler/crawl/`,
+        `${process.env.REACT_APP_BASE_URL}/crawler/crawl/`,
         { url: formData.wish_link },
         {
           headers: {
@@ -180,7 +180,7 @@ const WishRegister = () => {
       if (itemToEdit) {
         // 수정 모드: PATCH 요청
         response = await axios.patch(
-          `http://ireallywantit.xyz/wish/items/${itemToEdit.item.id}/`,
+          `${process.env.REACT_APP_BASE_URL}/wish/items/${itemToEdit.item.id}/`,
           dataToSend,
           {
             headers: {
@@ -198,7 +198,7 @@ const WishRegister = () => {
         if (!user_id) throw new Error('User ID not found');
 
         response = await axios.post(
-          `http://ireallywantit.xyz/wish/${user_id}/`,
+          `${process.env.REACT_APP_BASE_URL}/wish/${user_id}/`,
           dataToSend,
           {
             headers: {

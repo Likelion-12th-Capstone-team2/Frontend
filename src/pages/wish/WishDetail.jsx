@@ -39,7 +39,7 @@ const WishDetail = () => {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         const response = await axios.get(
-          `http://ireallywantit.xyz/wish/items/${itemId}/`,
+          `${process.env.REACT_APP_BASE_URL}/wish/items/${itemId}/`,
           { headers },
         );
 
@@ -66,7 +66,7 @@ const WishDetail = () => {
       }
 
       const response = await axios.post(
-        `http://ireallywantit.xyz/wish/items/${receiver_id}/${itemId}/gifts/`,
+        `${process.env.REACT_APP_BASE_URL}/wish/items/${receiver_id}/${itemId}/gifts/`,
         {},
         {
           headers: {
@@ -97,7 +97,7 @@ const WishDetail = () => {
       const token = localStorage.getItem('token');
       const receiver_id = data.receiver_id;
       const response = await axios.delete(
-        `http://ireallywantit.xyz/wish/items/${receiver_id}/${itemId}/gifts/`,
+        `${process.env.REACT_APP_BASE_URL}/wish/items/${receiver_id}/${itemId}/gifts/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
