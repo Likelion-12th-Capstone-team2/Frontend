@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import AuthLayout from '@auth/components/AuthLayout';
 import NotiItem from './components/NotiItem';
 import axios from 'axios';
+import TopMenu from '@/common/TopMenu';
+import SideBar from '@/common/SideBar';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -22,8 +23,6 @@ const Notifications = () => {
         setNotifications(response.data.data);
       } catch (error) {
         console.error('알람 불러오기 실패: ', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -39,6 +38,8 @@ const Notifications = () => {
       ) : (
         <EmptyText>No notifications yet!</EmptyText>
       )}
+      <TopMenu />
+      <SideBar />
     </AuthLayout>
   );
 };
