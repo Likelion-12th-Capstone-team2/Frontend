@@ -25,14 +25,13 @@ const WishDetail = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
         const response = await axios.get(
           `http://ireallywantit.xyz/wish/items/${itemId}/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+          { headers },
         );
+
         setData(response.data);
         console.log(response.data);
       } catch (error) {
@@ -175,14 +174,22 @@ const WishDetail = () => {
               <WishBtnContainer>
                 <WishBtn
                   onClick={() => {
-                    if (typeof data.user === 'number') {
-                      navigate('/wishAdd', { state: { itemToAdd: data } });
+                    if (
+                      typeof data.user === 'number' ||
+                      data.user === 'guest'
+                    ) {
+                      if (data.user === 'guest') {
+                        alert('Login is required to access this feature.');
+                        navigate('/');
+                      } else {
+                        navigate('/wishAdd', { state: { itemToAdd: data } });
+                      }
                     } else {
                       handleEditDetailsClick();
                     }
                   }}
                 >
-                  {typeof data.user === 'number'
+                  {typeof data.user === 'number' || data.user === 'guest'
                     ? 'Add to my wishlist'
                     : 'Edit details'}
                 </WishBtn>
@@ -227,7 +234,14 @@ const WishDetail = () => {
                 </div>
                 <From
                   isOnMe={typeof data.user === 'number' && !data.item.is_sended}
-                  onClick={handleFromClick}
+                  onClick={() => {
+                    if (data.user === 'guest') {
+                      alert('Login is required to access this feature.');
+                      navigate('/');
+                    } else {
+                      handleFromClick();
+                    }
+                  }}
                 >
                   {data.item.is_sended
                     ? `From. ${localStorage.getItem('username') || ''}`
@@ -428,6 +442,7 @@ const WishBtn = styled.div`
   padding: 0.25rem 1.125rem;
   background: #fff;
   width: max-content;
+  cursor: pointer;
 `;
 
 const WishBtnContainer = styled.div`
