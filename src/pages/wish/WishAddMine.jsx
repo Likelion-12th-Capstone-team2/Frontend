@@ -192,7 +192,7 @@ const WishRegister = () => {
           },
         );
         alert('Wish registration succeeded!');
-        navigate('/home');
+        navigate(`/home/${user_id}`);
       }
 
       console.log(response.data);
