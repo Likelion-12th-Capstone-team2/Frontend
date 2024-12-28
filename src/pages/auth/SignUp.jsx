@@ -5,8 +5,10 @@ import styled from 'styled-components';
 import AuthLayout from './components/AuthLayout';
 import AuthInput from './components/AuthInput';
 import Onboarding from './components/Onboarding';
+import { useAuth } from '@/hooks/useAuth';
 
 const SignUp = () => {
+  useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordCheck, setPasswordCheck] = useState('');

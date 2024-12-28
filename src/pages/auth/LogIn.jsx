@@ -5,8 +5,10 @@ import styled from 'styled-components';
 import AuthLayout from './components/AuthLayout';
 import AuthInput from './components/AuthInput';
 import { Chat } from '@/assets/icons';
+import { useAuth } from '@/hooks/useAuth';
 
 const LogIn = () => {
+  useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(true);
