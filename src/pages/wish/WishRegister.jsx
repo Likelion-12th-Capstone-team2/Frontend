@@ -150,7 +150,7 @@ const WishRegister = () => {
       }));
     } catch (err) {
       console.error('Error fetching product details:', err.message);
-      setError('상품 정보를 가져오는 데 실패했습니다.');
+      setError('Fetching product details failed');
     } finally {
       setLoading(false);
     }
@@ -161,12 +161,12 @@ const WishRegister = () => {
       item_name: formData.item_name,
       wish_link: formData.wish_link,
       item_image: formData.item_image,
-      price: formData.price,
+      price: Number(formData.price),
       size: formData.size,
       color: formData.color,
       other_option: formData.other_option,
       heart: heartCount,
-      category: formData.category,
+      category: Number(formData.category),
     };
 
     console.log('Data to be sent:', dataToSend);
@@ -233,6 +233,10 @@ const WishRegister = () => {
 
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
+  };
+
+  const navigateToCategory = () => {
+    navigate('/mypage', { state: { activeTitle: 'Category' } });
   };
 
   return (
@@ -348,7 +352,7 @@ const WishRegister = () => {
                   {category.category}
                 </div>
               ))}
-              <Plus>+</Plus>
+              <Plus onClick={navigateToCategory}>+</Plus>
             </CategoryInput>
 
             <p>Heart Your Wish.*</p>
@@ -514,6 +518,9 @@ const OtherInput = styled.div`
   input::placeholder {
     ${({ theme }) => theme.font.common_input}
     color: #BEBEBE;
+    @media (max-width: 768px) {
+      color: transparent;
+    }
   }
 `;
 

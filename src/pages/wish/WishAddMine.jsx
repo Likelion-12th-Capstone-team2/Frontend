@@ -6,7 +6,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import hamburger from '@/assets/hamburger.svg';
 import NavigationBar from './components/NavigationBar2';
 
-const WishRegister = () => {
+const WishAddMine = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { itemToAdd } = location.state || {};
@@ -129,13 +129,6 @@ const WishRegister = () => {
         throw new Error('No access token found');
       }
 
-      const baseUrl = process.env.REACT_APP_BASE_URL;
-      if (!baseUrl) {
-        throw new Error(
-          'Base URL is undefined. Check your .env configuration.',
-        );
-      }
-
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/crawler/crawl/`,
         { url: formData.wish_link },
@@ -155,7 +148,7 @@ const WishRegister = () => {
       }));
     } catch (err) {
       console.error('Error fetching product details:', err.message);
-      setError('상품 정보를 가져오는 데 실패했습니다.');
+      setError('Fetching product details failed');
     } finally {
       setLoading(false);
     }
@@ -166,40 +159,36 @@ const WishRegister = () => {
       item_name: formData.item_name,
       wish_link: formData.wish_link,
       item_image: formData.item_image,
-      price: formData.price,
+      price: Number(formData.price),
       size: formData.size,
       color: formData.color,
       other_option: formData.other_option,
       heart: heartCount,
-      category: formData.category,
+      category: Number(formData.category),
     };
 
-    console.log('Data to be sent:', dataToSend);
+    console.log('Data to send:', dataToSend);
 
     try {
       const token = localStorage.getItem('token');
-      if (!token) throw new Error('No access token found');
+      if (!token) throw new Error('Access token not found');
 
       let response;
+      const user_id = localStorage.getItem('user_id');
+      if (!user_id) throw new Error('User ID not found');
 
-      {
-        // 등록 모드: POST 요청
-        const user_id = localStorage.getItem('user_id');
-        if (!user_id) throw new Error('User ID not found');
-
-        response = await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/wish/${user_id}/`,
-          dataToSend,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+      response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/wish/${user_id}/`,
+        dataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
-        alert('Wish registration succeeded!');
-        navigate(`/home/${user_id}`);
-      }
+        },
+      );
 
+      alert('Wish registration succeeded!');
+      navigate(`/home/${user_id}`);
       console.log(response.data);
     } catch (err) {
       console.error('Error submitting wish:', err.message);
@@ -223,6 +212,10 @@ const WishRegister = () => {
 
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
+  };
+
+  const navigateToCategory = () => {
+    navigate('/mypage', { state: { activeTitle: 'Category' } });
   };
 
   return (
@@ -338,7 +331,7 @@ const WishRegister = () => {
                   {category.category}
                 </div>
               ))}
-              <Plus>+</Plus>
+              <Plus onClick={navigateToCategory}>+</Plus>
             </CategoryInput>
 
             <p>Heart Your Wish.*</p>
@@ -357,7 +350,7 @@ const WishRegister = () => {
   );
 };
 
-export default WishRegister;
+export default WishAddMine;
 
 const Block = styled.div`
   ${({ theme }) => theme.mobile} {
