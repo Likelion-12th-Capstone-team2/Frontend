@@ -49,11 +49,11 @@ const StyledIwi = styled(Iwi)`
   width: 3.875rem;
   position: absolute;
   top: 1.69rem;
-  left: 3.75rem;
+  left: 9.75rem;
 
   ${({ theme }) => theme.mobile} {
-    top: 1.69rem;
-    left: 1rem;
+    top: 2.3rem;
+    left: 8.14%;
   }
 `;
 

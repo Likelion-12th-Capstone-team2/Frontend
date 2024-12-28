@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import hamburger from '@/assets/hamburger.svg';
+import NavigationBar from './components/NavigationBar2';
 
 const WishRegister = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
   const { itemToEdit } = location.state || {}; // location state에서 itemToEdit 가져오기
   const [heartCount, setHeartCount] = useState(0);
   const [formData, setFormData] = useState({
@@ -24,6 +26,8 @@ const WishRegister = () => {
   const [error, setError] = useState(null); // 오류 상태 관리
   const [categories, setCategories] = useState([]); // 카테고리 목록 상태 관리
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userType, setUserType] = useState('');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -75,7 +79,10 @@ const WishRegister = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('No access token found');
+        setUserType('guest');
+      } else {
+        // token이 있지만 data는 아직 없으므로 data.user에 접근하지 않음
+        setUserType('authenticated');
       }
 
       const response = await axios.get(
@@ -217,16 +224,36 @@ const WishRegister = () => {
     }));
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('id');
+    navigate('/');
+    alert('Complete Logout.');
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
   return (
     <Wrapper>
       <Container>
-        <NavContainer>
-          <HamburgerIcon src={hamburger} alt="Menu" />
-        </NavContainer>
+        <Block />
+        <Block3>
+          <NavigationBar
+            menuOpen={menuOpen}
+            toggleMenu={toggleMenu}
+            handleLogout={handleLogout}
+            userType={userType}
+          />
+        </Block3>
+
         <Line position="top" />
         <Line position="bottom" />
         <Line position="left" />
         <Line position="right" />
+
+        <Block2 />
         <TitleContainer>
           {isSmallScreen ? (
             <>
@@ -342,25 +369,22 @@ const WishRegister = () => {
 
 export default WishRegister;
 
-const NavContainer = styled.div`
-  display: none;
+const Block = styled.div`
+  height: 3.1rem;
   ${({ theme }) => theme.mobile} {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    height: 6.25rem;
-    margin-right: 3.14%;
+    height: 1rem;
   }
 `;
-
-const HamburgerIcon = styled.img`
-  display: none;
-
+const Block2 = styled.div`
+  height: 2.3rem;
   ${({ theme }) => theme.mobile} {
+    display: none;
+  }
+`;
+const Block3 = styled.div`
+  display: none;
+  @media (max-width: 768px) {
     display: block;
-    width: 2rem;
-    height: 2rem;
-    cursor: pointer;
   }
 `;
 
@@ -381,7 +405,7 @@ const DoneBtn = styled.button`
     background-color: #000;
   }
 
-  @media (max-width: 1230px) {
+  @media (max-width: 768px) {
     position: relative;
     left: 70%;
     bottom: 0rem;
@@ -441,7 +465,7 @@ const OptionInput = styled.div`
   align-items: center;
   height: 2.625rem;
   margin-bottom: 2rem;
-  @media (max-width: 1230px) {
+  @media (max-width: 768px) {
     width: 100%;
   }
   div {
@@ -455,7 +479,7 @@ const OptionInput = styled.div`
     font-style: normal;
     font-weight: 100;
     line-height: normal;
-    @media (max-width: 1230px) {
+    @media (max-width: 768px) {
       font-size: 1.5rem;
     }
   }
@@ -463,13 +487,13 @@ const OptionInput = styled.div`
 
 const OtherInput = styled.div`
   width: 31.25rem;
-  @media (max-width: 1230px) {
+  @media (max-width: 768px) {
     width: 100%;
   }
   p {
     ${({ theme }) => theme.font.common_detail}
     margin-bottom: 0.25rem;
-    @media (max-width: 1230px) {
+    @media (max-width: 768px) {
       ${({ theme }) => theme.font.common_detail}
     }
   }
@@ -482,7 +506,7 @@ const OtherInput = styled.div`
     padding: 0.438em 1.063rem;
     ${({ theme }) => theme.font.common_input}
     color: white;
-    @media (max-width: 1230px) {
+    @media (max-width: 768px) {
       position: relative;
       width: 100%;
     }
@@ -521,7 +545,7 @@ const ImgInput = styled.div`
   background-position:
     0 0,
     3.84rem 3.84rem;
-  @media (max-width: 1230px) {
+  @media (max-width: 768px) {
     width: 15.5rem;
     height: 19.3rem;
   }
@@ -541,7 +565,7 @@ const Content = styled.div`
   display: flex;
   margin: 1.875rem 3.25rem 1.25rem 4.1875rem;
   position: relative;
-  @media (max-width: 1230px) {
+  @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
     margin: 5rem 2.25rem 7.188rem 2.25rem;
@@ -556,7 +580,7 @@ const Title = styled.p`
   padding: 0 0.521rem;
   margin: 0;
   width: fit-content;
-  @media (max-width: 1230px) {
+  @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
     ${({ theme }) => theme.font.m_homeTitle_eng}
@@ -568,11 +592,11 @@ const TitleContainer = styled.div`
   flex-direction: column;
   margin: 0.625rem 0.521rem;
   width: fit-content;
-  @media (max-width: 1230px) {
+  @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
     ${({ theme }) => theme.font.m_homeTitle_eng}
-    margin: 1rem 1.063rem;
+    margin: 3rem 1.063rem 1rem 1.063rem;
   }
 `;
 
@@ -620,7 +644,7 @@ const Line = styled.div`
   `}
 
 
-    @media (max-width: 1230px) {
+    @media (max-width: 768px) {
     ${({ position }) =>
       position === 'top' &&
       `
@@ -662,9 +686,11 @@ const Line = styled.div`
 `;
 
 const Container = styled.div`
-  margin: 6.25rem 8.75rem;
+  margin: 0.8rem 8.75rem 6.25rem 8.75rem;
   width: 62.5rem;
-  @media (max-width: 1230px) {
+  @media (max-width: 768px) {
+    margin: 6.25rem 8.75rem;
+
     display: flex;
     flex-direction: column;
     margin: 0 3.14%;
@@ -677,7 +703,7 @@ const Wrapper = styled.div`
   height: 200vh;
   background-color: ${({ theme }) => theme.color.mint};
 
-  @media (max-width: 1230px) {
+  @media (max-width: 768px) {
     height: 250vh;
   }
 `;

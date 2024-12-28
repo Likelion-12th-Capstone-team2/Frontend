@@ -4,13 +4,16 @@ import axios from 'axios';
 import { HeartFullBlue } from '@/assets/icons';
 import backgroundEg from '@/assets/backgroundEg.png';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import hamburger from '@/assets/hamburger.svg';
+import NavigationBar from './components/NavigationBar2';
 
 const WishDetail = () => {
   const location = useLocation();
   const [data, setData] = useState(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isUnsendPopupVisible, setIsUnsendPopupVisible] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userType, setUserType] = useState(''); // user type state 추가
+
   const itemId =
     location.state?.itemId ||
     new URLSearchParams(location.search).f8get('itemId');
@@ -20,6 +23,14 @@ const WishDetail = () => {
     if (!itemId) {
       console.error('Item ID is missing');
       return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setUserType('guest');
+    } else {
+      // token이 있지만 data는 아직 없으므로 data.user에 접근하지 않음
+      setUserType('authenticated');
     }
 
     const fetchData = async () => {
@@ -40,30 +51,41 @@ const WishDetail = () => {
     };
 
     fetchData();
-  }, []);
+  }, [itemId]);
 
   const handleSend = async () => {
     try {
       const token = localStorage.getItem('token');
-      console.log('token:', token);
+      if (!token) {
+        throw new Error('No access token found');
+      }
+
       const receiver_id = data.receiver_id;
-      await axios.post(
+      if (!receiver_id || !itemId) {
+        throw new Error('Receiver ID or Item ID is missing');
+      }
+
+      const response = await axios.post(
         `http://ireallywantit.xyz/wish/items/${receiver_id}/${itemId}/gifts/`,
+        {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         },
       );
+
       setData((prev) => ({
         ...prev,
         item: {
           ...prev.item,
-          is_sended: true,
+          is_sended: response.data.is_sended,
           sender: data.setting.name,
         },
       }));
+
       setIsPopupVisible(false);
+      alert('Gift sent successfully!');
     } catch (error) {
       console.error('Failed to send gift:', error);
       alert('Failed to send gift.');
@@ -74,7 +96,7 @@ const WishDetail = () => {
     try {
       const token = localStorage.getItem('token');
       const receiver_id = data.receiver_id;
-      await axios.delete(
+      const response = await axios.delete(
         `http://ireallywantit.xyz/wish/items/${receiver_id}/${itemId}/gifts/`,
         {
           headers: {
@@ -82,15 +104,17 @@ const WishDetail = () => {
           },
         },
       );
+      console.log(response.data);
       setData((prev) => ({
         ...prev,
         item: {
           ...prev.item,
-          is_sended: false,
+          is_sended: response.data.is_sended,
           sender: '',
         },
       }));
       setIsUnsendPopupVisible(false);
+      alert('Gift sending canceled successfully!');
     } catch (error) {
       console.error('Failed to unsend gift:', error);
       alert('Failed to unsend gift.');
@@ -118,21 +142,26 @@ const WishDetail = () => {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // 인증 토큰 삭제
-    localStorage.removeItem('id'); // 사용자 ID 삭제
-    navigate('/'); // 로그인 페이지로 이동
+    localStorage.removeItem('token');
+    localStorage.removeItem('id');
+    navigate('/');
     alert('Complete Logout.');
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
   };
 
   return (
     <Wrapper backgroundImage={data.setting.background_photo || backgroundEg}>
       <Container>
-        <NavContainer>
-          <NavBtn>Ding!</NavBtn>
-          <NavBtn>Setting</NavBtn>
-          <NavBtn onClick={handleLogout}>Log out</NavBtn>
-          <HamburgerIcon src={hamburger} alt="Menu" />
-        </NavContainer>
+        <NavigationBar
+          menuOpen={menuOpen}
+          toggleMenu={toggleMenu}
+          handleLogout={handleLogout}
+          userType={userType}
+        />
+
         <Content>
           <img src={data.item.item_image} alt={data.item.item_name} />
           {data.item.is_sended && (
