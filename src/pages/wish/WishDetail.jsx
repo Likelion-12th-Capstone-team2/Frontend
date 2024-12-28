@@ -13,7 +13,7 @@ const WishDetail = () => {
   const [isUnsendPopupVisible, setIsUnsendPopupVisible] = useState(false);
   const itemId =
     location.state?.itemId ||
-    new URLSearchParams(location.search).get('itemId');
+    new URLSearchParams(location.search).f8get('itemId');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,9 +45,10 @@ const WishDetail = () => {
   const handleSend = async () => {
     try {
       const token = localStorage.getItem('token');
-      const user_id = localStorage.getItem('user_id');
+      console.log('token:', token);
+      const receiver_id = data.receiver_id;
       await axios.post(
-        `http://ireallywantit.xyz/wish/items/${user_id}/${itemId}/gifts/`,
+        `http://ireallywantit.xyz/wish/items/${receiver_id}/${itemId}/gifts/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -72,9 +73,9 @@ const WishDetail = () => {
   const handleUnsend = async () => {
     try {
       const token = localStorage.getItem('token');
-      const user_id = localStorage.getItem('user_id');
+      const receiver_id = data.receiver_id;
       await axios.delete(
-        `http://ireallywantit.xyz/wish/items/${user_id}/${itemId}/gifts/`,
+        `http://ireallywantit.xyz/wish/items/${receiver_id}/${itemId}/gifts/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
