@@ -12,30 +12,28 @@ const WishDetail = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [isUnsendPopupVisible, setIsUnsendPopupVisible] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [userType, setUserType] = useState(''); // user type state 추가
+  const [userType, setUserType] = useState('');
 
   const itemId =
     location.state?.itemId ||
-    new URLSearchParams(location.search).f8get('itemId');
+    new URLSearchParams(location.search).get('itemId');
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!itemId) {
-      console.error('Item ID is missing');
-      return;
-    }
-
     const token = localStorage.getItem('token');
-    if (!token) {
-      setUserType('guest');
-    } else {
-      // token이 있지만 data는 아직 없으므로 data.user에 접근하지 않음
-      setUserType('authenticated');
-    }
+
+    const determineUserType = (data) => {
+      if (!token) {
+        setUserType('guest');
+      } else if (typeof data.user === 'number') {
+        setUserType('other_user');
+      } else {
+        setUserType('owner');
+      }
+    };
 
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token');
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         const response = await axios.get(
@@ -45,6 +43,7 @@ const WishDetail = () => {
 
         setData(response.data);
         console.log(response.data);
+        determineUserType(response.data);
       } catch (error) {
         console.error('Failed to fetch item data:', error);
       }
@@ -160,6 +159,7 @@ const WishDetail = () => {
           toggleMenu={toggleMenu}
           handleLogout={handleLogout}
           userType={userType}
+          userId={data.user}
         />
 
         <Content>
@@ -239,7 +239,7 @@ const WishDetail = () => {
                       });
                   }}
                 >
-                  Share
+                  Share link
                 </WishBtn>
 
                 <WishBtn
@@ -295,6 +295,15 @@ const WishDetail = () => {
               ></PopupItemImage>
               <PopupText>
                 <PopupItemName>{data.item.item_name}</PopupItemName>
+                <Option>
+                  <p>option.</p>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <OptionList>
+                      <Icon>C</Icon>
+                      <p>{data.item.color || 'N/A'}</p>
+                    </OptionList>
+                  </div>
+                </Option>
                 <Price>
                   <p>price.</p>
                   <p>{data.item.price}</p>
@@ -559,7 +568,7 @@ const TopDetail = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 `;
 
 const DetailContainer = styled.div``;

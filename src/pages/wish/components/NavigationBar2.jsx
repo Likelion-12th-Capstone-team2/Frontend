@@ -1,11 +1,16 @@
-// NavigationBar.js
-import { React, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import hamburger from '@/assets/hamburger.svg';
 import CloseIcon from '@/assets/closeIcon.svg';
 import { useNavigate } from 'react-router-dom';
 
-const NavigationBar = ({ menuOpen, toggleMenu, handleLogout, userType }) => {
+const NavigationBar = ({
+  menuOpen,
+  toggleMenu,
+  handleLogout,
+  userType,
+  userId,
+}) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -25,9 +30,18 @@ const NavigationBar = ({ menuOpen, toggleMenu, handleLogout, userType }) => {
           <img src={CloseIcon} alt="Close Menu" />
         </CloseButton>
         <MenuItems>
-          {userType === 'guest' ? (
+          {userType === 'guest' && (
             <MenuItem onClick={() => navigate('/')}>Log In</MenuItem>
-          ) : (
+          )}
+          {userType === 'other_user' && (
+            <>
+              <MenuItem onClick={() => handleNavigation(`/home/${userId}`)}>
+                My wish
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>Log out</MenuItem>
+            </>
+          )}
+          {userType !== 'guest' && userType !== 'other_user' && (
             <>
               <MenuItem onClick={() => handleNavigation('/notifications')}>
                 Ding!
@@ -43,10 +57,19 @@ const NavigationBar = ({ menuOpen, toggleMenu, handleLogout, userType }) => {
 
       {userType === 'guest' ? (
         <NavBtn onClick={() => navigate('/')}>Log In</NavBtn>
+      ) : userType === 'other_user' ? (
+        <>
+          <NavBtn onClick={() => handleNavigation(`/home/${userId}`)}>
+            My wish
+          </NavBtn>
+          <NavBtn onClick={handleLogout}>Log out</NavBtn>
+        </>
       ) : (
         <>
-          <NavBtn>Ding!</NavBtn>
-          <NavBtn>Setting</NavBtn>
+          <NavBtn onClick={() => handleNavigation('/notifications')}>
+            Ding!
+          </NavBtn>
+          <NavBtn onClick={() => handleNavigation('/mypage')}>Setting</NavBtn>
           <NavBtn onClick={handleLogout}>Log out</NavBtn>
         </>
       )}
@@ -55,7 +78,6 @@ const NavigationBar = ({ menuOpen, toggleMenu, handleLogout, userType }) => {
 };
 
 export default NavigationBar;
-
 const NavBtn = styled.div`
   border: 1px solid #000;
   background: #fff;
