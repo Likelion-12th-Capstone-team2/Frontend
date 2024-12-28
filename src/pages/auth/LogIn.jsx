@@ -5,8 +5,10 @@ import styled from 'styled-components';
 import AuthLayout from './components/AuthLayout';
 import AuthInput from './components/AuthInput';
 import { Chat } from '@/assets/icons';
+import { useAuth } from '@/hooks/useAuth';
 
 const LogIn = () => {
+  useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(true);
@@ -41,7 +43,6 @@ const LogIn = () => {
         { email, password },
       );
 
-      localStorage.setItem('user_id', response.data.data.id);
       localStorage.setItem('username', response.data.data.username);
       localStorage.setItem('token', response.data.data.access_token);
       localStorage.setItem('id', response.data.data.id);
@@ -55,6 +56,22 @@ const LogIn = () => {
         setIsPasswordValid(false);
         passwordRef.current?.focus();
       }
+    }
+  };
+
+  const handleKakaoLogin = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/accounts/kakao/`,
+      );
+
+      const { data } = response.data;
+      localStorage.setItem('token', data.access_token);
+      localStorage.setItem('username', data.username);
+      localStorage.setItem('id', data.id);
+      navigate('/signup', { state: { step: 'onboarding' } });
+    } catch (error) {
+      console.error('카카오 로그인 에러:', error);
     }
   };
 
@@ -84,7 +101,7 @@ const LogIn = () => {
           Log in
         </BtnIn>
       </Button>
-      <BtnKakao>
+      <BtnKakao onClick={handleKakaoLogin}>
         <Chat />
         <KakaoP>Log in with Kakao</KakaoP>
       </BtnKakao>
@@ -117,6 +134,7 @@ const BtnKakao = styled.div`
   margin-top: 1rem;
   border: 1px solid black;
   background: linear-gradient(90deg, #87dbe9 0%, #fff 125.31%);
+  cursor: pointer;
 `;
 
 const KakaoP = styled.p`
