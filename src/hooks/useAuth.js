@@ -7,10 +7,13 @@ export const useAuth = () => {
   const id = localStorage.getItem('id');
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (
+      isAuthenticated &&
+      (!location.state?.step || location.state.step !== 'onboarding')
+    ) {
       navigate(`/home/${id}`, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, location.state, id]);
 
   return isAuthenticated;
 };
