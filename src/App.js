@@ -9,6 +9,7 @@ import Theme from '@/styles/Theme';
 // auth
 import LogIn from '@auth/LogIn';
 import SignUp from '@auth/SignUp';
+import KakaoRedirection from './pages/auth/components/Kakao';
 
 // user
 import Mypage from '@user/MyPage';
@@ -38,6 +39,10 @@ function App() {
             <Route path="/wishRegister" element={<WishRegister />} />
             <Route path="/wishDetail" element={<WishDetail />} />
             <Route path="/wishAdd" element={<WishAddMine />} />
+            <Route
+              path="/accounts/kakao/login/callback"
+              element={<KakaoRedirection />}
+            />
           </Routes>
         </Router>
       </ThemeProvider>
