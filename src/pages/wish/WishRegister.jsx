@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import SideBar from '@/common/SideBar';
+import Loader from './components/Loader';
 
 const WishRegister = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [photo, setPhoto] = useState(null);
+
   const { itemToEdit } = location.state || {}; // location state에서 itemToEdit 가져오기
   const [heartCount, setHeartCount] = useState(0);
   const [formData, setFormData] = useState({
@@ -27,7 +28,6 @@ const WishRegister = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userType, setUserType] = useState('');
-  const [editingImage, setEditingImage] = useState(false); // 이미지 교체 모드 관리
   const user_id = localStorage.getItem('id');
 
   useEffect(() => {
@@ -158,25 +158,19 @@ const WishRegister = () => {
   };
 
   const handleSubmit = async () => {
-    // FormData 객체 생성
-    const formDataToSend = new FormData();
+    const dataToSend = {
+      item_name: formData.item_name,
+      wish_link: formData.wish_link,
+      item_image: formData.item_image,
+      price: Number(formData.price),
+      size: formData.size,
+      color: formData.color,
+      other_option: formData.other_option,
+      heart: heartCount,
+      category: Number(formData.category),
+    };
 
-    // 텍스트 필드 데이터 추가
-    formDataToSend.append('item_name', formData.item_name);
-    formDataToSend.append('wish_link', formData.wish_link);
-    formDataToSend.append('price', Number(formData.price));
-    formDataToSend.append('size', formData.size);
-    formDataToSend.append('color', formData.color);
-    formDataToSend.append('other_option', formData.other_option);
-    formDataToSend.append('heart', heartCount);
-    formDataToSend.append('category', Number(formData.category));
-
-    // 이미지 파일 추가 (사용자가 업로드한 파일)
-    if (photo) {
-      formDataToSend.append('item_image', photo);
-    }
-
-    console.log('Data to be sent:', formDataToSend);
+    console.log('Data to be sent:', dataToSend);
 
     try {
       const token = localStorage.getItem('token');
@@ -188,11 +182,10 @@ const WishRegister = () => {
         // 수정 모드: PATCH 요청
         response = await axios.patch(
           `${process.env.REACT_APP_BASE_URL}/wish/items/${itemToEdit.item.id}/`,
-          formDataToSend,
+          dataToSend,
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data',
             },
           },
         );
@@ -203,15 +196,15 @@ const WishRegister = () => {
       } else {
         // 등록 모드: POST 요청
         const user_id = localStorage.getItem('id');
+        const token = localStorage.getItem('token');
         if (!user_id) throw new Error('User ID not found');
 
         response = await axios.post(
           `${process.env.REACT_APP_BASE_URL}/wish/${user_id}/`,
-          formDataToSend,
+          dataToSend,
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data',
             },
           },
         );
@@ -248,26 +241,10 @@ const WishRegister = () => {
     navigate('/mypage', { state: { activeTitle: 'Category' } });
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const previewURL = URL.createObjectURL(file);
-
-      // formData 업데이트
-      setFormData((prev) => ({
-        ...prev,
-        item_image: previewURL, // 미리보기 URL 저장
-      }));
-
-      setPhoto(file); // 실제 파일 객체 저장
-    }
-  };
-
   return (
     <Wrapper>
       <Container>
         <Block />
-
         <SideBar
           handleLogout={handleLogout}
           userType={userType}
@@ -291,58 +268,24 @@ const WishRegister = () => {
         </TitleContainer>
 
         <Content>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-end',
-            }}
-          >
-            <ImgInput
-              onClick={() => document.getElementById('input-file').click()}
-            >
-              <input
-                type="file"
-                id="input-file"
-                accept="image/*"
-                name="item_image"
-                onChange={handleFileChange} // 파일 변경 핸들러 연결
-                style={{ display: 'none' }}
+          <ImgInput>
+            {formData.item_image ? (
+              <img
+                src={formData.item_image}
+                alt="상품 이미지"
+                style={{ width: '100%', height: '100%' }}
               />
-              {formData.item_image ? (
-                <img
-                  src={formData.item_image}
-                  alt="상품 이미지"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              ) : (
-                <>
-                  <label className="input-file-button" htmlFor="input-file">
-                    Add your
-                  </label>
-                  <label className="input-file-button" htmlFor="input-file">
-                    wish link!
-                  </label>
-                </>
-              )}
-            </ImgInput>
-            {itemToEdit && (
-              <ImgEditBtn>
-                <input
-                  type="file"
-                  id="input-file"
-                  accept="image/*"
-                  name="item_image"
-                  onChange={handleFileChange} // 파일 변경 핸들러 연결
-                  style={{ display: 'none' }}
-                />
+            ) : (
+              <>
                 <label className="input-file-button" htmlFor="input-file">
-                  Edit
+                  Add your
                 </label>
-              </ImgEditBtn>
+                <label className="input-file-button" htmlFor="input-file">
+                  wish link!
+                </label>
+              </>
             )}
-          </div>
-
+          </ImgInput>
           <OtherInput>
             <p>Wish Link.*</p>
             <input
@@ -351,8 +294,10 @@ const WishRegister = () => {
               onBlur={handleWishLinkBlur}
               onChange={handleInputChange}
             />
-            {loading && <p>Loading product details...</p>}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {loading && <Loader />}
+            {error && (
+              <p style={{ color: 'red', marginBottom: '3rem' }}>{error}</p>
+            )}
             <p>Wish Name.*</p>
             <input
               name="item_name"
@@ -427,27 +372,6 @@ const WishRegister = () => {
 };
 
 export default WishRegister;
-
-const ImgEditBtn = styled.div`
-  color: #000;
-  font-family: Pretendard;
-  font-size: 1.25rem;
-  font-style: normal;
-  font-weight: 600;
-  line-height: normal;
-  height: 2rem;
-  width: fit-content;
-  padding: 0.25rem 1.125rem;
-  margin: 1.05rem 4rem 0 0;
-  background-color: ${({ theme }) => theme.color.orange};
-  @media (max-width: 768px) {
-    margin-right: 3rem;
-    ${({ theme }) => theme.font.m_btn}
-    padding: 0.25rem 0.75rem;
-    width: fit-content;
-    margin-right: 0rem;
-  }
-`;
 
 const Block = styled.div`
   height: 5.5rem;
