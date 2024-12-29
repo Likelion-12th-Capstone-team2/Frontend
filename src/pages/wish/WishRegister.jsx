@@ -3,7 +3,7 @@ import { HeartLine, HeartFull } from '@/assets/icons';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import NavigationBar from './components/NavigationBar2';
+import SideBar from '@/common/SideBar';
 
 const WishRegister = () => {
   const navigate = useNavigate();
@@ -28,6 +28,7 @@ const WishRegister = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [userType, setUserType] = useState('');
   const [editingImage, setEditingImage] = useState(false); // 이미지 교체 모드 관리
+  const user_id = localStorage.getItem('id');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -266,21 +267,18 @@ const WishRegister = () => {
     <Wrapper>
       <Container>
         <Block />
-        <Block3>
-          <NavigationBar
-            menuOpen={menuOpen}
-            toggleMenu={toggleMenu}
-            handleLogout={handleLogout}
-            userType={userType}
-          />
-        </Block3>
+
+        <SideBar
+          handleLogout={handleLogout}
+          userType={userType}
+          loginUser={user_id}
+        />
 
         <Line position="top" />
         <Line position="bottom" />
         <Line position="left" />
         <Line position="right" />
 
-        <Block2 />
         <TitleContainer>
           {isSmallScreen ? (
             <>
@@ -293,34 +291,57 @@ const WishRegister = () => {
         </TitleContainer>
 
         <Content>
-          <ImgInput
-            onClick={() => document.getElementById('input-file').click()}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+            }}
           >
-            <input
-              type="file"
-              id="input-file"
-              accept="image/*"
-              name="item_image"
-              onChange={handleFileChange} // 파일 변경 핸들러 연결
-              style={{ display: 'none' }}
-            />
-            {formData.item_image ? (
-              <img
-                src={formData.item_image}
-                alt="상품 이미지"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            <ImgInput
+              onClick={() => document.getElementById('input-file').click()}
+            >
+              <input
+                type="file"
+                id="input-file"
+                accept="image/*"
+                name="item_image"
+                onChange={handleFileChange} // 파일 변경 핸들러 연결
+                style={{ display: 'none' }}
               />
-            ) : (
-              <>
+              {formData.item_image ? (
+                <img
+                  src={formData.item_image}
+                  alt="상품 이미지"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <>
+                  <label className="input-file-button" htmlFor="input-file">
+                    Add your
+                  </label>
+                  <label className="input-file-button" htmlFor="input-file">
+                    wish link!
+                  </label>
+                </>
+              )}
+            </ImgInput>
+            {itemToEdit && (
+              <ImgEditBtn>
+                <input
+                  type="file"
+                  id="input-file"
+                  accept="image/*"
+                  name="item_image"
+                  onChange={handleFileChange} // 파일 변경 핸들러 연결
+                  style={{ display: 'none' }}
+                />
                 <label className="input-file-button" htmlFor="input-file">
-                  Add your
+                  Edit
                 </label>
-                <label className="input-file-button" htmlFor="input-file">
-                  wish link!
-                </label>
-              </>
+              </ImgEditBtn>
             )}
-          </ImgInput>
+          </div>
 
           <OtherInput>
             <p>Wish Link.*</p>
@@ -407,22 +428,31 @@ const WishRegister = () => {
 
 export default WishRegister;
 
-const Block = styled.div`
-  height: 3.1rem;
-  ${({ theme }) => theme.mobile} {
-    height: 1rem;
-  }
-`;
-const Block2 = styled.div`
-  height: 2.3rem;
-  ${({ theme }) => theme.mobile} {
-    display: none;
-  }
-`;
-const Block3 = styled.div`
-  display: none;
+const ImgEditBtn = styled.div`
+  color: #000;
+  font-family: Pretendard;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  height: 2rem;
+  width: fit-content;
+  padding: 0.25rem 1.125rem;
+  margin: 1.05rem 4rem 0 0;
+  background-color: ${({ theme }) => theme.color.orange};
   @media (max-width: 768px) {
-    display: block;
+    margin-right: 3rem;
+    ${({ theme }) => theme.font.m_btn}
+    padding: 0.25rem 0.75rem;
+    width: fit-content;
+    margin-right: 0rem;
+  }
+`;
+
+const Block = styled.div`
+  height: 5.5rem;
+  ${({ theme }) => theme.mobile} {
+    height: 4.1rem;
   }
 `;
 
@@ -587,8 +617,9 @@ const ImgInput = styled.div`
     0 0,
     3.84rem 3.84rem;
   @media (max-width: 768px) {
-    width: 15.5rem;
+    width: 100%;
     height: 19.3rem;
+    margin-right: 0rem;
   }
 
   label {
@@ -636,8 +667,12 @@ const TitleContainer = styled.div`
   @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
-    ${({ theme }) => theme.font.m_homeTitle_eng}
-    margin: 3rem 1.063rem 1rem 1.063rem;
+    font-family: Pretendard;
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    margin: 3rem 0.5rem 0.5rem 0.5rem;
   }
 `;
 
