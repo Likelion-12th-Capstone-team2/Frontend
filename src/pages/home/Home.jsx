@@ -265,7 +265,7 @@ const Home = () => {
             style={{
               position: 'absolute',
               top: '2.34rem',
-              right: '1rem',
+              right: '1.1rem',
             }}
             loginUser={loggedInUserId}
           />
