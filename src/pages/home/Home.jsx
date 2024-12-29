@@ -1,16 +1,15 @@
 import styled from 'styled-components';
-import backgroundEg from '@/assets/backgroundEg.png';
 import { Delete } from '@/assets/icons';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import NavigationBar from './components/NavigationBar';
+import SideBar from '@/common/SideBar';
+import TopMenu from '@/common/TopMenu';
 import Popup from './components/Popup';
 import { useParams } from 'react-router-dom';
 
 const Home = () => {
   const navigate = useNavigate();
-  const [allItemsCount, setAllItemsCount] = useState(0); // 전체 상품 갯수 상태 추가
   const [products, setProducts] = useState([]);
   const [showMessage, setShowMessage] = useState(true); // 처음에는 메시지 표시
   const [showPopup, setShowPopup] = useState(false);
@@ -26,34 +25,61 @@ const Home = () => {
   });
   const [categories, setCategories] = useState([{ name: 'All', id: null }]); // 카테고리 상태
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loginUser, setLoginUser] = useState();
 
   const { userId } = useParams();
-
+  const loggedInUserId = localStorage.getItem('id');
+  console.log(loggedInUserId);
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const loggedInUserId = localStorage.getItem('id'); // 로그인된 사용자 ID
-    if (token && loggedInUserId && (!userId || userId === 'guest')) {
-      // 로그인한 상태에서 guest 페이지나 ID 없는 URL로 접근 시 본인 홈으로 리다이렉트
-      navigate(`/home/${loggedInUserId}`);
-    } else {
-      // URL의 userId 기반으로 데이터 로드
-      fetchUserHome(userId || 'guest');
-    }
-  }, [userId]);
 
-  const fetchUserHome = async (userId) => {
+    const fetchDataWrapper = async () => {
+      if (!token) {
+        setUserType('guest');
+        if (!userId || userId === 'guest') {
+          navigate(`/home/guest`);
+        } else {
+          if (userId) await fetchData(userId); // userId가 null이 아닐 때만 호출
+        }
+      } else {
+        if (!userId) {
+          navigate(`/home/${loggedInUserId}`);
+        } else if (userId === loggedInUserId) {
+          setUserType('owner');
+          if (loggedInUserId) await fetchData(loggedInUserId); // loggedInUserId 확인
+        } else {
+          setUserType('viewer');
+          if (userId) await fetchData(userId); // userId 확인
+        }
+      }
+    };
+
+    fetchDataWrapper();
+  }, [userId, navigate, selectedPrice, selectedCategoryId]);
+
+  const fetchData = async (userId) => {
     const token = localStorage.getItem('token');
     try {
+      // Query parameters 추가
+      const params = new URLSearchParams();
+      if (selectedPrice !== null && selectedPrice !== undefined) {
+        params.append('price', selectedPrice);
+      }
+      if (selectedCategoryId !== null && selectedCategoryId !== undefined) {
+        params.append('category', selectedCategoryId);
+      }
+
       const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/wish/${userId}/`,
+        `${process.env.REACT_APP_BASE_URL}/wish/${userId || 'guest'}/?${params.toString()}`, // 기본값 처리
         {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}, // token이 있으면 Authorization 추가
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         },
       );
 
       const data = response.data;
+
       setSettings({
-        name: data.setting?.name || 'Guest',
+        name: data.setting?.name,
         backgroundPhoto: data.setting?.background_photo || '',
         color: data.setting?.color || '#fff',
         typography: data.setting?.typography || 'Arial',
@@ -66,11 +92,31 @@ const Home = () => {
           }))
         : [];
       setCategories([{ name: 'All', id: null }, ...categoryList]);
+
       setProducts(data.wish_items || []);
       setShowMessage(data.wish_items?.length === 0);
     } catch (error) {
-      console.error('Failed to fetch user home:', error);
-      alert('사용자 정보를 가져오지 못했습니다.');
+      // 404 에러와 일반적인 에러를 분리하여 처리
+      if (error.response?.status === 404) {
+        console.error('Resource not found:', error);
+        alert('Requested resource not found. Please check the URL or user ID.');
+      } else {
+        console.error('Failed to fetch data:', error);
+        alert('Failed to load user information. Please try again later.');
+      }
+    }
+  };
+
+  // 카테고리 선택 시 유효성 검증 후 데이터 호출
+  const selectCategory = (category, categoryId) => {
+    console.log('Category Selected:', category, categoryId); // 디버깅용
+    setSelectedCategory(category);
+    setSelectedCategoryId(categoryId);
+
+    if (category === 'All') {
+      fetchData(userId); // 전체 상품 가져오기
+    } else {
+      if (categoryId) fetchData(userId); // 특정 카테고리만 가져오기
     }
   };
 
@@ -146,71 +192,10 @@ const Home = () => {
     }
   };
 
-  const fetchProducts = async () => {
-    const token = localStorage.getItem('token');
-    const user_id = localStorage.getItem('id') || 'guest';
-
-    try {
-      const queryParams = new URLSearchParams();
-      if (selectedPrice !== null) queryParams.append('price', selectedPrice);
-      if (selectedCategoryId !== null)
-        queryParams.append('category', selectedCategoryId);
-
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/wish/${user_id}/?${queryParams.toString()}`,
-        { headers },
-      );
-
-      const data = response.data;
-      console.log(data);
-      console.log('Fetched Data:', data.wish_items); // 서버에서 받은 데이터 확인
-
-      if (!token) {
-        setUserType('guest');
-        setShowMessage(true);
-      } else {
-        setUserType(data.user);
-      }
-      // 전체 상품 갯수 저장
-      if (selectedCategoryId === null) {
-        setAllItemsCount(data.wish_items?.length || 0);
-      }
-
-      setSettings({
-        name: data.setting?.name || 'Guest',
-        backgroundPhoto: data.setting?.background_photo || '',
-        color: data.setting?.color || '#fff',
-        typography: data.setting?.typography || 'Arial',
-      });
-
-      const categoryList = data.catagory
-        ? data.catagory.map((cat) => ({
-            name: cat.category,
-            id: cat.id,
-          }))
-        : [];
-      setCategories([{ name: 'All', id: null }, ...categoryList]);
-      setProducts(data.wish_items || []); // 필터링된 결과를 그대로 저장
-      setShowMessage(data.wish_items?.length === 0); // 전체 상품이 없을 때만 true
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      if (!token) {
-        setUserType('guest');
-        setShowMessage(true);
-      }
-    }
-  };
-
   // 서버에서 제공한 데이터를 그대로 사용
   const filteredProducts = products;
 
   console.log('Filtered Products:', filteredProducts);
-
-  useEffect(() => {
-    fetchProducts();
-  }, [selectedPrice, selectedCategoryId]);
 
   const handleDeleteClick = (productId) => {
     fetchProductDetails(productId); // 버튼 클릭 시 상품 상세 정보 요청
@@ -225,174 +210,173 @@ const Home = () => {
     setShowPopup(false);
   };
 
-  const selectCategory = (category, categoryId) => {
-    console.log('Category Selected:', category, categoryId); // 디버깅용
-    setSelectedCategory(category);
-    setSelectedCategoryId(categoryId);
-
-    // 카테고리가 All인 경우 전체 상품 갯수 저장
-    if (category === 'All') {
-      fetchProducts(); // 전체 상품 가져오기
-    } else {
-      // 특정 카테고리만 가져오기
-      fetchProducts();
-    }
-  };
   const toggleDeleteMode = () => {
     setShowDeleteIcons((prev) => !prev); // 삭제 모드 토글
   };
 
   return (
-    <Wrapper
-      style={{
-        backgroundImage: `url(${settings.backgroundPhoto})`, // 중괄호 안에 `${}`로 수정
-      }}
-    >
-      <Container>
-        <Line position="top" />
-        <Line position="bottom" />
-        <Line position="left" />
-        <Line position="right" />
-      </Container>
-
-      <NavigationBar
-        menuOpen={menuOpen}
-        toggleMenu={toggleMenu}
-        handleLogout={handleLogout}
-        userType={userType}
-      />
-
-      <TitleContainer>
-        <TitleWrapper>
-          <Title
+    <Wrapper>
+      <MainContainer
+        style={{
+          backgroundImage: `url(${settings.backgroundPhoto})`, // 중괄호 안에 `${}`로 수정
+        }}
+      >
+        <Container>
+          <Line position="top" />
+          <Line position="bottom" />
+          <Line position="left" />
+          <Line position="right" />
+        </Container>
+        <>
+          {' '}
+          <TopMenu
+            menuOpen={menuOpen}
+            toggleMenu={toggleMenu}
+            handleLogout={handleLogout}
+            userType={userType}
             style={{
-              backgroundColor: settings.color,
-              fontFamily: settings.typography,
+              position: 'absolute',
+              top: '2.34rem',
+              right: '1rem',
             }}
-          >
-            {settings.name}'s
-          </Title>
-        </TitleWrapper>
-        <TitleWrapper>
-          <Title
-            style={{
-              backgroundColor: settings.color,
-              fontFamily: settings.typography,
-            }}
-          >
-            WISH LIST
-          </Title>
-        </TitleWrapper>
-      </TitleContainer>
-      <PriceWrapper>
-        <Price onClick={() => selectPrice(0)}>~30,000</Price>
-        <Price onClick={() => selectPrice(30000)}>30,000~50,000</Price>
-        <Price onClick={() => selectPrice(50000)}>50,000~100,000</Price>
-        <Price onClick={() => selectPrice(100000)}>100,000~</Price>
-      </PriceWrapper>
+            loginUser={loggedInUserId}
+          />
+          <SideBar
+            handleLogout={handleLogout}
+            userType={userType}
+            loginUser={loggedInUserId}
+          />
+        </>
 
-      <WishWrapper>
-        {allItemsCount === 0 ? (
-          <ClickWish
-            onClick={() => {
-              fetchProducts();
-              navigate('/wishRegister');
-            }}
-          >
-            Click Here and Categorize Your WISH
-          </ClickWish>
-        ) : filteredProducts.length === 0 ? (
-          <p>No items in categories.</p>
-        ) : (
-          <div>
-            <CatagoryContainer>
-              <CategoryWrapper>
-                {categories.map((category) => (
-                  <CategoryButton
-                    key={category.id || 'all'}
-                    selected={selectedCategory === category.name}
-                    onClick={() => selectCategory(category.name, category.id)}
-                  >
-                    {category.name}
-                  </CategoryButton>
-                ))}
-              </CategoryWrapper>
-            </CatagoryContainer>
+        <TitleContainer>
+          <TitleWrapper>
+            <Title
+              style={{
+                backgroundColor: settings.color,
+                fontFamily: settings.typography,
+              }}
+            >
+              {settings.name}'s
+            </Title>
+          </TitleWrapper>
+          <TitleWrapper>
+            <Title
+              style={{
+                backgroundColor: settings.color,
+                fontFamily: settings.typography,
+              }}
+            >
+              WISH LIST
+            </Title>
+          </TitleWrapper>
+        </TitleContainer>
+        <PriceWrapper>
+          <Price onClick={() => selectPrice(0)}>~30,000</Price>
+          <Price onClick={() => selectPrice(30000)}>30,000~50,000</Price>
+          <Price onClick={() => selectPrice(50000)}>50,000~100,000</Price>
+          <Price onClick={() => selectPrice(100000)}>100,000~</Price>
+        </PriceWrapper>
+        <WishWrapper>
+          {filteredProducts === 0 ? (
+            <ClickWish
+              onClick={() => {
+                fetchData();
+                navigate('/wishRegister');
+              }}
+            >
+              Click Here and Categorize Your WISH
+            </ClickWish>
+          ) : (
+            <div>
+              <CatagoryContainer>
+                <CategoryWrapper>
+                  {categories.map((category) => (
+                    <CategoryButton
+                      key={category.id || 'all'}
+                      selected={selectedCategory === category.name}
+                      onClick={() => selectCategory(category.name, category.id)}
+                    >
+                      {category.name}
+                    </CategoryButton>
+                  ))}
+                </CategoryWrapper>
+              </CatagoryContainer>
 
-            <MiddleWrapper>
-              <ProductGrid>
-                {filteredProducts.length > 0 ? (
-                  filteredProducts.map((product) => (
-                    <div key={product.id} style={{ position: 'relative' }}>
-                      <ProductCard
-                        received={product.is_sended}
-                        onClick={() =>
-                          navigate('/wishDetail', {
-                            state: { itemId: product.id }, // 상품 ID 전달
-                          })
-                        }
-                      >
-                        <ProductImage
-                          src={product.item_image}
-                          alt={`Product ${product.id}`}
-                        />
-                        {product.is_sended ? (
-                          <ReceivedOverlay>
-                            <Text>Received</Text>
-                          </ReceivedOverlay>
-                        ) : (
-                          <ShadowOverlay />
+              <MiddleWrapper>
+                <ProductGrid>
+                  {filteredProducts.length > 0 ? (
+                    filteredProducts.map((product) => (
+                      <div key={product.id} style={{ position: 'relative' }}>
+                        <ProductCard
+                          received={product.is_sended}
+                          onClick={() =>
+                            navigate('/wishDetail', {
+                              state: { itemId: product.id }, // 상품 ID 전달
+                            })
+                          }
+                        >
+                          <ProductImage
+                            src={product.item_image}
+                            alt={`Product ${product.id}`}
+                          />
+                          {product.is_sended ? (
+                            <ReceivedOverlay>
+                              <Text>Received</Text>
+                            </ReceivedOverlay>
+                          ) : (
+                            <ShadowOverlay />
+                          )}
+                          <HeartContainer received={product.is_sended}>
+                            {Array(product.heart)
+                              .fill('♥')
+                              .map((heart, index) => (
+                                <Heart key={index}>{heart}</Heart>
+                              ))}
+                          </HeartContainer>
+                        </ProductCard>
+                        {showDeleteIcons && (
+                          <Delete
+                            style={{
+                              position: 'absolute',
+                              top: '0.3rem',
+                              right: '0.3rem',
+                              zIndex: 100,
+                              cursor: 'pointer',
+                            }}
+                            onClick={() => handleDeleteClick(product.id)}
+                          />
                         )}
-                        <HeartContainer received={product.is_sended}>
-                          {Array(product.heart)
-                            .fill('♥')
-                            .map((heart, index) => (
-                              <Heart key={index}>{heart}</Heart>
-                            ))}
-                        </HeartContainer>
-                      </ProductCard>
-                      {showDeleteIcons && (
-                        <Delete
-                          style={{
-                            position: 'absolute',
-                            top: '0.3rem',
-                            right: '0.3rem',
-                            zIndex: 100,
-                            cursor: 'pointer',
-                          }}
-                          onClick={() => handleDeleteClick(product.id)}
-                        />
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p>No products found.</p>
-                )}
-              </ProductGrid>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No products found.</p>
+                  )}
+                </ProductGrid>
 
-              {userType === 'owner' &&
-                userId === localStorage.getItem('id') && (
-                  <BottomWrapper>
-                    <button onClick={toggleDeleteMode}>
-                      {showDeleteIcons ? 'Done' : 'Delete'}
-                    </button>
-                    <button onClick={() => navigate('/wishRegister')}>
-                      Add
-                    </button>
-                  </BottomWrapper>
-                )}
-            </MiddleWrapper>
-          </div>
+                {userType === 'owner' &&
+                  userId === localStorage.getItem('id') && (
+                    <BottomWrapper>
+                      <button onClick={toggleDeleteMode}>
+                        {showDeleteIcons ? 'Done' : 'Delete'}
+                      </button>
+                      <button onClick={() => navigate('/wishRegister')}>
+                        Add
+                      </button>
+                    </BottomWrapper>
+                  )}
+              </MiddleWrapper>
+            </div>
+          )}
+        </WishWrapper>
+
+        {showPopup && productToDelete && (
+          <Popup
+            productToDelete={productToDelete}
+            cancelDelete={cancelDelete}
+            confirmDelete={confirmDelete}
+          />
         )}
-      </WishWrapper>
-
-      {showPopup && productToDelete && (
-        <Popup
-          productToDelete={productToDelete}
-          cancelDelete={cancelDelete}
-          confirmDelete={confirmDelete}
-        />
-      )}
+      </MainContainer>
     </Wrapper>
   );
 };
@@ -427,7 +411,7 @@ const BottomWrapper = styled.div`
 
 const CatagoryContainer = styled.div`
   width: 79%;
-  min-height: 17rem;
+  min-height: 10rem;
   position: relative; /* 자식 요소의 위치를 제한 */
   display: flex;
   align-items: center;
@@ -457,10 +441,12 @@ const CategoryButton = styled.p`
   color: white;
   cursor: pointer;
   border: none;
-  width: fit-content;
+  width: 8.5rem;
   border-color: white;
   border: solid 1px;
-
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: center;
   ${({ theme }) => theme.font.p_category}
 
   &:hover {
@@ -589,9 +575,9 @@ const Price = styled.div`
     border-color: black;
   }
   &:active {
-    background-color: white;
-    color: black;
-    border-color: black;
+    background-color: white !important;
+    color: black !important;
+    border-color: black !important;
   }
 `;
 
@@ -611,7 +597,7 @@ const Title = styled.p`
   background-color:  ${({ theme }) => theme.color.yellow};
   color: black;
   padding: 0 0.5rem;
-  margin-top: 6px;
+  margin-top: 5px;
   display: inline-block; /* 글씨 영역만큼만 배경 색상을 적용 */
 `;
 const TitleWrapper = styled.div``;
@@ -619,7 +605,7 @@ const TitleWrapper = styled.div``;
 const TitleContainer = styled.div`
   display: flex;
   margin-left: 9.5rem;
-  margin-top: 3rem;
+  margin-top: 6.7rem;
   @media (max-width: 60rem) {
     flex-direction: column;
     gap: 1rem;
@@ -662,7 +648,7 @@ const Line = styled.div`
     bottom: 0rem; 
     left: 8.75rem; 
     width: 1px;
-    height: 200vh;
+    height: 150vh;
   `}
 
   ${({ position }) =>
@@ -672,7 +658,7 @@ const Line = styled.div`
     bottom: 0rem; 
     right: 8.75rem; 
     width: 1px;
-    height: 200vh;
+    height: 150vh;
   `}
 
   /* 반응형 미디어 쿼리 */
@@ -714,20 +700,23 @@ const Line = styled.div`
 `;
 
 const Container = styled.div``;
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  min-height: 200vh;
-  background-image: url(${backgroundEg});
+const MainContainer = styled.div`
   background-repeat: repeat;
   background-size: 320px 350px;
   background-color: rgba(0, 0, 0, 0.6);
   background-blend-mode: overlay;
   background-position: top left; /* 이미지가 반복되도록 시작점 설정 */
-  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  position: absolute;
+  height: auto;
+  min-height: 100vh; /* 화면 전체 높이를 기본값으로 설정 */
+  overflow-y: scroll; /* 넘친 요소를 숨김 */
+`;
+
+const Wrapper = styled.div`
+  background-color: rgba(0, 0, 0, 0.6);
+  display: inline-block;
 `;

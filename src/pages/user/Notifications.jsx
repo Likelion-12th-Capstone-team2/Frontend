@@ -8,6 +8,7 @@ import SideBar from '@/common/SideBar';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
+  const loggedInUserId = localStorage.getItem('id');
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -38,8 +39,8 @@ const Notifications = () => {
       ) : (
         <EmptyText>No notifications yet!</EmptyText>
       )}
-      <TopMenu />
-      <SideBar />
+      <TopMenu loginUser={loggedInUserId} />
+      <SideBar loginUser={loggedInUserId} />
     </AuthLayout>
   );
 };

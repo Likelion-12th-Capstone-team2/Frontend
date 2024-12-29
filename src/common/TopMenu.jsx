@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-const TopMenu = () => {
+const TopMenu = ({ userType, loginUser }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthenticated = localStorage.getItem('token');
@@ -23,21 +23,36 @@ const TopMenu = () => {
 
   return (
     <MenuWrapper>
-      <MenuButton
-        $isActive={location.pathname === '/notifications'}
-        onClick={() => navigate('/notifications')}
-      >
-        Ding!
-      </MenuButton>
-      <MenuButton
-        $isActive={location.pathname === '/mypage'}
-        onClick={() => navigate('/mypage')}
-      >
-        Setting
-      </MenuButton>
-      <MenuButton onClick={handleAuthClick}>
-        {isAuthenticated ? 'Log out' : 'Log in'}
-      </MenuButton>
+      {userType !== 'guest' ? (
+        <>
+          <MenuButton
+            $isActive={location.pathname === '/notifications'}
+            onClick={() => navigate('/notifications')}
+          >
+            Ding!
+          </MenuButton>
+          {userType !== 'guest' && userType !== 'owner' ? (
+            <MenuButton
+              $isActive={location.pathname === '/mywish'}
+              onClick={() => navigate(`/home/${loginUser}`)}
+            >
+              My Wish
+            </MenuButton>
+          ) : (
+            <MenuButton
+              $isActive={location.pathname === '/mypage'}
+              onClick={() => navigate('/mypage')}
+            >
+              Setting
+            </MenuButton>
+          )}
+          <MenuButton onClick={handleAuthClick}>
+            {isAuthenticated ? 'Log out' : 'Log in'}
+          </MenuButton>
+        </>
+      ) : (
+        <MenuButton onClick={handleAuthClick}>Log in</MenuButton>
+      )}
     </MenuWrapper>
   );
 };

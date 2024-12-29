@@ -14,16 +14,19 @@ const Popup = ({ productToDelete, cancelDelete, confirmDelete }) => {
             alt={productToDelete.name}
           />
           <PopupMiddleWrapper>
-            <PopupItemName>{productToDelete.name}</PopupItemName>
-            <PopupOption>
-              <span>option. </span>
-              <span>ⓒ {productToDelete.color} </span>
-              <span>ⓢ {productToDelete.size} </span>
-              <span>ⓞ {productToDelete.other_option} </span>
-            </PopupOption>
-            <PopupPrice>
-              price. {productToDelete.price?.toLocaleString()} 원
-            </PopupPrice>
+            <PopupInfo>
+              <PopupItemName>{productToDelete.name}</PopupItemName>
+              <PopupOption>
+                <span>option. </span>
+                <span>ⓒ {productToDelete.color} </span>
+                <span>ⓢ {productToDelete.size} </span>
+                <span>ⓞ {productToDelete.other_option} </span>
+              </PopupOption>
+              <PopupPrice>
+                price. {productToDelete.price?.toLocaleString()} 원
+              </PopupPrice>
+            </PopupInfo>
+
             <PopupActions>
               <PopupButton onClick={cancelDelete}>No</PopupButton>
               <PopupButton onClick={confirmDelete}>Yes</PopupButton>
@@ -61,12 +64,34 @@ const PopupContainer = styled.div`
     display: flex;
     padding: 1.1rem 2.1rem 1.9rem 2.1rem;
   }
+
+  @media (max-width: 35rem) {
+    width: 19.95706rem;
+    height: 33.30938rem;
+    margin-right: 2rem;
+
+    > div {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
 `;
 
 const PopupMiddleWrapper = styled.div`
   gap: 1.05rem;
   padding-left: 1rem;
   width: 19rem;
+  @media (max-width: 35rem) {
+    padding-top: 5rem;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  }
+`;
+const PopupInfo = styled.div`
+  @media (max-width: 35rem) {
+    padding-left: 1.3rem;
+  }
 `;
 const PopupText = styled.p`
   width: 100%;
@@ -75,13 +100,25 @@ const PopupText = styled.p`
   height: 3.9rem;
   padding: 1rem 1.25rem;
   ${({ theme }) => theme.font.p_popTitle}
+  text-align: center;
+
+  @media (max-width: 35rem) {
+    ${({ theme }) => theme.font.m_common_text}
+  }
 `;
 const PopupItemImage = styled.img`
   width: 9.2rem;
   height: 11.5rem;
+
+  @media (max-width: 35rem) {
+    display: none;
+  }
 `;
 const PopupItemName = styled.div`
   ${({ theme }) => theme.font.p_popTitle_eng}
+  @media (max-width: 35rem) {
+    ${({ theme }) => theme.font.m_popTitle_eng}
+  }
 `;
 const PopupPrice = styled.div`
   ${({ theme }) => theme.font.common_text}
@@ -96,6 +133,10 @@ const PopupActions = styled.div`
   gap: 1rem;
   justify-content: end;
   width: 97%;
+  @media (max-width: 35rem) {
+    justify-content: center;
+    padding-top: 5rem;
+  }
 `;
 
 const PopupButton = styled.button`

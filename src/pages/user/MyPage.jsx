@@ -7,6 +7,7 @@ import SideBar from '@/common/SideBar';
 
 const Mypage = () => {
   const [activeTitle, setActiveTitle] = useState('Setting');
+  const loggedInUserId = localStorage.getItem('id');
 
   return (
     <AuthLayout
@@ -15,8 +16,8 @@ const Mypage = () => {
       onTitleClick={setActiveTitle}
     >
       {activeTitle === 'Setting' ? <Onboarding /> : <Category />}
-      <TopMenu />
-      <SideBar />
+      <TopMenu loginUser={loggedInUserId} />
+      <SideBar loginUser={loggedInUserId} />
     </AuthLayout>
   );
 };

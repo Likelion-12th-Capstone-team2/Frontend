@@ -1,12 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Hamburger, Delete } from '@/assets/icons';
 
-const SideBar = () => {
+const SideBar = ({ userType, loginUser }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const isAuthenticated = localStorage.getItem('token');
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -17,11 +16,11 @@ const SideBar = () => {
   };
 
   const handleAuthClick = () => {
-    if (isAuthenticated) {
-      handleLogout();
-    } else {
+    if (userType === 'guest') {
       navigate('/');
       setIsOpen(false);
+    } else {
+      handleLogout();
     }
   };
 
@@ -44,15 +43,27 @@ const SideBar = () => {
         </CloseButton>
 
         <MenuContent>
-          <MenuItem onClick={() => handleNavigation('/notifications')}>
-            Ding!
-          </MenuItem>
-          <MenuItem onClick={() => handleNavigation('/mypage')}>
-            Setting
-          </MenuItem>
-          <MenuItem onClick={handleAuthClick}>
-            {isAuthenticated ? 'Log out' : 'Log in'}
-          </MenuItem>
+          {userType !== 'guest' ? (
+            <>
+              <MenuItem onClick={() => handleNavigation('/notifications')}>
+                Ding!
+              </MenuItem>
+              {userType !== 'owner' ? (
+                <MenuItem
+                  onClick={() => handleNavigation(`/home/${loginUser}`)}
+                >
+                  My Wish
+                </MenuItem>
+              ) : (
+                <MenuItem onClick={() => handleNavigation('/mypage')}>
+                  Setting
+                </MenuItem>
+              )}
+              <MenuItem onClick={handleLogout}>Log out</MenuItem>
+            </>
+          ) : (
+            <MenuItem onClick={handleAuthClick}>Log in</MenuItem>
+          )}
         </MenuContent>
       </MenuWrapper>
     </>
