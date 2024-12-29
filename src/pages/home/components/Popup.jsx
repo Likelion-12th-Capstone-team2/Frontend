@@ -68,7 +68,6 @@ const PopupContainer = styled.div`
   @media (max-width: 35rem) {
     width: 19.95706rem;
     height: 33.30938rem;
-    margin-right: 2rem;
 
     > div {
       flex-direction: column;
