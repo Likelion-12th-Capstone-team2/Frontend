@@ -4,7 +4,8 @@ import axios from 'axios';
 import { HeartFullBlue } from '@/assets/icons';
 import backgroundEg from '@/assets/backgroundEg.png';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import NavigationBar from './components/NavigationBar2';
+import SideBar from '@/common/SideBar';
+import TopMenu from '@/common/TopMenu';
 
 const WishDetail = () => {
   const location = useLocation();
@@ -13,6 +14,7 @@ const WishDetail = () => {
   const [isUnsendPopupVisible, setIsUnsendPopupVisible] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userType, setUserType] = useState('');
+  const loggedInUserId = localStorage.getItem('id');
 
   const itemId =
     location.state?.itemId ||
@@ -154,12 +156,22 @@ const WishDetail = () => {
   return (
     <Wrapper backgroundImage={data.setting.background_photo || backgroundEg}>
       <Container>
-        <NavigationBar
+        <TopMenu
           menuOpen={menuOpen}
           toggleMenu={toggleMenu}
           handleLogout={handleLogout}
           userType={userType}
-          userId={data.user}
+          style={{
+            position: 'absolute',
+            top: '2.34rem',
+            right: '1.1rem',
+          }}
+          loginUser={loggedInUserId}
+        />
+        <SideBar
+          handleLogout={handleLogout}
+          userType={userType}
+          loginUser={loggedInUserId}
         />
 
         <Content>
@@ -549,6 +561,7 @@ const WishName = styled.div`
 
   ${({ theme }) => theme.mobile} {
     ${({ theme }) => theme.font.m_detail_eng}
+    word-break: break-all;
   }
 `;
 
@@ -610,7 +623,7 @@ const Content = styled.div`
   ${({ theme }) => theme.mobile} {
     display: flex;
     flex-direction: column;
-    margin-top: 6%;
+    margin-top: 25%;
     width: 100%;
     gap: 1.875rem;
   }
@@ -620,39 +633,10 @@ const Content = styled.div`
     object-fit: cover;
     ${({ theme }) => theme.mobile} {
       width: 100%;
-      aspect-ratio: 5 / 6; /* 가로:세로 비율 고정 */
-      object-fit: cover; /* 이미지 비율 유지하며 꽉 채움 */
+      aspect-ratio: 5 / 6;
+      object-fit: cover;
     }
   }
-`;
-
-const HamburgerIcon = styled.img`
-  display: none;
-
-  ${({ theme }) => theme.mobile} {
-    display: block; /* 모바일에서만 보임 */
-    width: 2rem;
-    height: 2rem;
-    cursor: pointer;
-  }
-`;
-
-const NavBtn = styled.div`
-  border: 1px solid #000;
-  background: #fff;
-  ${({ theme }) => theme.font.m_btn}
-  color: #000;
-  padding: 0.25rem 1.125rem;
-  cursor: pointer;
-  ${({ theme }) => theme.mobile} {
-    display: none; /* 모바일에서는 숨김 */
-  }
-`;
-
-const NavContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 1.125rem;
 `;
 
 const Container = styled.div`
