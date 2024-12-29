@@ -25,32 +25,61 @@ const TopMenu = ({ userType, loginUser }) => {
     <MenuWrapper>
       {userType !== 'guest' ? (
         <>
-          {userType !== 'guest' && userType !== 'owner' ? (
-            <MenuButton
-              $isActive={location.pathname === '/mywish'}
-              onClick={() => navigate(`/home/${loginUser}`)}
-            >
-              My Wish
-            </MenuButton>
-          ) : (
+          {location.pathname === '/mypage' ? (
             <>
-              <MenuButton
-                $isActive={location.pathname === '/notifications'}
-                onClick={() => navigate('/notifications')}
-              >
+              <MenuButton onClick={() => navigate('/notifications')}>
                 Ding!
               </MenuButton>
-              <MenuButton
-                $isActive={location.pathname === '/mypage'}
-                onClick={() => navigate('/mypage')}
-              >
+              <MenuButton onClick={() => navigate(`/home/${loginUser}`)}>
+                My Wish
+              </MenuButton>
+              <MenuButton onClick={handleAuthClick}>
+                {isAuthenticated ? 'Log out' : 'Log in'}
+              </MenuButton>
+            </>
+          ) : location.pathname === '/notifications' ? (
+            <>
+              <MenuButton onClick={() => navigate('/mypage')}>
                 Setting
+              </MenuButton>
+              <MenuButton onClick={() => navigate(`/home/${loginUser}`)}>
+                My Wish
+              </MenuButton>
+              <MenuButton onClick={handleAuthClick}>
+                {isAuthenticated ? 'Log out' : 'Log in'}
+              </MenuButton>
+            </>
+          ) : location.pathname === `/home/${loginUser}` ? (
+            <>
+              <MenuButton onClick={() => navigate(`/notifications`)}>
+                Ding!
+              </MenuButton>
+              <MenuButton onClick={() => navigate('/mypage')}>
+                Setting
+              </MenuButton>
+              <MenuButton onClick={handleAuthClick}>
+                {isAuthenticated ? 'Log out' : 'Log in'}
+              </MenuButton>
+            </>
+          ) : location.pathname === '/home' ? (
+            <>
+              <MenuButton onClick={() => navigate(`/home/${loginUser}`)}>
+                My Wish
+              </MenuButton>
+              <MenuButton onClick={handleAuthClick}>
+                {isAuthenticated ? 'Log out' : 'Log in'}
+              </MenuButton>
+            </>
+          ) : (
+            <>
+              <MenuButton onClick={() => navigate(`/home/${loginUser}`)}>
+                My Wish
+              </MenuButton>
+              <MenuButton onClick={handleAuthClick}>
+                {isAuthenticated ? 'Log out' : 'Log in'}
               </MenuButton>
             </>
           )}
-          <MenuButton onClick={handleAuthClick}>
-            {isAuthenticated ? 'Log out' : 'Log in'}
-          </MenuButton>
         </>
       ) : (
         <MenuButton onClick={handleAuthClick}>Log in</MenuButton>

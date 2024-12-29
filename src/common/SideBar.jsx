@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { Hamburger, Delete } from '@/assets/icons';
 
 const SideBar = ({ userType, loginUser }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAuthenticated = localStorage.getItem('token');
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -16,11 +18,11 @@ const SideBar = ({ userType, loginUser }) => {
   };
 
   const handleAuthClick = () => {
-    if (userType === 'guest') {
+    if (isAuthenticated) {
+      handleLogout();
+    } else {
       navigate('/');
       setIsOpen(false);
-    } else {
-      handleLogout();
     }
   };
 
@@ -45,23 +47,69 @@ const SideBar = ({ userType, loginUser }) => {
         <MenuContent>
           {userType !== 'guest' ? (
             <>
-              {userType !== 'owner' ? (
-                <MenuItem
-                  onClick={() => handleNavigation(`/home/${loginUser}`)}
-                >
-                  My Wish
-                </MenuItem>
-              ) : (
+              {location.pathname === '/mypage' ? (
+                <>
+                  <MenuItem onClick={() => handleNavigation('/notifications')}>
+                    Ding!
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => handleNavigation(`/home/${loginUser}`)}
+                  >
+                    My Wish
+                  </MenuItem>
+                  <MenuItem onClick={handleAuthClick}>
+                    {isAuthenticated ? 'Log out' : 'Log in'}
+                  </MenuItem>
+                </>
+              ) : location.pathname === '/notifications' ? (
                 <>
                   <MenuItem onClick={() => handleNavigation('/mypage')}>
                     Setting
                   </MenuItem>
+                  <MenuItem
+                    onClick={() => handleNavigation(`/home/${loginUser}`)}
+                  >
+                    My Wish
+                  </MenuItem>
+                  <MenuItem onClick={handleAuthClick}>
+                    {isAuthenticated ? 'Log out' : 'Log in'}
+                  </MenuItem>
+                </>
+              ) : location.pathname === `/home/${loginUser}` ? (
+                <>
                   <MenuItem onClick={() => handleNavigation('/notifications')}>
                     Ding!
                   </MenuItem>
+                  <MenuItem onClick={() => handleNavigation('/mypage')}>
+                    Setting
+                  </MenuItem>
+                  <MenuItem onClick={handleAuthClick}>
+                    {isAuthenticated ? 'Log out' : 'Log in'}
+                  </MenuItem>
+                </>
+              ) : location.pathname === '/home' ? (
+                <>
+                  <MenuItem
+                    onClick={() => handleNavigation(`/home/${loginUser}`)}
+                  >
+                    My Wish
+                  </MenuItem>
+                  <MenuItem onClick={handleAuthClick}>
+                    {isAuthenticated ? 'Log out' : 'Log in'}
+                  </MenuItem>
+                </>
+              ) : (
+                <>
+                  <MenuItem
+                    onClick={() => handleNavigation(`/home/${loginUser}`)}
+                  >
+                    My Wish
+                  </MenuItem>
+                  <MenuItem onClick={handleAuthClick}>
+                    {isAuthenticated ? 'Log out' : 'Log in'}
+                  </MenuItem>
                 </>
               )}
-              <MenuItem onClick={handleLogout}>Log out</MenuItem>
             </>
           ) : (
             <MenuItem onClick={handleAuthClick}>Log in</MenuItem>
