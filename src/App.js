@@ -74,10 +74,7 @@ const StyledIwi = styled(Iwi)`
   top: 1.69rem;
   left: 9.75rem;
 
-  z-index: 100;
-
   cursor: pointer;
-
 
   div[class*='AuthLayout'] ~ & {
     left: 3.75rem;

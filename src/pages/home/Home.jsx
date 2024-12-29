@@ -7,6 +7,7 @@ import SideBar from '@/common/SideBar';
 import TopMenu from '@/common/TopMenu';
 import Popup from './components/Popup';
 import { useParams } from 'react-router-dom';
+import { Iwi } from '@/assets/icons';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -30,6 +31,14 @@ const Home = () => {
   const { userId } = useParams();
   const loggedInUserId = localStorage.getItem('id');
   const wrapperRef = useRef(null); // Wrapper 요소 참조
+  const [loading, setLoading] = useState(false); // 로딩 상태 추가
+
+  const handleLogoClick = () => {
+    const id = localStorage.getItem('id');
+    if (id) {
+      navigate(`/home/${id}`);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -136,18 +145,25 @@ const Home = () => {
       }
     }
   };
-
-  const selectCategory = (category, categoryId) => {
+  const selectCategory = async (category, categoryId) => {
     setSelectedCategory(category);
     setSelectedCategoryId(categoryId);
+    setLoading(true); // 카테고리 변경 시 로딩 시작
 
-    if (category === 'All') {
-      setFilteredProducts(products); // 전체 상품으로 필터링
-    } else {
-      const filtered = products.filter(
-        (product) => product.category_id === categoryId,
-      );
-      setFilteredProducts(filtered);
+    try {
+      // 카테고리 필터링 작업을 비동기적으로 처리
+      if (category === 'All') {
+        setFilteredProducts(products); // 전체 상품으로 필터링
+      } else {
+        const filtered = products.filter(
+          (product) => product.category_id === categoryId,
+        );
+        setFilteredProducts(filtered);
+      }
+    } catch (error) {
+      console.error('Error filtering products:', error);
+    } finally {
+      setLoading(false); // 필터링 작업이 끝난 후 로딩 끝
     }
   };
 
@@ -260,7 +276,7 @@ const Home = () => {
           <Line position="right" />
         </Container>
         <>
-          {' '}
+          <StyledIwi onClick={handleLogoClick} />{' '}
           <TopMenu
             menuOpen={menuOpen}
             toggleMenu={toggleMenu}
@@ -333,12 +349,12 @@ const Home = () => {
           </Price>
         </PriceWrapper>
         <WishWrapper>
-          {selectedCategory === 'All' &&
-          selectedPrice === null &&
-          filteredProducts.length === 0 ? (
+          {categories.length === 1 &&
+          filteredProducts.length === 0 &&
+          !loading ? (
             <ClickWish
               onClick={() => {
-                navigate('/wishRegister');
+                navigate('/mypage');
               }}
             >
               Click Here and Categorize Your WISH
@@ -362,7 +378,9 @@ const Home = () => {
 
               <MiddleWrapper>
                 <ProductGrid>
-                  {filteredProducts.length > 0 ? (
+                  {loading ? (
+                    <p>Loading...</p> // 로딩 중일 때 표시
+                  ) : filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
                       <div key={product.id} style={{ position: 'relative' }}>
                         <ProductCard
@@ -411,13 +429,12 @@ const Home = () => {
                       </div>
                     ))
                   ) : (
-                    <p>No products found.</p>
+                    <p>No products found.</p> // 로딩이 끝났고 상품이 없을 때 표시
                   )}
                 </ProductGrid>
 
                 {userType === 'owner' &&
-                  userId === localStorage.getItem('id') &&
-                  filteredProducts.length > 0 && (
+                  userId === localStorage.getItem('id') && (
                     <BottomWrapper>
                       <button onClick={toggleDeleteMode}>
                         {showDeleteIcons ? 'Done' : 'Delete'}
@@ -546,6 +563,23 @@ const ProductGrid = styled.div`
 `;
 
 // ReceivedOverlay 컴포넌트 추가
+const StyledIwi = styled(Iwi)`
+  width: 3.875rem;
+  position: absolute;
+  top: 1.69rem;
+  left: 9.75rem;
+
+  cursor: pointer;
+
+  div[class*='AuthLayout'] ~ & {
+    left: 3.75rem;
+  }
+
+  ${({ theme }) => theme.mobile} {
+    top: 2.3rem;
+    left: 8.14%;
+  }
+`;
 const ReceivedOverlay = styled.div`
   position: absolute;
   top: 0;
