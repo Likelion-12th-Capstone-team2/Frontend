@@ -3,7 +3,7 @@ import { HeartLine, HeartFull } from '@/assets/icons';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import NavigationBar from './components/NavigationBar2';
+import SideBar from '@/common/SideBar';
 
 const WishAddMine = () => {
   const navigate = useNavigate();
@@ -27,6 +27,7 @@ const WishAddMine = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userType, setUserType] = useState('');
+  const user_id = localStorage.getItem('id');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -221,21 +222,17 @@ const WishAddMine = () => {
     <Wrapper>
       <Container>
         <Block />
-        <Block3>
-          <NavigationBar
-            menuOpen={menuOpen}
-            toggleMenu={toggleMenu}
-            handleLogout={handleLogout}
-            userType={userType}
-          />
-        </Block3>
+        <SideBar
+          handleLogout={handleLogout}
+          userType={userType}
+          loginUser={user_id}
+        />
 
         <Line position="top" />
         <Line position="bottom" />
         <Line position="left" />
         <Line position="right" />
 
-        <Block2 />
         <TitleContainer>
           {isSmallScreen ? (
             <>
@@ -352,19 +349,9 @@ const WishAddMine = () => {
 export default WishAddMine;
 
 const Block = styled.div`
+  height: 5.5rem;
   ${({ theme }) => theme.mobile} {
-    height: 1rem;
-  }
-`;
-const Block2 = styled.div`
-  ${({ theme }) => theme.mobile} {
-    height: 2rem;
-  }
-`;
-const Block3 = styled.div`
-  display: none;
-  @media (max-width: 768px) {
-    display: block;
+    height: 4.1rem;
   }
 `;
 
@@ -572,11 +559,15 @@ const TitleContainer = styled.div`
   flex-direction: column;
   margin: 0.625rem 0.521rem;
   width: fit-content;
-  @media (max-width: 1230px) {
+  @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
-    ${({ theme }) => theme.font.m_homeTitle_eng}
-    margin: 1rem 1.063rem;
+    font-family: Pretendard;
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    margin: 3rem 0.5rem 0.5rem 0.5rem;
   }
 `;
 
