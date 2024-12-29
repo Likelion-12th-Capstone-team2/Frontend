@@ -58,7 +58,7 @@ function App() {
             <Route path="/wishDetail" element={<WishDetail />} />
             <Route path="/wishAdd" element={<WishAddMine />} />
             <Route
-              path="/accounts/kakao/login/callback"
+              path="/oauth/callback/kakao"
               element={<KakaoRedirection />}
             />
           </Routes>
@@ -73,6 +73,7 @@ const StyledIwi = styled(Iwi)`
   position: absolute;
   top: 1.69rem;
   left: 9.75rem;
+  cursor: pointer;
 
   div[class*='AuthLayout'] ~ & {
     left: 3.75rem;
