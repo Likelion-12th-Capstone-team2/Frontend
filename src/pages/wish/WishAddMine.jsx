@@ -174,7 +174,7 @@ const WishAddMine = () => {
       if (!token) throw new Error('Access token not found');
 
       let response;
-      const user_id = localStorage.getItem('user_id');
+      const user_id = localStorage.getItem('id');
       if (!user_id) throw new Error('User ID not found');
 
       response = await axios.post(

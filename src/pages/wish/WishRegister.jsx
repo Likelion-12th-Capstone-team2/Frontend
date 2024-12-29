@@ -194,7 +194,8 @@ const WishRegister = () => {
         });
       } else {
         // 등록 모드: POST 요청
-        const user_id = localStorage.getItem('user_id');
+        const user_id = localStorage.getItem('id');
+        const token = localStorage.getItem('token');
         if (!user_id) throw new Error('User ID not found');
 
         response = await axios.post(
