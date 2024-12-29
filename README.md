@@ -6,8 +6,9 @@
 
 <p align="center">
     
-![image](https://github.com/user-attachments/assets/64e5b147-736c-40a8-9e02-fa2d4a87d416)
+![image](https://github.com/user-attachments/assets/1f726835-6eab-4e06-9261-93f104cb0799)
 </p>
+
 
 🛍️ **네 취향을 담아, 마음을 전하는 프라이빗 위시리스트**
 
@@ -101,7 +102,6 @@
 ## 장표
 
 <p align="center">
-<img src="https://github.com/user-attachments/assets/1f726835-6eab-4e06-9261-93f104cb0799"/>
 <img src="https://github.com/user-attachments/assets/c632f925-9a4d-443c-ab4e-c65bc2b6d589"/>
 </p>
 
