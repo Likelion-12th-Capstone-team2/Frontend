@@ -13,6 +13,7 @@ export const useMypage = () => {
   const [color, setColor] = useState('');
   const [typo, setTypo] = useState('');
   const [isNameValid, setIsNameValid] = useState(true);
+  const id = localStorage.getItem('id');
 
   useEffect(() => {
     if (!inOnboarding) {
@@ -75,7 +76,7 @@ export const useMypage = () => {
 
       if (inOnboarding) {
         await axios.post(endpoint, formData, config);
-        navigate('/home');
+        navigate(`/home/${id}`);
       } else {
         await axios.patch(endpoint, formData, config);
       }
