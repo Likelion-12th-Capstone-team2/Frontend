@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import hamburger from '@/assets/hamburger.svg';
+import NavigationBar from './components/NavigationBar2';
 
-const WishRegister = () => {
+const WishAddMine = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { itemToAdd } = location.state || {};
@@ -21,10 +22,12 @@ const WishRegister = () => {
     other_option: '',
     category: '',
   });
-  const [loading, setLoading] = useState(false); // 로딩 상태 관리
-  const [error, setError] = useState(null); // 오류 상태 관리
-  const [categories, setCategories] = useState([]); // 카테고리 목록 상태 관리
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userType, setUserType] = useState('');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -35,9 +38,9 @@ const WishRegister = () => {
       setIsSmallScreen(window.innerWidth <= 1230);
     };
 
-    handleResize(); // 초기 화면 크기 확인
-    window.addEventListener('resize', handleResize); // 리사이즈 이벤트 등록
-    return () => window.removeEventListener('resize', handleResize); // 이벤트 제거
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
@@ -45,16 +48,18 @@ const WishRegister = () => {
     fetchData();
   }, []);
 
-  // 카테고리 항목을 불러오는 함수
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('No access token found');
+        setUserType('guest');
+      } else {
+        // token이 있지만 data는 아직 없으므로 data.user에 접근하지 않음
+        setUserType('authenticated');
       }
 
       const response = await axios.get(
-        `http://ireallywantit.xyz/mypages/category/`,
+        `${process.env.REACT_APP_BASE_URL}/mypages/category/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -62,7 +67,7 @@ const WishRegister = () => {
         },
       );
 
-      setCategories(response.data); // 받아온 카테고리 데이터를 상태에 저장
+      setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -77,7 +82,7 @@ const WishRegister = () => {
       }
 
       const response = await axios.get(
-        `http://ireallywantit.xyz/wish/tomywish/${itemId}/`,
+        `${process.env.REACT_APP_BASE_URL}/wish/tomywish/${itemId}/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -94,7 +99,7 @@ const WishRegister = () => {
         color: response.data.color || '',
         other_option: response.data.other_option || '',
       });
-      console.log(response); // 데이터가 제대로 전달됐는지 확인
+      console.log(response);
     } catch (error) {
       console.error('Error fetching Data:', error);
     }
@@ -124,15 +129,8 @@ const WishRegister = () => {
         throw new Error('No access token found');
       }
 
-      const baseUrl = process.env.REACT_APP_BASE_URL;
-      if (!baseUrl) {
-        throw new Error(
-          'Base URL is undefined. Check your .env configuration.',
-        );
-      }
-
       const response = await axios.post(
-        `${baseUrl}/crawler/crawl/`,
+        `${process.env.REACT_APP_BASE_URL}/crawler/crawl/`,
         { url: formData.wish_link },
         {
           headers: {
@@ -144,13 +142,13 @@ const WishRegister = () => {
       const { product_name, product_price, product_image } = response.data;
       setFormData((prev) => ({
         ...prev,
-        item_name: product_name || prev.item_name, // 기존 입력값 유지
-        price: product_price || prev.price, // 기존 입력값 유지
+        item_name: product_name || prev.item_name,
+        price: product_price || prev.price,
         item_image: product_image,
       }));
     } catch (err) {
       console.error('Error fetching product details:', err.message);
-      setError('상품 정보를 가져오는 데 실패했습니다.');
+      setError('Fetching product details failed');
     } finally {
       setLoading(false);
     }
@@ -161,40 +159,36 @@ const WishRegister = () => {
       item_name: formData.item_name,
       wish_link: formData.wish_link,
       item_image: formData.item_image,
-      price: formData.price,
+      price: Number(formData.price),
       size: formData.size,
       color: formData.color,
       other_option: formData.other_option,
       heart: heartCount,
-      category: formData.category,
+      category: Number(formData.category),
     };
 
-    console.log('Data to be sent:', dataToSend);
+    console.log('Data to send:', dataToSend);
 
     try {
       const token = localStorage.getItem('token');
-      if (!token) throw new Error('No access token found');
+      if (!token) throw new Error('Access token not found');
 
       let response;
+      const user_id = localStorage.getItem('user_id');
+      if (!user_id) throw new Error('User ID not found');
 
-      {
-        // 등록 모드: POST 요청
-        const user_id = localStorage.getItem('user_id');
-        if (!user_id) throw new Error('User ID not found');
-
-        response = await axios.post(
-          `http://ireallywantit.xyz/wish/${user_id}/`,
-          dataToSend,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+      response = await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/wish/${user_id}/`,
+        dataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
-        alert('Wish registration succeeded!');
-        navigate(`/home/${user_id}`);
-      }
+        },
+      );
 
+      alert('Wish registration succeeded!');
+      navigate(`/home/${user_id}`);
       console.log(response.data);
     } catch (err) {
       console.error('Error submitting wish:', err.message);
@@ -205,20 +199,44 @@ const WishRegister = () => {
   const handleCategoryClick = (selectedCategory) => {
     setFormData((prev) => ({
       ...prev,
-      category: String(selectedCategory.id), // 클릭된 카테고리의 id를 설정
+      category: String(selectedCategory.id),
     }));
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('id');
+    navigate('/');
+    alert('Complete Logout.');
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
+  const navigateToCategory = () => {
+    navigate('/mypage', { state: { activeTitle: 'Category' } });
   };
 
   return (
     <Wrapper>
       <Container>
-        <NavContainer>
-          <HamburgerIcon src={hamburger} alt="Menu" />
-        </NavContainer>
+        <Block />
+        <Block3>
+          <NavigationBar
+            menuOpen={menuOpen}
+            toggleMenu={toggleMenu}
+            handleLogout={handleLogout}
+            userType={userType}
+          />
+        </Block3>
+
         <Line position="top" />
         <Line position="bottom" />
         <Line position="left" />
         <Line position="right" />
+
+        <Block2 />
         <TitleContainer>
           {isSmallScreen ? (
             <>
@@ -263,14 +281,14 @@ const WishRegister = () => {
             <input
               name="item_name"
               value={formData.item_name}
-              onChange={handleInputChange} // 사용자가 직접 입력 가능
+              onChange={handleInputChange}
             />
             <p>Wish Price.*</p>
             <input
               name="price"
               type="number"
               value={formData.price}
-              onChange={handleInputChange} // 사용자가 직접 입력 가능
+              onChange={handleInputChange}
             />
             <p>Wish Option.</p>
             <OptionInput>
@@ -308,12 +326,12 @@ const WishRegister = () => {
                   onClick={() => handleCategoryClick(category)}
                   className={
                     formData.category === String(category.id) ? 'active' : ''
-                  } // id를 문자열로 변환하여 비교
+                  }
                 >
                   {category.category}
                 </div>
               ))}
-              <Plus>+</Plus>
+              <Plus onClick={navigateToCategory}>+</Plus>
             </CategoryInput>
 
             <p>Heart Your Wish.*</p>
@@ -332,27 +350,22 @@ const WishRegister = () => {
   );
 };
 
-export default WishRegister;
+export default WishAddMine;
 
-const NavContainer = styled.div`
-  display: none;
+const Block = styled.div`
   ${({ theme }) => theme.mobile} {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    height: 6.25rem;
-    margin-right: 3.14%;
+    height: 1rem;
   }
 `;
-
-const HamburgerIcon = styled.img`
-  display: none;
-
+const Block2 = styled.div`
   ${({ theme }) => theme.mobile} {
-    display: block;
-    width: 2rem;
     height: 2rem;
-    cursor: pointer;
+  }
+`;
+const Block3 = styled.div`
+  display: none;
+  @media (max-width: 768px) {
+    display: block;
   }
 `;
 

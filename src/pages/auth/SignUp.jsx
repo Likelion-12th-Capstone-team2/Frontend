@@ -54,6 +54,7 @@ const SignUp = () => {
       );
       localStorage.setItem('username', response.data.data.username);
       localStorage.setItem('token', response.data.data.access_token);
+      localStorage.setItem('id', response.data.data.id);
       setStep('onboarding');
     } catch (error) {
       if (error.response?.status === 401) {
