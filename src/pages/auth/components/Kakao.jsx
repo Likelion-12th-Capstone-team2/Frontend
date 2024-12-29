@@ -39,6 +39,7 @@ const KakaoRedirection = () => {
         }
       } catch (error) {
         console.error('카카오 로그인 실패:', error);
+        console.error('에러 상세:', error.response?.data);
 
         navigate('/', { replace: true });
       }

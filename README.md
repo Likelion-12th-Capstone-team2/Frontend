@@ -1,70 +1,108 @@
-# Getting Started with Create React App
+# I WANT IT! : 네 취향을 담아, 프라이빗 위시리스트
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+</br></br>
 
-## Available Scripts
+## 서비스 소개
 
-In the project directory, you can run:
+<p align="center">
+    
+![image](https://github.com/user-attachments/assets/64e5b147-736c-40a8-9e02-fa2d4a87d416)
+</p>
 
-### `npm start`
+🛍️ **네 취향을 담아, 마음을 전하는 프라이빗 위시리스트**
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+친구 생일, 연말, 센스있게 선물하고 싶은데 무엇을 줘야 할지 고민해 보신 적 있으신가요? I WANT IT은 주는 사람과 받는 사람 모두를 행복하게 만들어 주는 프라이빗 위시리스트 서비스입니다. 이젠 원하는 선물을 당당하게 말해봐요.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+**${\textsf{\color{orange}I WANT IT!}}$**
 
-### `npm test`
+> [서비스 바로가기 💫](https://lwantit.vercel.app/)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+</br></br>
 
-### `npm run build`
+## 기술 스택
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+<span>프론트엔드: </span> <img src="https://img.shields.io/badge/html-E34F26?style=for-the-badge&logo=html5&logoColor=white"> <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white"> <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=black">
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+<span>백엔드: </span><img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white"> <img src="https://img.shields.io/badge/django-092E20?style=for-the-badge&logo=Django&logoColor=white">
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+<span>기획·디자인: </span> <img src="https://img.shields.io/badge/figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white">
 
-### `npm run eject`
+</br></br>
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 팀원 소개
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+**✨ 기획 • 디자인**
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+<table border="" cellspacing="0" cellpadding="0" width="100%">
+  <tr width="100%">
+  <td align="center">장예원</a></td>
+  <td align="center">유하은</a></td>
+  <td  align="center">최예은</a></td>
+  </tr>
+  <tr width="100%">
+  <td  align="center" width="33%"><a href="https://imgbb.com/"><img src="https://i.ibb.co/sWXnzcJ/befbedf87e51f5b02aac8b882ada60fd-sticker.png" alt="befbedf87e51f5b02aac8b882ada60fd-sticker" border="0" width="90px"></a></td>
+  <td  align="center" width="33%"><a href="https://imgbb.com/"><img src="https://i.ibb.co/MRr1QMW/f67635fddb50d05f2d0f142e63b0ab5c-sticker.png" alt="f67635fddb50d05f2d0f142e63b0ab5c-sticker" border="0" width="90px"></a></td>
+  <td  align="center" width="33%"><a href="https://imgbb.com/"><img src="https://i.ibb.co/2KDG82L/d006044e5996d0023cd2e18425aa4677-sticker.png" alt="d006044e5996d0023cd2e18425aa4677-sticker" border="0" width="90px"></a></td>
+  </tr>
+      <tr width="100%">
+          <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
+           <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
+            <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
+     </tr>
+  </table>
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+</br>
 
-## Learn More
+**✨ 프론트엔드**
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+<table border="" cellspacing="0" cellpadding="0" width="100%">
+  <tr width="100%">
+  <td align="center">남선우</a></td>
+  <td align="center">송유선</a></td>
+  <td  align="center">김예원</a></td>
+  </tr>
+  <tr width="100%">
+  <td  align="center" width="33%"><a href="https://github.com/seonwoo1218"><img  src="https://avatars.githubusercontent.com/u/163241169?v=4" width="90px"></td>
+  <td  align="center" width="33%"><a href="https://github.com/s-uxun"><img  src="https://avatars.githubusercontent.com/u/164325907?v=4" width="90px"></td>
+  <td  align="center" width="33%"><a href="https://github.com/yeeeww"><img  src="https://avatars.githubusercontent.com/u/163109964?v=4" width="90px"></td>
+  </tr>
+      <tr width="100%">
+          <td  align="center"><p>상품 등록 페이지<br/>(/wishRegister)</p><p>상세 보기 페이지<br/>(/wishDetail)</p></td>
+           <td  align="center"><p>프로젝트 세팅 및 배포</p><p>로그인 및 회원 가입</p><p>마이 페이지 (user setting)</p><p>알림 페이지</p></td>
+            <td  align="center"><p>홈 페이지<br/>(/home)</p><p>상품 삭제 기능</p></td>
+     </tr>
+  </table>
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+<br/>
 
-### Code Splitting
+**✨ 백엔드**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+<table border="" cellspacing="0" cellpadding="0" width="100%">
+  <tr width="100%">
+  <td align="center">김민솔</a></td>
+  <td align="center">유지민</a></td>
+  <td  align="center">박민서</a></td>
+  </tr>
+  <tr width="100%">
+  <td  align="center" width="33%"><a href="https://github.com/soli-ziyo"><img  src="https://avatars.githubusercontent.com/u/163154019?v=4" width="90px"></td>
+  <td  align="center" width="33%"><a href="https://github.com/jiminnimij"><img  src="https://avatars.githubusercontent.com/u/124450012?v=4" width="90px"></td>
+  <td  align="center" width="33%"><a href="https://github.com/minsihihi"><img  src="https://avatars.githubusercontent.com/u/126065697?v=4" width="90px"></td>
+  </tr>
+      <tr width="100%">
+          <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
+           <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
+            <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
+     </tr>
+  </table>
+</br>
 
-### Analyzing the Bundle Size
+</br>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 장표
 
-### Making a Progressive Web App
+<p align="center">
+<img src="https://github.com/user-attachments/assets/1f726835-6eab-4e06-9261-93f104cb0799"/>
+<img src="https://github.com/user-attachments/assets/c632f925-9a4d-443c-ab4e-c65bc2b6d589"/>
+</p>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+  <hr/>
