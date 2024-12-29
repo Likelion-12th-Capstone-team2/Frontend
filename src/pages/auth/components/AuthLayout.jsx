@@ -56,7 +56,7 @@ const Wrapper = styled.div`
 const Container = styled.div`
   width: 41rem;
   border: 1px solid black;
-  margin: 7.5rem 2.5rem;
+  margin: 7.5rem 8.75rem;
 
   ${({ theme }) => theme.mobile} {
     width: 90%;
