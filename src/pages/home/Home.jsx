@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom';
 const Home = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]); // 필터링된 상품
   const [showMessage, setShowMessage] = useState(true); // 처음에는 메시지 표시
   const [showPopup, setShowPopup] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
@@ -25,7 +26,6 @@ const Home = () => {
   });
   const [categories, setCategories] = useState([{ name: 'All', id: null }]); // 카테고리 상태
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loginUser, setLoginUser] = useState();
 
   const { userId } = useParams();
   const loggedInUserId = localStorage.getItem('id');
@@ -123,6 +123,7 @@ const Home = () => {
       setCategories([{ name: 'All', id: null }, ...categoryList]);
 
       setProducts(data.wish_items || []);
+      setFilteredProducts(data.wish_items || []); // 초기값은 전체 상품
       setShowMessage(data.wish_items?.length === 0);
     } catch (error) {
       // 404 에러와 일반적인 에러를 분리하여 처리
@@ -141,9 +142,12 @@ const Home = () => {
     setSelectedCategoryId(categoryId);
 
     if (category === 'All') {
-      fetchData(userId); // 전체 상품 가져오기
+      setFilteredProducts(products); // 전체 상품으로 필터링
     } else {
-      if (categoryId) fetchData(userId); // 특정 카테고리만 가져오기
+      const filtered = products.filter(
+        (product) => product.category_id === categoryId,
+      );
+      setFilteredProducts(filtered);
     }
   };
 
@@ -175,6 +179,9 @@ const Home = () => {
       );
       // 삭제 성공 시 UI에서 해당 상품 제거
       setProducts((prev) =>
+        prev.filter((item) => item.id !== productToDelete.id),
+      );
+      setFilteredProducts((prev) =>
         prev.filter((item) => item.id !== productToDelete.id),
       );
       setProductToDelete(null); // 삭제 대상 초기화
@@ -221,9 +228,6 @@ const Home = () => {
       alert('Failed to fetch product information.');
     }
   };
-
-  // 서버에서 제공한 데이터를 그대로 사용
-  const filteredProducts = products;
 
   const handleDeleteClick = (productId) => {
     fetchProductDetails(productId); // 버튼 클릭 시 상품 상세 정보 요청
@@ -329,10 +333,11 @@ const Home = () => {
           </Price>
         </PriceWrapper>
         <WishWrapper>
-          {filteredProducts === 0 ? (
+          {selectedCategory === 'All' &&
+          selectedPrice === null &&
+          filteredProducts.length === 0 ? (
             <ClickWish
               onClick={() => {
-                fetchData();
                 navigate('/wishRegister');
               }}
             >
@@ -612,6 +617,7 @@ const ClickWish = styled.p`
   margin-top: 1.35rem;
   padding: 0.4rem 0.15rem;
   display: inline-block;
+  margin-right: 4rem;
   cursor: pointer;
   @media (max-width: 60rem) {
     margin-left: 6rem;
