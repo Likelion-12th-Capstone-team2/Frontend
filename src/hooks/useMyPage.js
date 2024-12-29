@@ -79,6 +79,7 @@ export const useMypage = () => {
         navigate(`/home/${id}`);
       } else {
         await axios.patch(endpoint, formData, config);
+        alert('Profile settings have been successfully updated!');
       }
     } catch (error) {
       console.error('프로필 설정 실패:', error);

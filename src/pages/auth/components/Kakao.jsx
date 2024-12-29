@@ -8,14 +8,12 @@ const KakaoRedirection = () => {
 
   useEffect(() => {
     const code = new URL(window.location.href).searchParams.get('code');
-    console.log('Received code:', code);
 
     const kakaoLogin = async () => {
       try {
         if (processedRef.current) return;
         processedRef.current = true;
 
-        console.log('Sending request with code:', code);
         const response = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/accounts/kakao/login/callback/`,
           {
