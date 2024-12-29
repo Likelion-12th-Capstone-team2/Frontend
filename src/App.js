@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+} from 'react-router-dom';
 
 // 디자인
 import { Iwi } from '@/assets/icons';
@@ -23,13 +28,26 @@ import WishRegister from '@/pages/wish/WishRegister';
 import WishDetail from '@/pages/wish/WishDetail';
 import WishAddMine from './pages/wish/WishAddMine';
 
+const Logo = () => {
+  const navigate = useNavigate();
+
+  const handleLogoClick = () => {
+    const id = localStorage.getItem('id');
+    if (id) {
+      navigate(`/home/${id}`);
+    }
+  };
+
+  return <StyledIwi onClick={handleLogoClick} />;
+};
+
 function App() {
   return (
     <>
       <GlobalStyle />
       <ThemeProvider theme={Theme}>
-        <StyledIwi />
         <Router>
+          <Logo />
           <Routes>
             <Route path="/" element={<LogIn />} />
             <Route path="/signup" element={<SignUp />} />
