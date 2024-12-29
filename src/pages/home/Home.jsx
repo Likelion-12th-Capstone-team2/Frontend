@@ -40,6 +40,12 @@ const Home = () => {
     }
   };
 
+  const [categoryCount, setCategoryCount] = useState(0);
+
+  useEffect(() => {
+    setCategoryCount(categories.length);
+  }, [categories]);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
 
@@ -272,8 +278,6 @@ const Home = () => {
         <Container>
           <Line position="top" />
           <Line position="bottom" />
-          <Line position="left" />
-          <Line position="right" />
         </Container>
         <>
           <StyledIwi onClick={handleLogoClick} />{' '}
@@ -352,16 +356,12 @@ const Home = () => {
           {categories.length === 1 &&
           filteredProducts.length === 0 &&
           !loading ? (
-            <ClickWish
-              onClick={() => {
-                navigate('/mypage');
-              }}
-            >
-              Click Here and Categorize Your WISH
-            </ClickWish>
+            <BottomWrapper>
+              <button onClick={() => navigate('/wishRegister')}>Add</button>
+            </BottomWrapper>
           ) : (
             <div>
-              <CatagoryContainer>
+              <CatagoryContainer categoryCount={categoryCount}>
                 <CategoryWrapper>
                   {categories.map((category) => (
                     <CategoryButton
@@ -379,7 +379,7 @@ const Home = () => {
               <MiddleWrapper>
                 <ProductGrid>
                   {loading ? (
-                    <p>Loading...</p> // 로딩 중일 때 표시
+                    <p>Loading...</p>
                   ) : filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
                       <div key={product.id} style={{ position: 'relative' }}>
@@ -387,10 +387,10 @@ const Home = () => {
                           received={product.is_sended}
                           onClick={() => {
                             if (showDeleteIcons) {
-                              handleDeleteClick(product.id); // 상품 상세 정보 요청
+                              handleDeleteClick(product.id);
                             } else {
                               navigate('/wishDetail', {
-                                state: { itemId: product.id }, // 상품 ID 전달
+                                state: { itemId: product.id },
                               });
                             }
                           }}
@@ -429,19 +429,27 @@ const Home = () => {
                       </div>
                     ))
                   ) : (
-                    <p>No products found.</p> // 로딩이 끝났고 상품이 없을 때 표시
+                    <p>No products found.</p>
                   )}
                 </ProductGrid>
 
                 {userType === 'owner' &&
                   userId === localStorage.getItem('id') && (
                     <BottomWrapper>
-                      <button onClick={toggleDeleteMode}>
-                        {showDeleteIcons ? 'Done' : 'Delete'}
-                      </button>
-                      <button onClick={() => navigate('/wishRegister')}>
-                        Add
-                      </button>
+                      {filteredProducts.length === 0 ? (
+                        <button onClick={() => navigate('/wishRegister')}>
+                          Add
+                        </button>
+                      ) : (
+                        <>
+                          <button onClick={toggleDeleteMode}>
+                            {showDeleteIcons ? 'Done' : 'Delete'}
+                          </button>
+                          <button onClick={() => navigate('/wishRegister')}>
+                            Add
+                          </button>
+                        </>
+                      )}
                     </BottomWrapper>
                   )}
               </MiddleWrapper>
@@ -468,7 +476,7 @@ const BottomWrapper = styled.div`
   position: absolute;
   right: 12rem;
   display: flex;
-  padding-bottom: 2rem;
+  padding-bottom: 10rem;
   > button {
     display: flex;
     padding: 0.25rem 1.125rem;
@@ -498,28 +506,39 @@ const BottomWrapper = styled.div`
 
 const CatagoryContainer = styled.div`
   width: 79%;
-  min-height: 10rem;
+  min-height: 13rem;
   position: relative; /* 자식 요소의 위치를 제한 */
   display: flex;
   align-items: center;
-  margin-left: 11rem;
+  margin-left: 8rem;
   @media (max-width: 60rem) {
-    margin-left: 5rem;
+    margin-left: 2.5rem;
   }
   @media (max-width: 48rem) {
-    margin-left: 3.4rem;
+    margin-left: 0rem;
+  }
+  @media (max-width: 36rem) {
+    min-height: ${({ categoryCount }) =>
+      categoryCount <= 4 ? '13rem' : '23rem'}; // 4개 이하일 때만 높이 줄이기
   }
 `;
+
 const CategoryWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  transform: rotate(-90deg);
-  transform-origin: top left; /* 회전 기준점 설정 */
+  display: grid;
+  grid-template-columns: 4rem 4rem 4rem 4rem 4rem 4rem 4rem 4rem;
+  grid-template-rows: auto;
+  row-gap: 8rem;
   position: absolute;
-  top: 100%;
+
   white-space: nowrap; /* 요소가 한 줄로 유지되도록 설정 */
+  @media (max-width: 60rem) {
+    grid-template-columns: 4rem 4rem 4rem 4rem 4rem 4rem 4rem 4rem 4rem;
+  }
+  @media (max-width: 36rem) {
+    grid-template-columns: 4rem 4rem 4rem 4rem;
+  }
 `;
+
 const CategoryButton = styled.p`
   display: inline-block; /* 글씨 영역만큼만 배경 색상을 적용 */
   padding: 0.2rem 0.525rem;
@@ -527,13 +546,14 @@ const CategoryButton = styled.p`
   color: ${({ selected }) => (selected ? 'black' : 'white')};
   cursor: pointer;
   border: none;
-  width: 8.5rem;
+  width: 10rem;
   border-color: ${({ selected }) => (selected ? 'black' : 'white')};
   border: solid 1px;
   text-overflow: ellipsis;
   overflow: hidden;
   text-align: center;
   ${({ theme }) => theme.font.p_category}
+  transform: rotate(-90deg); /* 90도 회전 추가 */
 
   &:hover {
     background-color: white;
@@ -818,6 +838,7 @@ const MainContainer = styled.div`
   height: auto;
   min-height: 100vh; /* 화면 전체 높이를 기본값으로 설정 */
   overflow-y: scroll; /* 넘친 요소를 숨김 */
+  overflow-x: hidden;
   /* Firefox, IE, Edge, Chrome, Safari 모두에서 안 되게*/
   scrollbar-width: none;
   -ms-overflow-style: none;
