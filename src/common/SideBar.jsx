@@ -45,9 +45,6 @@ const SideBar = ({ userType, loginUser }) => {
         <MenuContent>
           {userType !== 'guest' ? (
             <>
-              <MenuItem onClick={() => handleNavigation('/notifications')}>
-                Ding!
-              </MenuItem>
               {userType !== 'owner' ? (
                 <MenuItem
                   onClick={() => handleNavigation(`/home/${loginUser}`)}
@@ -55,9 +52,14 @@ const SideBar = ({ userType, loginUser }) => {
                   My Wish
                 </MenuItem>
               ) : (
-                <MenuItem onClick={() => handleNavigation('/mypage')}>
-                  Setting
-                </MenuItem>
+                <>
+                  <MenuItem onClick={() => handleNavigation('/mypage')}>
+                    Setting
+                  </MenuItem>
+                  <MenuItem onClick={() => handleNavigation('/notifications')}>
+                    Ding!
+                  </MenuItem>
+                </>
               )}
               <MenuItem onClick={handleLogout}>Log out</MenuItem>
             </>
@@ -76,7 +78,7 @@ const HamburgerButton = styled.button`
   display: none;
   position: absolute;
   top: 1.69rem;
-  right: 1rem;
+  right: 2rem;
   background: none;
   border: none;
   cursor: pointer;

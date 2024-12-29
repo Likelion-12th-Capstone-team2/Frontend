@@ -25,12 +25,6 @@ const TopMenu = ({ userType, loginUser }) => {
     <MenuWrapper>
       {userType !== 'guest' ? (
         <>
-          <MenuButton
-            $isActive={location.pathname === '/notifications'}
-            onClick={() => navigate('/notifications')}
-          >
-            Ding!
-          </MenuButton>
           {userType !== 'guest' && userType !== 'owner' ? (
             <MenuButton
               $isActive={location.pathname === '/mywish'}
@@ -39,12 +33,20 @@ const TopMenu = ({ userType, loginUser }) => {
               My Wish
             </MenuButton>
           ) : (
-            <MenuButton
-              $isActive={location.pathname === '/mypage'}
-              onClick={() => navigate('/mypage')}
-            >
-              Setting
-            </MenuButton>
+            <>
+              <MenuButton
+                $isActive={location.pathname === '/notifications'}
+                onClick={() => navigate('/notifications')}
+              >
+                Ding!
+              </MenuButton>
+              <MenuButton
+                $isActive={location.pathname === '/mypage'}
+                onClick={() => navigate('/mypage')}
+              >
+                Setting
+              </MenuButton>
+            </>
           )}
           <MenuButton onClick={handleAuthClick}>
             {isAuthenticated ? 'Log out' : 'Log in'}
@@ -64,10 +66,16 @@ const MenuWrapper = styled.div`
   gap: 1.25rem;
   position: absolute;
   top: 2.34rem;
-  right: 3.75rem;
+  right: 9.75rem;
 
   ${({ theme }) => theme.mobile} {
     display: none;
+  }
+  @media (max-width: 60rem) {
+    right: 5rem;
+  }
+  @media (max-width: 48rem) {
+    right: 9.75rem;
   }
 `;
 
