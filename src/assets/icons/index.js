@@ -1,4 +1,5 @@
 export { default as Chat } from './Chat';
+export { default as DeleteCircle } from './DeleteCircle';
 export { default as HeartFull } from './HeartFull';
 export { default as HeartFullBlue } from './HeartFullBlue';
 export { default as HeartLine } from './HeartLine';
