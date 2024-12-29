@@ -44,7 +44,7 @@ const WishDetail = () => {
         );
 
         setData(response.data);
-        console.log(response.data);
+
         determineUserType(response.data);
       } catch (error) {
         console.error('Failed to fetch item data:', error);
@@ -105,7 +105,7 @@ const WishDetail = () => {
           },
         },
       );
-      console.log(response.data);
+
       setData((prev) => ({
         ...prev,
         item: {

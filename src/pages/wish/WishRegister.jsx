@@ -10,7 +10,7 @@ const WishRegister = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { itemToEdit } = location.state || {}; // location state에서 itemToEdit 가져오기
+  const { itemToEdit } = location.state || {};
   const [heartCount, setHeartCount] = useState(0);
   const [formData, setFormData] = useState({
     item_name: '',
@@ -22,9 +22,9 @@ const WishRegister = () => {
     other_option: '',
     category: '',
   });
-  const [loading, setLoading] = useState(false); // 로딩 상태 관리
-  const [error, setError] = useState(null); // 오류 상태 관리
-  const [categories, setCategories] = useState([]); // 카테고리 목록 상태 관리
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userType, setUserType] = useState('');
@@ -39,12 +39,11 @@ const WishRegister = () => {
       setIsSmallScreen(window.innerWidth <= 1230);
     };
 
-    handleResize(); // 초기 화면 크기 확인
-    window.addEventListener('resize', handleResize); // 리사이즈 이벤트 등록
-    return () => window.removeEventListener('resize', handleResize); // 이벤트 제거
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 페이지가 로드될 때, itemToEdit이 있으면 폼에 데이터 채워넣기
   useEffect(() => {
     if (itemToEdit) {
       setFormData({
@@ -55,10 +54,9 @@ const WishRegister = () => {
         size: itemToEdit.item.size || '',
         color: itemToEdit.item.color || '',
         other_option: itemToEdit.item.other_option || '',
-        category: itemToEdit.item.category || '', // 카테고리 초기화
+        category: itemToEdit.item.category || '',
       });
-      setHeartCount(itemToEdit.item.heart || 0); // heart 초기화
-      console.log(itemToEdit); // 데이터가 제대로 전달됐는지 확인
+      setHeartCount(itemToEdit.item.heart || 0);
     }
   }, [itemToEdit]);
 
@@ -75,14 +73,12 @@ const WishRegister = () => {
     }
   }, [itemToEdit]);
 
-  // 카테고리 항목을 불러오는 함수
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         setUserType('guest');
       } else {
-        // token이 있지만 data는 아직 없으므로 data.user에 접근하지 않음
         setUserType('authenticated');
       }
 
@@ -95,7 +91,7 @@ const WishRegister = () => {
         },
       );
 
-      setCategories(response.data); // 받아온 카테고리 데이터를 상태에 저장
+      setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -133,7 +129,7 @@ const WishRegister = () => {
       }
 
       const response = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/crawler/crawl/`,
+        `${baseUrl}/crawler/crawl/`,
         { url: formData.wish_link },
         {
           headers: {
@@ -145,13 +141,18 @@ const WishRegister = () => {
       const { product_name, product_price, product_image } = response.data;
       setFormData((prev) => ({
         ...prev,
-        item_name: product_name || prev.item_name, // 기존 입력값 유지
-        price: product_price || prev.price, // 기존 입력값 유지
-        item_image: product_image,
+        item_name: product_name || prev.item_name,
+        price: product_price || prev.price,
+        item_image:
+          product_image ||
+          'https://minsihihi-wish-bucket.s3.ap-northeast-2.amazonaws.com/items/Frame_318.png',
       }));
     } catch (err) {
       console.error('Error fetching product details:', err.message);
       setError('Fetching product details failed');
+      setFormData((prev) => ({
+        ...prev,
+      }));
     } finally {
       setLoading(false);
     }
@@ -169,8 +170,6 @@ const WishRegister = () => {
       heart: heartCount,
       category: Number(formData.category),
     };
-
-    console.log('Data to be sent:', dataToSend);
 
     try {
       const token = localStorage.getItem('token');
@@ -191,7 +190,7 @@ const WishRegister = () => {
         );
         alert('Wish update succeeded!');
         navigate('/wishDetail', {
-          state: { itemId: itemToEdit.item.id }, // 수정한 위시의 ID 전달
+          state: { itemId: itemToEdit.item.id },
         });
       } else {
         // 등록 모드: POST 요청
@@ -222,7 +221,7 @@ const WishRegister = () => {
   const handleCategoryClick = (selectedCategory) => {
     setFormData((prev) => ({
       ...prev,
-      category: String(selectedCategory.id), // 클릭된 카테고리의 id를 설정
+      category: String(selectedCategory.id),
     }));
   };
 
@@ -302,14 +301,14 @@ const WishRegister = () => {
             <input
               name="item_name"
               value={formData.item_name}
-              onChange={handleInputChange} // 사용자가 직접 입력 가능
+              onChange={handleInputChange}
             />
             <p>Wish Price.*</p>
             <input
               name="price"
               type="number"
               value={formData.price}
-              onChange={handleInputChange} // 사용자가 직접 입력 가능
+              onChange={handleInputChange}
             />
             <p>Wish Option.</p>
             <OptionInput>
@@ -347,7 +346,7 @@ const WishRegister = () => {
                   onClick={() => handleCategoryClick(category)}
                   className={
                     formData.category === String(category.id) ? 'active' : ''
-                  } // id를 문자열로 변환하여 비교
+                  }
                 >
                   {category.category}
                 </div>
@@ -439,6 +438,7 @@ const CategoryInput = styled.div`
 `;
 
 const Plus = styled.h1`
+  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -54,7 +54,6 @@ const WishAddMine = () => {
       if (!token) {
         setUserType('guest');
       } else {
-        // token이 있지만 data는 아직 없으므로 data.user에 접근하지 않음
         setUserType('authenticated');
       }
 
@@ -99,7 +98,6 @@ const WishAddMine = () => {
         color: response.data.color || '',
         other_option: response.data.other_option || '',
       });
-      console.log(response);
     } catch (error) {
       console.error('Error fetching Data:', error);
     }
@@ -167,8 +165,6 @@ const WishAddMine = () => {
       category: Number(formData.category),
     };
 
-    console.log('Data to send:', dataToSend);
-
     try {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('Access token not found');
@@ -189,7 +185,6 @@ const WishAddMine = () => {
 
       alert('Wish registration succeeded!');
       navigate(`/home/${user_id}`);
-      console.log(response.data);
     } catch (err) {
       console.error('Error submitting wish:', err.message);
       alert('Wish registration failed');
