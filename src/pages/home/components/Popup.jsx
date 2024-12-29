@@ -90,6 +90,7 @@ const PopupMiddleWrapper = styled.div`
 const PopupInfo = styled.div`
   @media (max-width: 35rem) {
     padding-left: 1.3rem;
+    padding-right: 2.5rem;
   }
 `;
 const PopupText = styled.p`
