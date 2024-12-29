@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { Delete } from '@/assets/icons';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import SideBar from '@/common/SideBar';
@@ -11,6 +11,7 @@ import { useParams } from 'react-router-dom';
 const Home = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]); // 필터링된 상품
   const [showMessage, setShowMessage] = useState(true); // 처음에는 메시지 표시
   const [showPopup, setShowPopup] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
@@ -25,11 +26,11 @@ const Home = () => {
   });
   const [categories, setCategories] = useState([{ name: 'All', id: null }]); // 카테고리 상태
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loginUser, setLoginUser] = useState();
 
   const { userId } = useParams();
   const loggedInUserId = localStorage.getItem('id');
-  console.log(loggedInUserId);
+  const wrapperRef = useRef(null); // Wrapper 요소 참조
+
   useEffect(() => {
     const token = localStorage.getItem('token');
 
@@ -56,6 +57,34 @@ const Home = () => {
 
     fetchDataWrapper();
   }, [userId, navigate, selectedPrice, selectedCategoryId]);
+
+  const handleClickOutside = (event) => {
+    const priceButtons = document.querySelectorAll('[data-price-button]');
+    const categoryButtons = document.querySelectorAll('[data-category-button]');
+
+    const isPriceButton = Array.from(priceButtons).some((button) =>
+      button.contains(event.target),
+    );
+    const isCategoryButton = Array.from(categoryButtons).some((button) =>
+      button.contains(event.target),
+    );
+
+    if (!isPriceButton && !isCategoryButton) {
+      // 버튼 외의 영역을 클릭한 경우 선택된 필터 해제
+      setSelectedPrice(null);
+      setSelectedCategory('All');
+      setSelectedCategoryId(null);
+    }
+  };
+
+  useEffect(() => {
+    // 클릭 이벤트 리스너 추가
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      // 컴포넌트 언마운트 시 이벤트 리스너 제거
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   const fetchData = async (userId) => {
     const token = localStorage.getItem('token');
@@ -94,6 +123,7 @@ const Home = () => {
       setCategories([{ name: 'All', id: null }, ...categoryList]);
 
       setProducts(data.wish_items || []);
+      setFilteredProducts(data.wish_items || []); // 초기값은 전체 상품
       setShowMessage(data.wish_items?.length === 0);
     } catch (error) {
       // 404 에러와 일반적인 에러를 분리하여 처리
@@ -107,17 +137,22 @@ const Home = () => {
     }
   };
 
-  // 카테고리 선택 시 유효성 검증 후 데이터 호출
   const selectCategory = (category, categoryId) => {
-    console.log('Category Selected:', category, categoryId); // 디버깅용
     setSelectedCategory(category);
     setSelectedCategoryId(categoryId);
 
     if (category === 'All') {
-      fetchData(userId); // 전체 상품 가져오기
+      setFilteredProducts(products); // 전체 상품으로 필터링
     } else {
-      if (categoryId) fetchData(userId); // 특정 카테고리만 가져오기
+      const filtered = products.filter(
+        (product) => product.category_id === categoryId,
+      );
+      setFilteredProducts(filtered);
     }
+  };
+
+  const selectPrice = (price) => {
+    setSelectedPrice(price);
   };
 
   const toggleMenu = () => {
@@ -146,12 +181,15 @@ const Home = () => {
       setProducts((prev) =>
         prev.filter((item) => item.id !== productToDelete.id),
       );
+      setFilteredProducts((prev) =>
+        prev.filter((item) => item.id !== productToDelete.id),
+      );
       setProductToDelete(null); // 삭제 대상 초기화
       setShowPopup(false); // 팝업 닫기
-      alert('상품이 성공적으로 삭제되었습니다.');
+      alert('The product has been successfully deleted.');
     } catch (error) {
       console.error('Failed to delete product:', error);
-      alert('상품 삭제에 실패했습니다.');
+      alert('Failed to delete the product.');
     }
   };
 
@@ -167,7 +205,6 @@ const Home = () => {
         },
       );
 
-      console.log(response.data);
       setProductToDelete(response.data); // 서버에서 받아온 데이터 저장
       const item = response.data.item; // item은 객체
       const productDetails = {
@@ -188,21 +225,12 @@ const Home = () => {
       setShowPopup(true); // 팝업 띄우기
     } catch (error) {
       console.error('Failed to fetch product details:', error);
-      alert('상품 정보를 가져오는데 실패했습니다.');
+      alert('Failed to fetch product information.');
     }
   };
 
-  // 서버에서 제공한 데이터를 그대로 사용
-  const filteredProducts = products;
-
-  console.log('Filtered Products:', filteredProducts);
-
   const handleDeleteClick = (productId) => {
     fetchProductDetails(productId); // 버튼 클릭 시 상품 상세 정보 요청
-  };
-
-  const selectPrice = (price) => {
-    setSelectedPrice(price);
   };
 
   const cancelDelete = () => {
@@ -215,7 +243,11 @@ const Home = () => {
   };
 
   return (
-    <Wrapper>
+    <Wrapper ref={wrapperRef}>
+      <Container>
+        <Line position="left" />
+        <Line position="right" />
+      </Container>
       <MainContainer
         style={{
           backgroundImage: `url(${settings.backgroundPhoto})`, // 중괄호 안에 `${}`로 수정
@@ -237,7 +269,7 @@ const Home = () => {
             style={{
               position: 'absolute',
               top: '2.34rem',
-              right: '1rem',
+              right: '1.1rem',
             }}
             loginUser={loggedInUserId}
           />
@@ -271,16 +303,41 @@ const Home = () => {
           </TitleWrapper>
         </TitleContainer>
         <PriceWrapper>
-          <Price onClick={() => selectPrice(0)}>~30,000</Price>
-          <Price onClick={() => selectPrice(30000)}>30,000~50,000</Price>
-          <Price onClick={() => selectPrice(50000)}>50,000~100,000</Price>
-          <Price onClick={() => selectPrice(100000)}>100,000~</Price>
+          <Price
+            data-price-button
+            selected={selectedPrice === 0}
+            onClick={() => selectPrice(0)}
+          >
+            ~30,000
+          </Price>
+          <Price
+            data-price-button
+            selected={selectedPrice === 30000}
+            onClick={() => selectPrice(30000)}
+          >
+            30,000~50,000
+          </Price>
+          <Price
+            data-price-button
+            selected={selectedPrice === 50000}
+            onClick={() => selectPrice(50000)}
+          >
+            50,000~100,000
+          </Price>
+          <Price
+            data-price-button
+            selected={selectedPrice === 100000}
+            onClick={() => selectPrice(100000)}
+          >
+            100,000~
+          </Price>
         </PriceWrapper>
         <WishWrapper>
-          {filteredProducts === 0 ? (
+          {selectedCategory === 'All' &&
+          selectedPrice === null &&
+          filteredProducts.length === 0 ? (
             <ClickWish
               onClick={() => {
-                fetchData();
                 navigate('/wishRegister');
               }}
             >
@@ -293,6 +350,7 @@ const Home = () => {
                   {categories.map((category) => (
                     <CategoryButton
                       key={category.id || 'all'}
+                      data-category-button
                       selected={selectedCategory === category.name}
                       onClick={() => selectCategory(category.name, category.id)}
                     >
@@ -309,11 +367,15 @@ const Home = () => {
                       <div key={product.id} style={{ position: 'relative' }}>
                         <ProductCard
                           received={product.is_sended}
-                          onClick={() =>
-                            navigate('/wishDetail', {
-                              state: { itemId: product.id }, // 상품 ID 전달
-                            })
-                          }
+                          onClick={() => {
+                            if (showDeleteIcons) {
+                              handleDeleteClick(product.id); // 상품 상세 정보 요청
+                            } else {
+                              navigate('/wishDetail', {
+                                state: { itemId: product.id }, // 상품 ID 전달
+                              });
+                            }
+                          }}
                         >
                           <ProductImage
                             src={product.item_image}
@@ -354,7 +416,8 @@ const Home = () => {
                 </ProductGrid>
 
                 {userType === 'owner' &&
-                  userId === localStorage.getItem('id') && (
+                  userId === localStorage.getItem('id') &&
+                  filteredProducts.length > 0 && (
                     <BottomWrapper>
                       <button onClick={toggleDeleteMode}>
                         {showDeleteIcons ? 'Done' : 'Delete'}
@@ -388,6 +451,7 @@ const BottomWrapper = styled.div`
   position: absolute;
   right: 12rem;
   display: flex;
+  padding-bottom: 2rem;
   > button {
     display: flex;
     padding: 0.25rem 1.125rem;
@@ -406,6 +470,12 @@ const BottomWrapper = styled.div`
     color: black;
     background-color: #ffa100;
     border: none;
+  }
+  @media (max-width: 60rem) {
+    right: 8rem;
+  }
+  @media (max-width: 48rem) {
+    right: 2.3rem;
   }
 `;
 
@@ -433,16 +503,15 @@ const CategoryWrapper = styled.div`
   top: 100%;
   white-space: nowrap; /* 요소가 한 줄로 유지되도록 설정 */
 `;
-
 const CategoryButton = styled.p`
   display: inline-block; /* 글씨 영역만큼만 배경 색상을 적용 */
   padding: 0.2rem 0.525rem;
-  background-color: black;
-  color: white;
+  background-color: ${({ selected }) => (selected ? 'white' : 'black')};
+  color: ${({ selected }) => (selected ? 'black' : 'white')};
   cursor: pointer;
   border: none;
   width: 8.5rem;
-  border-color: white;
+  border-color: ${({ selected }) => (selected ? 'black' : 'white')};
   border: solid 1px;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -502,6 +571,7 @@ const ProductCard = styled.div`
   display: flex; /* 필요하면 이미지 정렬용 */
   align-items: center; /* 필요하면 이미지 정렬용 */
   justify-content: center; /* 필요하면 이미지 정렬용 */
+  cursor: pointer;
 `;
 
 const ProductImage = styled.img`
@@ -547,6 +617,7 @@ const ClickWish = styled.p`
   margin-top: 1.35rem;
   padding: 0.4rem 0.15rem;
   display: inline-block;
+  margin-right: 4rem;
   cursor: pointer;
   @media (max-width: 60rem) {
     margin-left: 6rem;
@@ -563,21 +634,18 @@ const Price = styled.div`
   border-radius: 3.125rem;
   border: 1px solid #000;
   display: inline-block; /* 글씨 영역만큼만 배경 색상을 적용 */
-  background-color: black;
-  border-color: white;
+  background-color: ${({ selected }) => (selected ? 'white' : 'black')};
+  color: ${({ selected }) => (selected ? 'black' : 'white')};
+  border-color: ${({ selected }) => (selected ? 'black' : 'white')};
   padding: 0.25rem 0.75rem;
   cursor: pointer;
   margin-right: 0.8rem;
   margin-top: 1rem;
+
   &:hover {
     background-color: white;
     color: black;
     border-color: black;
-  }
-  &:active {
-    background-color: white !important;
-    color: black !important;
-    border-color: black !important;
   }
 `;
 
@@ -597,7 +665,7 @@ const Title = styled.p`
   background-color:  ${({ theme }) => theme.color.yellow};
   color: black;
   padding: 0 0.5rem;
-  margin-top: 5px;
+
   display: inline-block; /* 글씨 영역만큼만 배경 색상을 적용 */
 `;
 const TitleWrapper = styled.div``;
@@ -605,16 +673,18 @@ const TitleWrapper = styled.div``;
 const TitleContainer = styled.div`
   display: flex;
   margin-left: 9.5rem;
-  margin-top: 6.7rem;
+  margin-top: 6.9rem;
   @media (max-width: 60rem) {
     flex-direction: column;
     gap: 1rem;
     margin-left: 5rem;
+    margin-top: 7.2rem;
   }
   @media (max-width: 48rem) {
     flex-direction: column;
     gap: 1rem;
     margin-left: 2.5rem;
+    margin-top: 7.2rem;
   }
 `;
 
@@ -648,7 +718,7 @@ const Line = styled.div`
     bottom: 0rem; 
     left: 8.75rem; 
     width: 1px;
-    height: 150vh;
+    min-height: 100vh;
   `}
 
   ${({ position }) =>
@@ -658,7 +728,7 @@ const Line = styled.div`
     bottom: 0rem; 
     right: 8.75rem; 
     width: 1px;
-    height: 150vh;
+    height: 100vh;
   `}
 
   /* 반응형 미디어 쿼리 */
@@ -714,6 +784,18 @@ const MainContainer = styled.div`
   height: auto;
   min-height: 100vh; /* 화면 전체 높이를 기본값으로 설정 */
   overflow-y: scroll; /* 넘친 요소를 숨김 */
+  /* Firefox, IE, Edge, Chrome, Safari 모두에서 안 되게*/
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  &::-webkit-scrollbar-track {
+    display: none;
+  }
+  &::-webkit-scrollbar-thumb {
+    display: none;
+  }
 `;
 
 const Wrapper = styled.div`

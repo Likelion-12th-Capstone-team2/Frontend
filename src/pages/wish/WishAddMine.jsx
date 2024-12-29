@@ -3,7 +3,6 @@ import { HeartLine, HeartFull } from '@/assets/icons';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import hamburger from '@/assets/hamburger.svg';
 import NavigationBar from './components/NavigationBar2';
 
 const WishAddMine = () => {

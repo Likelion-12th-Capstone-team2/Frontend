@@ -68,7 +68,6 @@ const PopupContainer = styled.div`
   @media (max-width: 35rem) {
     width: 19.95706rem;
     height: 33.30938rem;
-    margin-right: 2rem;
 
     > div {
       flex-direction: column;
@@ -91,6 +90,7 @@ const PopupMiddleWrapper = styled.div`
 const PopupInfo = styled.div`
   @media (max-width: 35rem) {
     padding-left: 1.3rem;
+    padding-right: 2.5rem;
   }
 `;
 const PopupText = styled.p`
