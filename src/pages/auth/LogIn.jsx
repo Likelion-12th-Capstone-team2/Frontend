@@ -59,20 +59,10 @@ const LogIn = () => {
     }
   };
 
-  const handleKakaoLogin = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/accounts/kakao/`,
-      );
+  const handleKakaoLogin = () => {
+    const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.REACT_APP_KAKAO_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_KAKAO_REDIRECT_URI}&response_type=code`;
 
-      const { data } = response.data;
-      localStorage.setItem('token', data.access_token);
-      localStorage.setItem('username', data.username);
-      localStorage.setItem('id', data.id);
-      navigate('/signup', { state: { step: 'onboarding' } });
-    } catch (error) {
-      console.error('카카오 로그인 에러:', error);
-    }
+    window.location.replace(KAKAO_AUTH_URL);
   };
 
   return (
