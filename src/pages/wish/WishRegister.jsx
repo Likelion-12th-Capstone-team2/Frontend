@@ -501,13 +501,13 @@ const OtherInput = styled.div`
     @media (max-width: 768px) {
       position: relative;
       width: 100%;
+      padding: 0.438rem 0.5rem;
     }
   }
   input::placeholder {
     ${({ theme }) => theme.font.common_input}
     color: #BEBEBE;
     @media (max-width: 768px) {
-      color: transparent;
     }
   }
 `;
