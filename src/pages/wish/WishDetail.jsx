@@ -87,6 +87,7 @@ const WishDetail = () => {
 
       setIsPopupVisible(false);
       alert('Gift sent successfully!');
+      window.location.reload();
     } catch (error) {
       console.error('Failed to send gift:', error);
       alert('Failed to send gift.');
@@ -280,9 +281,13 @@ const WishDetail = () => {
                     if (data.user === 'guest') {
                       alert('Login is required to access this feature.');
                       navigate('/');
-                    } else {
+                    } else if (data.user !== 'owner') {
                       handleFromClick();
                     }
+                  }}
+                  style={{
+                    pointerEvents: data.user === 'owner' ? 'none' : 'auto',
+                    opacity: data.user === 'owner' ? 0.5 : 1, // 선택적: 시각적 효과
                   }}
                 >
                   {data.item.is_sended
