@@ -8,6 +8,7 @@ import TopMenu from '@/common/TopMenu';
 import Popup from './components/Popup';
 import { useParams } from 'react-router-dom';
 import { Iwi } from '@/assets/icons';
+import HeartFull from '@/assets/Frame 336.svg';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -137,8 +138,11 @@ const Home = () => {
         : [];
       setCategories([{ name: 'All', id: null }, ...categoryList]);
 
-      setProducts(data.wish_items || []);
-      setFilteredProducts(data.wish_items || []); // 초기값은 전체 상품
+      setProducts((data.wish_items || []).sort((a, b) => b.heart - a.heart)); // 큰 값에서 작은 값 순으로 정렬
+      setFilteredProducts(
+        (data.wish_items || []).sort((a, b) => b.heart - a.heart),
+      );
+
       setShowMessage(data.wish_items?.length === 0);
     } catch (error) {
       // 404 에러와 일반적인 에러를 분리하여 처리
@@ -353,12 +357,10 @@ const Home = () => {
           </Price>
         </PriceWrapper>
         <WishWrapper>
-          {categories.length === 1 &&
-          filteredProducts.length === 0 &&
-          !loading ? (
-            <BottomWrapper>
-              <button onClick={() => navigate('/wishRegister')}>Add</button>
-            </BottomWrapper>
+          {categories.length === 1 && filteredProducts.length === 0 ? (
+            <ClickWish onClick={() => navigate('/mypage')}>
+              Click Here and Categorize Your WISH
+            </ClickWish>
           ) : (
             <div>
               <CatagoryContainer categoryCount={categoryCount}>
@@ -408,9 +410,18 @@ const Home = () => {
                           )}
                           <HeartContainer received={product.is_sended}>
                             {Array(product.heart)
-                              .fill('♥')
-                              .map((heart, index) => (
-                                <Heart key={index}>{heart}</Heart>
+                              .fill(null)
+                              .map((_, index) => (
+                                <Heart key={index}>
+                                  <img
+                                    src={HeartFull}
+                                    style={{
+                                      width: '1.5rem',
+                                      height: '1.5rem',
+                                    }}
+                                    alt="Heart Icon"
+                                  />
+                                </Heart>
                               ))}
                           </HeartContainer>
                         </ProductCard>
@@ -657,11 +668,7 @@ const HeartContainer = styled.div`
   display: ${({ received }) => (received ? 'none' : 'block')};
 `;
 
-const Heart = styled.span`
-  color: white;
-  font-size: 1.5rem;
-  margin: 0 0.1rem;
-`;
+const Heart = styled.span``;
 
 const ClickWish = styled.p`
   ${({ theme }) => theme.font.p_clickwish_eng}
