@@ -22,7 +22,7 @@
 
 ## 기술 스택
 
-<span>프론트엔드: </span> <img src="https://img.shields.io/badge/html-E34F26?style=for-the-badge&logo=html5&logoColor=white"> <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white"> <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=black">
+<span>프론트엔드: </span> <img src="https://img.shields.io/badge/html-E34F26?style=for-the-badge&logo=html5&logoColor=white" > <img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white"> <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=black">
 
 <span>백엔드: </span><img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white"> <img src="https://img.shields.io/badge/django-092E20?style=for-the-badge&logo=Django&logoColor=white">
 
@@ -41,14 +41,14 @@
   <td  align="center">최예은</a></td>
   </tr>
   <tr width="100%">
-  <td  align="center" width="33%"><a href="https://imgbb.com/"><img src="https://i.ibb.co/sWXnzcJ/befbedf87e51f5b02aac8b882ada60fd-sticker.png" alt="befbedf87e51f5b02aac8b882ada60fd-sticker" border="0" width="90px"></a></td>
-  <td  align="center" width="33%"><a href="https://imgbb.com/"><img src="https://i.ibb.co/MRr1QMW/f67635fddb50d05f2d0f142e63b0ab5c-sticker.png" alt="f67635fddb50d05f2d0f142e63b0ab5c-sticker" border="0" width="90px"></a></td>
-  <td  align="center" width="33%"><a href="https://imgbb.com/"><img src="https://i.ibb.co/2KDG82L/d006044e5996d0023cd2e18425aa4677-sticker.png" alt="d006044e5996d0023cd2e18425aa4677-sticker" border="0" width="90px"></a></td>
+  <td  align="center" width="33%"><img src="https://github.com/user-attachments/assets/5f5bf5dc-55b1-4ec8-a8ae-9b70dc1b0a41" border="0" width="90px"></a></td>
+  <td  align="center" width="33%"><img src="https://github.com/user-attachments/assets/be158189-acb0-4b91-a749-303b1112ff71" border="0" width="90px"></a></td>
+  <td  align="center" width="33%"><img src="https://github.com/user-attachments/assets/ab982600-6485-47cb-b3f4-148042731213"  border="0" width="90px"></a></td>
   </tr>
       <tr width="100%">
-          <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
-           <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
-            <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
+          <td  align="center"><p>상품 상세 페이지</p></td>
+           <td  align="center"><p>홈 페이지</p></td>
+            <td  align="center"><p>마이 페이지</p></td>
      </tr>
   </table>
 
@@ -69,7 +69,7 @@
   </tr>
       <tr width="100%">
           <td  align="center"><p>상품 등록 페이지<br/>(/wishRegister)</p><p>상세 보기 페이지<br/>(/wishDetail)</p></td>
-           <td  align="center"><p>프로젝트 세팅 및 배포</p><p>로그인 및 회원 가입</p><p>마이 페이지 (user setting)</p><p>알림 페이지</p></td>
+           <td  align="center"><p>프로젝트 세팅 및 배포</p><p>로그인 및 회원가입</p><p>마이 페이지 (user setting)</p><p>알림 페이지</p></td>
             <td  align="center"><p>홈 페이지<br/>(/home)</p><p>상품 삭제 기능</p></td>
      </tr>
   </table>
@@ -90,9 +90,9 @@
   <td  align="center" width="33%"><a href="https://github.com/minsihihi"><img  src="https://avatars.githubusercontent.com/u/126065697?v=4" width="90px"></td>
   </tr>
       <tr width="100%">
-          <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
-           <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
-            <td  align="center"><p>담당 기능 A</p><p>담당 기능 B</p><p>담당 기능 C</p></td>
+          <td  align="center"><p>로그인 및 회원가입</p><p>S3 이미지 저장</p></td>
+           <td  align="center"><p>마이 페이지 ( user setting)</p><p>위시리스트 관련 기능들</p></td>
+            <td  align="center"><p>크롤링 기능</p><p>서버 배포</p></td>
      </tr>
   </table>
 </br>
@@ -104,5 +104,3 @@
 <p align="center">
 <img src="https://github.com/user-attachments/assets/c632f925-9a4d-443c-ab4e-c65bc2b6d589"/>
 </p>
-
-  <hr/>
