@@ -471,6 +471,7 @@ const OtherInput = styled.div`
     @media (max-width: 1230px) {
       position: relative;
       width: 100%;
+      padding: 0.438rem 0.5rem;
     }
   }
   input::placeholder {
