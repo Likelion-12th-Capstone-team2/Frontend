@@ -286,7 +286,7 @@ const WishDetail = () => {
                   }}
                 >
                   {data.item.is_sended
-                    ? `From. ${localStorage.getItem('username') || ''}`
+                    ? `From. ${data.sender || ''}`
                     : typeof data.user === 'number'
                       ? 'On me!!'
                       : ''}
