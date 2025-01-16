@@ -1,8 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Popup = ({ productToDelete, cancelDelete, confirmDelete }) => {
+const Popup = ({
+  productToDelete,
+  setProductToDelete,
+  setShowPopup,
+  confirmDelete,
+}) => {
   if (!productToDelete) return null;
+
+  const cancelDelete = () => {
+    setProductToDelete(null);
+    setShowPopup(false);
+  };
 
   return (
     <PopupOverlay>
@@ -59,6 +69,7 @@ const PopupContainer = styled.div`
   box-shadow: 4px 4px 0px 0px #0e0a04;
   width: 32.55rem;
   height: 21.75rem;
+  z-index: 100000000;
 
   > div {
     display: flex;
